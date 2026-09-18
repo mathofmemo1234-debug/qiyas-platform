@@ -1290,7 +1290,7 @@
               <span>✨ صياغة الشرح تلقائياً</span>
             </button>
           </div>
-          <textarea id="m-explanation" rows="3" class="w-full p-3 rounded-xl border border-slate-200 leading-relaxed" placeholder="يمكن تركه فارغاً ليقوم المحرك الذكي بصياغته تلقائياً..."></textarea>
+          <textarea id="m-explanation" rows="4" dir="rtl" style="direction: rtl; text-align: right; unicode-bidi: plaintext; white-space: pre-wrap; font-family: 'Cairo', sans-serif; line-height: 1.8;" class="w-full p-3 rounded-xl border border-slate-200 leading-relaxed" placeholder="يمكن تركه فارغاً ليقوم المحرك الذكي بصياغته تلقائياً..."></textarea>
         </div>
 
         <div>
@@ -1366,7 +1366,7 @@
 
         <div>
           <label class="block font-bold text-slate-700 mb-1">الشرح وطريقة الحل:</label>
-          <textarea id="edit-explanation" rows="3" class="w-full p-3 rounded-xl border border-slate-200 leading-relaxed"></textarea>
+          <textarea id="edit-explanation" rows="4" dir="rtl" style="direction: rtl; text-align: right; unicode-bidi: plaintext; white-space: pre-wrap; font-family: 'Cairo', sans-serif; line-height: 1.8;" class="w-full p-3 rounded-xl border border-slate-200 leading-relaxed"></textarea>
         </div>
 
         <div>
@@ -1664,7 +1664,7 @@
               </div>
               <div>
                 <label class="block text-[11px] font-bold text-slate-500 mb-1">النص المقروء بالـ OCR:</label>
-                <textarea id="ocr-raw-text" rows="5" class="w-full text-xs font-mono p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 outline-none" placeholder="النص الخام المقروء..."></textarea>
+                <textarea id="ocr-raw-text" rows="5" dir="rtl" style="direction: rtl; text-align: right; unicode-bidi: plaintext; white-space: pre-wrap; font-family: 'Cairo', sans-serif;" class="w-full text-xs font-mono p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 outline-none" placeholder="النص الخام المقروء..."></textarea>
                 <button type="button" onclick="reAnalyzeFromRawText()" class="mt-1 text-[11px] text-sky-600 hover:text-sky-800 font-bold flex items-center gap-1">
                   <span>🔄 إعادة التحليل والحل بعد تعديل النص</span>
                 </button>
@@ -1676,20 +1676,20 @@
               <div class="grid grid-cols-2 gap-3">
                 <div>
                   <label class="block text-xs font-bold text-slate-700 mb-1">القسم:</label>
-                  <select id="ocr-field-section" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none" onchange="updateOcrSectionBadge()">
+                  <select id="ocr-field-section" dir="rtl" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none" onchange="updateOcrSectionBadge()">
                     <option value="quantitative">القسم الكمي (الرياضي)</option>
                     <option value="verbal">القسم اللفظي (اللغوي)</option>
                   </select>
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-slate-700 mb-1">الموضوع الفرعي:</label>
-                  <input type="text" id="ocr-field-topic" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
+                  <input type="text" id="ocr-field-topic" dir="rtl" style="direction: rtl; text-align: right; font-family: 'Cairo', sans-serif;" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
                 </div>
               </div>
 
               <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">نص المسألة:</label>
-                <textarea id="ocr-field-question" rows="2" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none"></textarea>
+                <textarea id="ocr-field-question" rows="2" dir="rtl" style="direction: rtl; text-align: right; unicode-bidi: plaintext; white-space: pre-wrap; font-family: 'Cairo', sans-serif;" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none"></textarea>
               </div>
 
               <!-- Options -->
@@ -1701,23 +1701,56 @@
                   <div class="flex items-center gap-2 p-2 rounded-xl bg-white border border-slate-200 focus-within:border-sky-500" id="ocr-opt-wrap-0">
                     <input type="radio" name="ocr-correct-choice" id="ocr-radio-0" value="0" onchange="onOcrCorrectChoiceChange(0)">
                     <span class="font-bold text-xs text-sky-700">أ:</span>
-                    <input type="text" id="ocr-opt-0" class="w-full text-xs outline-none bg-transparent">
+                    <input type="text" id="ocr-opt-0" dir="rtl" style="direction: rtl; text-align: right; font-family: 'Cairo', sans-serif;" class="w-full text-xs outline-none bg-transparent">
                   </div>
                   <div class="flex items-center gap-2 p-2 rounded-xl bg-white border border-slate-200 focus-within:border-sky-500" id="ocr-opt-wrap-1">
                     <input type="radio" name="ocr-correct-choice" id="ocr-radio-1" value="1" onchange="onOcrCorrectChoiceChange(1)">
                     <span class="font-bold text-xs text-sky-700">ب:</span>
-                    <input type="text" id="ocr-opt-1" class="w-full text-xs outline-none bg-transparent">
+                    <input type="text" id="ocr-opt-1" dir="rtl" style="direction: rtl; text-align: right; font-family: 'Cairo', sans-serif;" class="w-full text-xs outline-none bg-transparent">
                   </div>
                   <div class="flex items-center gap-2 p-2 rounded-xl bg-white border border-slate-200 focus-within:border-sky-500" id="ocr-opt-wrap-2">
                     <input type="radio" name="ocr-correct-choice" id="ocr-radio-2" value="2" onchange="onOcrCorrectChoiceChange(2)">
                     <span class="font-bold text-xs text-sky-700">ج:</span>
-                    <input type="text" id="ocr-opt-2" class="w-full text-xs outline-none bg-transparent">
+                    <input type="text" id="ocr-opt-2" dir="rtl" style="direction: rtl; text-align: right; font-family: 'Cairo', sans-serif;" class="w-full text-xs outline-none bg-transparent">
                   </div>
                   <div class="flex items-center gap-2 p-2 rounded-xl bg-white border border-slate-200 focus-within:border-sky-500" id="ocr-opt-wrap-3">
                     <input type="radio" name="ocr-correct-choice" id="ocr-radio-3" value="3" onchange="onOcrCorrectChoiceChange(3)">
                     <span class="font-bold text-xs text-sky-700">د:</span>
-                    <input type="text" id="ocr-opt-3" class="w-full text-xs outline-none bg-transparent">
+                    <input type="text" id="ocr-opt-3" dir="rtl" style="direction: rtl; text-align: right; font-family: 'Cairo', sans-serif;" class="w-full text-xs outline-none bg-transparent">
                   </div>
+                </div>
+              </div>
+
+              <!-- ⚖️ Alternative Solution Scrutiny & Debate Bar -->
+              <div class="p-3.5 rounded-2xl bg-gradient-to-r from-amber-50 via-sky-50 to-indigo-50 border border-amber-200/90 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
+                <div class="flex items-center gap-2.5">
+                  <span class="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center text-lg shadow-2xs">⚖️</span>
+                  <div>
+                    <span class="text-xs font-black text-slate-900 block">تدقيق ومناقشة خيار بديل لتحديد الحل الأصح:</span>
+                    <span class="text-[11px] text-slate-600 block">حدد أي خيار من الخيارات أعلاه (أ، ب، ج، د) ثم اضغط لمناقشته علمياً والمفاضلة الصارمة بينه وبين الحلول الأخرى.</span>
+                  </div>
+                </div>
+                <button type="button" id="btn-discuss-alternative" onclick="discussSelectedOptionWithAi()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-indigo-600 hover:from-amber-700 hover:to-indigo-700 text-white font-black text-xs shadow-md flex items-center gap-1.5 transition-all">
+                  <span>🔍 تدقيق ومناقشة الخيار المختار</span>
+                </button>
+              </div>
+
+              <!-- Alternative Option Discussion Results Box (Hidden by default) -->
+              <div id="ocr-alternative-discussion-box" class="hidden p-4 rounded-2xl bg-amber-50/90 border border-amber-300 space-y-3 shadow-xs">
+                <div class="flex items-center justify-between border-b border-amber-200/70 pb-2">
+                  <div class="flex items-center gap-2 text-amber-950 font-black text-xs">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-600 animate-pulse"></span>
+                    <span id="ocr-alt-disc-title">🔬 تقرير التدقيق والمناقشة العلمية للخيار المختار:</span>
+                  </div>
+                  <button type="button" onclick="closeAlternativeDiscussionBox()" class="text-slate-400 hover:text-slate-700 text-base font-bold">&times;</button>
+                </div>
+                <div id="ocr-alternative-discussion-content" dir="rtl" style="direction: rtl; text-align: right; unicode-bidi: plaintext; white-space: pre-wrap; font-family: 'Cairo', sans-serif; line-height: 1.8;" class="text-xs text-slate-800 bg-white/95 p-3.5 rounded-xl border border-amber-200 shadow-2xs font-medium">
+                </div>
+                <div class="flex items-center justify-between pt-1">
+                  <span id="ocr-alt-disc-verdict" class="text-xs font-black"></span>
+                  <button type="button" onclick="applyAlternativeDiscussionToExplanation()" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-2xs flex items-center gap-1">
+                    <span>✓ اعتماد هذه النتيجة وتحديث الشرح</span>
+                  </button>
                 </div>
               </div>
 
@@ -1727,13 +1760,13 @@
                   <label class="block text-xs font-bold text-emerald-800 mb-1 flex items-center gap-1">
                     <span>💡 الشرح والحل النموذجي المخصص (خطوات تفصيلية دقيقة مستندة لأرقام المسألة):</span>
                   </label>
-                  <textarea id="ocr-field-explanation" rows="6" class="w-full p-3 rounded-xl border border-emerald-200 bg-emerald-50/40 text-xs text-slate-800 outline-none leading-relaxed font-sans"></textarea>
+                  <textarea id="ocr-field-explanation" rows="8" dir="rtl" oninput="syncChoiceFromExplanation()" style="direction: rtl; text-align: right; unicode-bidi: plaintext; white-space: pre-wrap; font-family: 'Cairo', sans-serif; line-height: 1.8;" class="w-full p-3 rounded-xl border border-emerald-200 bg-emerald-50/40 text-xs text-slate-800 outline-none leading-relaxed font-sans"></textarea>
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-amber-800 mb-1 flex items-center gap-1">
                     <span>⚡ قانون واستراتيجية الحل السريع:</span>
                   </label>
-                  <input type="text" id="ocr-field-speed-rule" class="w-full p-2.5 rounded-xl border border-amber-200 bg-amber-50/40 text-xs text-slate-800 outline-none font-bold">
+                  <input type="text" id="ocr-field-speed-rule" dir="rtl" style="direction: rtl; text-align: right; font-family: 'Cairo', sans-serif;" class="w-full p-2.5 rounded-xl border border-amber-200 bg-amber-50/40 text-xs text-slate-800 outline-none font-bold">
                 </div>
               </div>
 
@@ -2445,7 +2478,7 @@
               <div class="flex items-center gap-2 text-indigo-900 font-extrabold text-sm">
                 <span>📘 الشرح وطريقة الحل:</span>
               </div>
-              <div class="text-slate-800 text-xs md:text-sm leading-relaxed whitespace-pre-line font-medium">
+              <div class="text-slate-800 text-xs md:text-sm leading-relaxed whitespace-pre-line font-medium" dir="rtl" style="direction: rtl; text-align: right; unicode-bidi: plaintext; font-family: 'Cairo', sans-serif;">
                 ${q.explanation || 'بناءً على القواعد المعتمدة، فإن هذا الخيار هو الإجابة الصحيحة والدقيقة.'}
               </div>
               ${q.speed_rule ? `
@@ -4623,20 +4656,181 @@
       }
     }
 
+    function sanitizeRtlExplanation(text) {
+      if (!text) return "";
+      const forbiddenRegex = new RegExp('\\(?\\s*\\u0628\\u0627\\u0644\\u0644\\u063a\\u0629\\s+\\u0627\\u0644\\u0641\\u0635\\u062d\\u0649\\s*\\)?', 'gi');
+      let res = text
+        .replace(forbiddenRegex, "")
+        // Convert powers like 2^(-1) or x^(-n) to Arabic readable format 2 أس (-1) to prevent BiDi bracket inversion
+        .replace(/(\d+|[a-zA-Z]|س|ص)\s*\^\s*\(?\s*(-?\d+)\s*\)?/g, "$1 أس ($2)")
+        // Convert nested division like 1/(2 أس -1) or 1/(...) to 1 ÷ (...)
+        .replace(/(\d+)\s*\/\s*\(([^()]+)\)/g, "$1 ÷ ($2)")
+        // Ensure section headers start on a new line
+        .replace(/([.؛!]\s+|\n)\s*(حساب كل حد|القواعد المطبقة|القوانين المستخدمة|بجمع النواتج|النتيجة النهائية|سبب صحة الخيار|التحقق بالتعويض)/g, "$1\n📌 $2")
+        // Ensure numbered steps start on a new line if bunched together
+        .replace(/(?:\.\s+|:\s+|؛\s+)\s*([١-٩1-9]\))\s*/g, ".\n$1 ")
+        .replace(/(?:\.\s+|:\s+|؛\s+)\s*(خطوة\s*[١-٩1-9]:)\s*/g, ".\n$1 ");
+      return res.trim();
+    }
+
+    function sanitizeRtlQuestion(text) {
+      if (!text) return "";
+      const forbiddenRegex = new RegExp('\\(?\\s*\\u0628\\u0627\\u0644\\u0644\\u063a\\u0629\\s+\\u0627\\u0644\\u0641\\u0635\\u062d\\u0649\\s*\\)?', 'gi');
+      let res = text
+        .replace(forbiddenRegex, "")
+        // Format exponents cleanly to prevent bracket reversal in RTL
+        .replace(/(\d+|[a-zA-Z]|س|ص)\s*\^\s*\(?\s*(-?\d+)\s*\)?/g, "$1 أس ($2)")
+        .replace(/(\d+)\s*\/\s*\(([^()]+)\)/g, "$1 ÷ ($2)");
+      return res.trim();
+    }
+
+    function sanitizeRtlOption(text) {
+      if (!text) return "";
+      const forbiddenRegex = new RegExp('\\(?\\s*\\u0628\\u0627\\u0644\\u0644\\u063a\\u0629\\s+\\u0627\\u0644\\u0641\\u0635\\u062d\\u0649\\s*\\)?', 'gi');
+      let res = String(text)
+        .replace(forbiddenRegex, "")
+        .replace(/^[أ-دA-Da-d][\)\:\-\.]\s*/, "")
+        .replace(/(\d+|[a-zA-Z]|س|ص)\s*\^\s*\(?\s*(-?\d+)\s*\)?/g, "$1 أس ($2)")
+        .replace(/(\d+)\s*\/\s*\(([^()]+)\)/g, "$1 ÷ ($2)");
+      return res.trim();
+    }
+
+    function determineAuthoritativeCorrectIndex(rawIdx, options, explanation) {
+      let candidate = null;
+
+      // 1. Parse rawIdx if provided as number or string
+      if (typeof rawIdx === 'number' && rawIdx >= 0 && rawIdx <= 3) {
+        candidate = rawIdx;
+      } else if (typeof rawIdx === 'string') {
+        const s = rawIdx.trim();
+        if (/^[0-3]$/.test(s)) candidate = parseInt(s, 10);
+        else if (s === 'أ' || s === 'ا' || /^a$/i.test(s)) candidate = 0;
+        else if (s === 'ب' || /^b$/i.test(s)) candidate = 1;
+        else if (s === 'ج' || /^c$/i.test(s)) candidate = 2;
+        else if (s === 'د' || /^d$/i.test(s)) candidate = 3;
+      }
+
+      if (!explanation) return candidate !== null ? candidate : 0;
+
+      const expNorm = String(explanation).replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+
+      // 2. Priority 1: Check full option text matching in conclusion or explanation!
+      if (Array.isArray(options)) {
+        for (let i = 0; i < options.length; i++) {
+          const opt = String(options[i]).trim();
+          if (!opt) continue;
+          const cleanOpt = opt.replace(/^[أ-دA-Da-d][\)\:\-\.]\s*/, '').trim();
+          if (cleanOpt.length >= 2) {
+            if (expNorm.includes(`الخيار الصحيح هو ${cleanOpt}`) ||
+                expNorm.includes(`الخيار الأصح هو ${cleanOpt}`) ||
+                expNorm.includes(`الخيار الصحيح: ${cleanOpt}`) ||
+                expNorm.includes(`الخيار الصحيح ${cleanOpt}`) ||
+                expNorm.includes(`مطابق للخيار ${cleanOpt}`) ||
+                expNorm.endsWith(cleanOpt) ||
+                expNorm.endsWith(cleanOpt + '.') ||
+                expNorm.endsWith(cleanOpt + '!') ||
+                expNorm.endsWith(cleanOpt + '؟')) {
+              return i;
+            }
+          }
+        }
+      }
+
+      // 3. Priority 2: Standard Qiyas Comparison phrases (المقارنات)
+      if (/(?:إذن|إذاً|النتيجة|الخيار\s+الصحيح).*?القيمتان\s+متساويتان/i.test(expNorm) ||
+          expNorm.includes('القيمتان متساويتان')) {
+        if (Array.isArray(options)) {
+          const idx = options.findIndex(o => o && o.includes('متساويتان'));
+          if (idx !== -1) return idx;
+        }
+        return 2; // Default for comparison C (القيمتان متساويتان)
+      }
+      if (/(?:إذن|إذاً|النتيجة|الخيار\s+الصحيح).*?القيمة\s+الأولى\s+أكبر/i.test(expNorm) ||
+          expNorm.includes('القيمة الأولى أكبر')) {
+        if (Array.isArray(options)) {
+          const idx = options.findIndex(o => o && o.includes('الأولى أكبر'));
+          if (idx !== -1) return idx;
+        }
+        return 0;
+      }
+      if (/(?:إذن|إذاً|النتيجة|الخيار\s+الصحيح).*?القيمة\s+الثانية\s+أكبر/i.test(expNorm) ||
+          expNorm.includes('القيمة الثانية أكبر')) {
+        if (Array.isArray(options)) {
+          const idx = options.findIndex(o => o && o.includes('الثانية أكبر'));
+          if (idx !== -1) return idx;
+        }
+        return 1;
+      }
+      if (/(?:إذن|إذاً|النتيجة|الخيار\s+الصحيح).*?المعطيات\s+غير\s+كافية/i.test(expNorm) ||
+          expNorm.includes('المعطيات غير كافية')) {
+        if (Array.isArray(options)) {
+          const idx = options.findIndex(o => o && o.includes('غير كافية'));
+          if (idx !== -1) return idx;
+        }
+        return 3;
+      }
+
+      // 4. Priority 3: Strictly isolated letter matching (inside parentheses or isolated token)
+      const isolatedLetterRegex = /(?:الخيار\s+(?:الصحيح|الأصح|المطابق|المعتمد)|يطابق\s+(?:تماماً\s+)?الخيار)\s*(?:هو\s*)?(?:[\(（]([أ-دA-D1-4])[\)）]|(?:\s+|^)([أ-دA-D1-4])(?:\s+|$|[.\!،]))/gi;
+      let match;
+      let lastFoundLetterIdx = null;
+      while ((match = isolatedLetterRegex.exec(expNorm)) !== null) {
+        const letter = match[1] || match[2];
+        if (letter) {
+          const letterMap = { 'أ': 0, '1': 0, 'a': 0, 'A': 0, 'ب': 1, '2': 1, 'b': 1, 'B': 1, 'ج': 2, '3': 2, 'c': 2, 'C': 2, 'د': 3, '4': 3, 'd': 3, 'D': 3 };
+          if (letterMap[letter] !== undefined) {
+            lastFoundLetterIdx = letterMap[letter];
+          }
+        }
+      }
+      if (lastFoundLetterIdx !== null) {
+        return lastFoundLetterIdx;
+      }
+
+      return candidate !== null ? candidate : 0;
+    }
+
+    function syncChoiceFromExplanation() {
+      const expField = document.getElementById('ocr-field-explanation');
+      if (!expField) return;
+      const exp = expField.value.trim();
+      if (!exp) return;
+      const opts = [
+        (document.getElementById('ocr-opt-0') ? document.getElementById('ocr-opt-0').value.trim() : ''),
+        (document.getElementById('ocr-opt-1') ? document.getElementById('ocr-opt-1').value.trim() : ''),
+        (document.getElementById('ocr-opt-2') ? document.getElementById('ocr-opt-2').value.trim() : ''),
+        (document.getElementById('ocr-opt-3') ? document.getElementById('ocr-opt-3').value.trim() : '')
+      ];
+      const authoritativeIdx = determineAuthoritativeCorrectIndex(null, opts, exp);
+      if (typeof authoritativeIdx === 'number' && authoritativeIdx >= 0 && authoritativeIdx <= 3) {
+        onOcrCorrectChoiceChange(authoritativeIdx);
+      }
+    }
+
     function applyAiVisionResultToFields(aiRes) {
       if (!aiRes) return;
       if (aiRes.question) {
-        document.getElementById('ocr-field-question').value = aiRes.question;
-        document.getElementById('ocr-raw-text').value = aiRes.question;
+        const cleanQ = sanitizeRtlQuestion(aiRes.question);
+        document.getElementById('ocr-field-question').value = cleanQ;
+        document.getElementById('ocr-raw-text').value = cleanQ;
       }
+
+      const cleanOptions = ['', '', '', ''];
       if (Array.isArray(aiRes.options) && aiRes.options.length >= 2) {
         aiRes.options.forEach((op, i) => {
           if (i < 4) {
+            const cleanOp = sanitizeRtlOption(op);
+            cleanOptions[i] = cleanOp;
             const inp = document.getElementById('ocr-opt-' + i);
-            if (inp) inp.value = op;
+            if (inp) inp.value = cleanOp;
           }
         });
+      } else {
+        for (let i = 0; i < 4; i++) {
+          cleanOptions[i] = document.getElementById('ocr-opt-' + i).value.trim() || `الخيار ${['أ', 'ب', 'ج', 'د'][i]}`;
+        }
       }
+
       if (aiRes.section) {
         document.getElementById('ocr-field-section').value = aiRes.section;
         updateOcrSectionBadge();
@@ -4644,25 +4838,27 @@
       if (aiRes.topic) {
         document.getElementById('ocr-field-topic').value = aiRes.topic;
       }
-      const cIdx = (typeof aiRes.correct_index === 'number' && aiRes.correct_index >= 0 && aiRes.correct_index <= 3) ? aiRes.correct_index : 0;
+
+      const cleanExplanation = sanitizeRtlExplanation(aiRes.explanation || '');
+      const cleanSpeedRule = sanitizeRtlQuestion(aiRes.speed_rule || aiRes.speedRule || '');
+
+      // Authoritatively determine correct index strictly matching explanation verdict
+      const rawIdx = (aiRes.correct_index !== undefined) ? aiRes.correct_index : aiRes.correctIndex;
+      const cIdx = determineAuthoritativeCorrectIndex(rawIdx, cleanOptions, cleanExplanation);
       onOcrCorrectChoiceChange(cIdx);
 
-      if (aiRes.explanation) {
-        document.getElementById('ocr-field-explanation').value = aiRes.explanation;
-      }
-      if (aiRes.speed_rule) {
-        document.getElementById('ocr-field-speed-rule').value = aiRes.speed_rule;
-      }
+      document.getElementById('ocr-field-explanation').value = cleanExplanation;
+      document.getElementById('ocr-field-speed-rule').value = cleanSpeedRule;
 
       currentOcrQuestion = {
         section: aiRes.section || 'quantitative',
         section_ar: (aiRes.section === 'verbal') ? 'القسم اللفظي' : 'القسم الكمي',
         topic: aiRes.topic || 'عام',
-        question: aiRes.question || '',
-        options: aiRes.options || [],
+        question: sanitizeRtlQuestion(aiRes.question || ''),
+        options: cleanOptions,
         correct_index: cIdx,
-        explanation: aiRes.explanation || '',
-        speed_rule: aiRes.speed_rule || '',
+        explanation: cleanExplanation,
+        speed_rule: cleanSpeedRule,
         level: 1
       };
 
@@ -4685,34 +4881,46 @@
       const actualMime = mimeType || 'image/jpeg';
 
       const promptText = `أنت أستاذ ومحكم أول معتمد في المركز الوطني للقياس لاختبارات القدرات العامة (القسم الكمي واللفظي).
-انظر بدقة متناهية إلى صورة السؤال المرفقة وحللها بشكل علمي وصارم ودقيق، وحلها حلاً نموذجياً مخصصاً 100% موجه لهذه المسألة تحديداً مستنداً لأرقامها ومعطياتها بالكامل دون أي عبارات عامة أو قوالب مكررة:
+انظر بدقة متناهية إلى صورة السؤال المرفقة وحللها بشكل علمي وصارم ودقيق، وحلها حلاً نموذجياً مخصصاً 100% موجه لهذه المسألة تحديداً مستنداً لأرقامها ومعطياتها بالكامل دون أي عبارات عامة أو قوالب مكررة.
 
-المطلوب منك بدقة:
-1. استخراج نص المسألة كاملاً كما هو في الصورة باللغة العربية مع كافة الأرقام والرموز.
-2. استخراج الخيارات الأربعة (أ، ب، ج، د) كما هي في الصورة، أو استنتاجها بدقة إذا كانت المسألة تتطلب ذلك.
-3. تحديد القسم بدقة: "quantitative" للقسم الكمي الرياضي، أو "verbal" للقسم اللفظي اللغوي.
+المطلوب منك بدقة فائقة: تطبيق بروتوكول التدقيق الصارم والتحقق المزدوج قبل اعتماد أي خيار، ومناقشة الخيارات البديلة لتحديد الخيار الأصح قطعياً:
+١) استخراج المعطيات وتطبيق خطوات الحل المباشر خطوة بخطوة في أسطر مستقلة.
+٢) التدقيق الرياضي والتحقق العكسي الصارم (التعويض العكسي أو الفحص المضاد للتحقق من خلو الحل من أي خطأ حسابي أو لغوي).
+٣) مناقشة الخيارات البديلة والأخطاء الشائعة: تفنيد أي خيار مضلل أو حل بديل محتمل وبيان سبب بطلانه علمياً مقارنة بالحل الصحيح.
+٤) التحديد النهائي للحل الأصح بالأدلة والبراهين القاطعة.
+
+توجيهات حاسمة للغة العربية واتجاه الكتابة من اليمين لليسار (RTL):
+- اكتب جميع الشروحات والمعطيات والخطوات بلغة عربية سليمة وواضحة جداً من اليمين إلى اليسار.
+- ممنوع منعاً باتاً حشر خطوات الحل في فقرة واحدة متصلة! يجب وضع كل خطوة في سطر مستقل جديد (\\n) مع الترقيم المنظم (١، ٢، ٣...).
+- في المسائل الرياضية: قم بتفكيك المقدار المعقد إلى حدوده الأولية، ثم احسب وبسّط كل حد في سطر مستقل، ثم اكتب خطوة جمع أو مقارنة الحدود في سطر مستقل.
+- لتفادي انعكاس الأقواس والرموز في المتصفحات بسبب خوارزمية الاتجاهين (BiDi)، استخدم الصياغة اللفظية والرياضية العربية السليمة:
+  * للأسس: اكتبها بصيغة (الأساس أس القوة) مثل: "٢ أس (-١) = ١ ÷ ٢ = ٠.٥" وتجنب كتابة علامة ^ داخل أقواس معكوسة.
+  * للقسمة والكسور المركبة: استخدم علامة "÷" بوضوح مثل: "١ ÷ (٢ أس -١) = ١ ÷ ٠.٥ = ٢" لتفادي انقلاب الشرطة المائلة.
+- اكتب نص المسألة بصياغة عربية سليمة ومرتبة من اليمين لليسار.
+- اذكر قانون السرعة الذهبي لإنجاز المسألة في أقل من دقيقة.
+- اكتب بلغة عربية سليمة وواضحة فقط دون وضع أي عبارات توضيحية أو إشارة لنوع اللغة.
+
+المطلوب منك استخراجه وحله بصيغة JSON فقط:
+1. استخراج نص المسألة كاملاً كما في الصورة بلغة عربية سليمة من اليمين لليسار.
+2. استخراج الخيارات الأربعة (أ، ب، ج، د) كما هي في الصورة أو استنتاجها بدقة.
+3. تحديد القسم: "quantitative" للكمي، أو "verbal" للفظي.
 4. تحديد الموضوع الدقيق للمسألة.
-5. تحديد رقم الخيار الصحيح بدقة متناهية (0 للخيار أ، 1 للخيار ب، 2 للخيار ج، 3 للخيار د).
-6. كتابة شرح تفصيلي خطوة بخطوة مخصص حصراً لهذه المسألة المرفوعة:
-   - ذكر المعطيات المستخرجة من المسألة بالأرقام والوحدات.
-   - ذكر القانون الرياضي أو القاعدة اللفظية المطبقة مباشرة.
-   - كتابة خطوات الحل الحسابية بالتفصيل وصولاً إلى الناتج النهائي المطابق للخيار الصحيح.
-   - بيان سبب صحة الخيار واستبعاد الخيارات الأخرى بالأرقام.
-   (ممنوع تماماً أي كلام إنشائي أو عام).
-7. ذكر قانون أو استراتيجية الحل السريع (قانون السرعة الذهبي) لإنجاز المسألة في أقل من دقيقة.
+5. تحديد رقم الخيار الصحيح بعد التدقيق والتحقق الصارم (0 للخيار أ، 1 للخيار ب، 2 للخيار ج، 3 للخيار د).
+6. كتابة شرح تفصيلي مدقق خطوة بخطوة مخصص حصراً للمسألة وأرقامها، مقسم لأسطر مرقمة بوضوح من اليمين لليسار (\\n) متضمناً التحقق ومناقشة البدائل.
+7. ذكر قانون الحل السريع.
 
-أخرج الإجابة بصيغة JSON فقط بهذا الهيكل الدقيق بدون أي زيادات أو علامات خارج صيغة JSON:
+أخرج الإجابة بصيغة JSON فقط بهذا الهيكل الدقيق بدون أي زيادات خارج JSON:
 {
   "section": "quantitative",
   "topic": "الموضوع الدقيق",
-  "question": "نص المسألة كاملاً",
+  "question": "نص المسألة كاملاً مرتباً من اليمين لليسار",
   "options": ["الخيار أ", "الخيار ب", "الخيار ج", "الخيار د"],
   "correct_index": 0,
-  "explanation": "الشرح والحل المفصل المخصص للمسألة...",
+  "explanation": "١) المعطيات: ...\\n٢) تفكيك وتبسيط الحدود خطوة بخطوة: ...\\n٣) التدقيق والتحقق العكسي الصارم: ...\\n٤) مناقشة الخيارات البديلة والأخطاء الشائعة: ...\\n٥) النتيجة المعتمدة (الحل الأصح): ...",
   "speed_rule": "قانون الحل السريع..."
 }`;
 
-      const modelsToTry = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-flash-latest'];
+      const modelsToTry = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-flash-latest'];
       let lastError = null;
 
       for (const model of modelsToTry) {
@@ -4761,7 +4969,7 @@
 
     async function callGeminiAiSolve(questionStem, options, section, topic, apiKey) {
       const promptText = `أنت أستاذ ومحكم أول معتمد في المركز الوطني للقياس لاختبارات القدرات العامة (الكمي واللفظي).
-المطلوب منك تحليل مسألة القدرات التالية بشكل علمي وصارم ودقيق، وحلها حلاً نموذجياً مخصصاً 100% مستنداً لأرقامها ومعطياتها بالكامل دون أي عبارات عامة أو إنشائية مطلقا:
+المطلوب منك تحليل مسألة القدرات التالية بشكل علمي وصارم ودقيق، وتطبيق بروتوكول التدقيق المزدوج الشديد ومناقشة الخيارات البديلة قبل تحديد الحل الأصح بنسبة 100%:
 
 نص المسألة:
 ${questionStem}
@@ -4775,27 +4983,33 @@ ${questionStem}
 القسم المرجح: ${section === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي'}
 الموضوع: ${topic || 'عام'}
 
-تعليمات صارمة:
-1. حدد بدقة متناهية رقم الخيار الصحيح (0 للخيار أ، 1 للخيار ب، 2 للخيار ج، 3 للخيار د).
-2. اكتب شرحاً رياضياً أو لغوياً تفصيلياً خطوة بخطوة مخصصاً حصراً لهذه المسألة وأرقامها، موضحاً:
-   - المعطيات المستخرجة من المسألة بالأرقام والوحدات.
-   - القوانين والعلاقات المطبقة خطوة بخطوة.
-   - العمليات الحسابية والنواتج الوسيطة والنهائية.
-   - سبب صحة الخيار المختار واستبعاد الخيارات الأخرى.
-   ممنوع تماماً أي كلام عام من قبيل "قراءة معطيات المسألة وتطبيق القانون العام".
-3. اذكر قانون السرعة الذهبي الخاص بنمط هذه المسألة لإنجازها في أقل من 60 ثانية.
-4. صياغة الإجابة بصيغة JSON فقط بهذا الشكل وبدون أي علامات خارج صيغة JSON:
+توجيهات التدقيق الصارم ومناقشة الخيارات لتحديد الحل الأصح:
+١) التدقيق الشديد والتأكد التام من صحة الناتج قبل تثبيت الخيار (الحل المباشر خطوة بخطوة + التدقيق والتحقق العكسي).
+٢) مناقشة الخيارات البديلة والأخطاء الشائعة: تفنيد الخيارات الأخرى بالأرقام وبيان سبب عدم صحتها.
+٣) تحديد الخيار الأصح واليقيني بالأدلة الرياضية والمنطقية القاطعة.
+
+توجيهات حاسمة للغة العربية واتجاه الكتابة من اليمين لليسار (RTL):
+1. اكتب الحل والشرح بالكامل بلغة عربية سليمة وواضحة جداً من اليمين لليسار.
+2. اجعل كل خطوة في سطر جديد مستقل (\\n) مع ترقيم الخطوات (١، ٢، ٣...)، وممنوع تماماً دمج الخطوات في فقرة واحدة متصلة.
+3. اكتب المعادلات الحسابية بوضوح متوافق مع الاتجاه العربي:
+   - استخدم الصياغة العربية للأسس والكسور لتجنب انقلاب الأقواس والرموز في المتصفح (مثال: استخدام 'أس' مثل '٢ أس (-١) = ١ ÷ ٢ = ٠.٥' وعلامة '÷' في الكسور المركبة).
+   - احسب كل حد بشكل منفصل في سطر، ثم اجمع أو قارن النواتج في سطر مستقل.
+4. اذكر سبب صحة الخيار الصحيح ومطابقته للناتج واستبعاد باقي الخيارات بالأرقام.
+5. اذكر قانون السرعة الذهبي لإنجاز المسألة في أقل من 60 ثانية.
+6. اكتب باللغة العربية السليمة والواضحة فقط وتجنب تماماً أي عبارات اعتراضية أو إشارة لنوع اللغة.
+
+صياغة الإجابة بصيغة JSON فقط بهذا الشكل وبدون أي علامات خارج صيغة JSON:
 {
   "section": "${section}",
   "topic": "اسم الموضوع الدقيق",
-  "question": "نص المسألة بعد التدقيق",
+  "question": "نص المسألة بعد التدقيق من اليمين لليسار",
   "options": ["الخيار أ", "الخيار ب", "الخيار ج", "الخيار د"],
   "correct_index": 0,
-  "explanation": "شرح تفصيلي مخصص خطوة بخطوة بالأرقام والمعادلات...",
+  "explanation": "١) المعطيات وتحليل المسألة: ...\\n٢) التبسيط والحل المباشر: ...\\n٣) التدقيق والتحقق العكسي الصارم: ...\\n٤) مناقشة الخيارات البديلة والأخطاء الشائعة: ...\\n٥) النتيجة المعتمدة (الحل الأصح): ...",
   "speed_rule": "قانون الحل السريع الخاص بالمسألة..."
 }`;
 
-      const modelsToTry = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-flash-latest'];
+      const modelsToTry = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-flash-latest'];
       let lastError = null;
 
       for (const model of modelsToTry) {
@@ -4832,33 +5046,261 @@ ${questionStem}
       throw lastError || new Error("تعذر إتمام التحليل بـ Gemini.");
     }
 
+    // =========================================================
+    // ⚖️ ALTERNATIVE SOLUTION SCRUTINY & DISCUSSION ENGINE
+    // =========================================================
+    window.lastAlternativeDiscussionResult = null;
+
+    async function callGeminiAiDiscussChoice(questionStem, options, targetIdx, currentExp, section, topic, apiKey) {
+      const targetOpt = options[targetIdx] || `الخيار رقم ${targetIdx + 1}`;
+      const letters = ['أ', 'ب', 'ج', 'د'];
+      const targetLetter = letters[targetIdx] || 'أ';
+
+      const promptText = `أنت أستاذ ومحكم أول معتمد في المركز الوطني للقياس لاختبارات القدرات العامة.
+أمامك مسألة قدرات عامة، وقد طُلب منك التدقيق العلمي الصارم والمناقشة المفتوحة للخيار (${targetLetter}: "${targetOpt}")، ومقارنته ببقية الخيارات لتحديد "الحل الأصح" بيقين وبأعلى درجات الإنصاف والموضوعية:
+
+نص المسألة:
+${questionStem}
+
+الخيارات المطروحة:
+أ) ${options[0]}
+ب) ${options[1]}
+ج) ${options[2]}
+د) ${options[3]}
+
+الخيار المراد تدقيقه ومناقشته بعمق:
+الخيار (${targetLetter}): "${targetOpt}"
+
+المطلوب منك في تقرير التدقيق والمناقشة:
+١) فحص الخيار (${targetLetter}) بدقة رياضية ومنطقية تامة: هل هو صحيح أم خاطئ؟
+٢) ما هي الفرضية أو الخطأ الحسابي/اللغوي الشائع الذي قد يقود لاختيار هذا الخيار، أو ما وجه الوجاهة فيه؟
+٣) مقارنة الخيار (${targetLetter}) بالحلول والخيارات الأخرى والموازنة العلمية بينها.
+٤) النتيجة القاطعة وتحديد "الحل الأصح": ما هو الخيار الأصح رياضياً ومنطقياً بنسبة 100%؟ (مع بيان رقم الخيار الأصح بدقة: 0 لـ أ، 1 لـ ب، 2 لـ ج، 3 لـ د).
+
+توجيهات التنسيق الصارمة:
+- الكتابة بلغة عربية سليمة وواضحة من اليمين لليسار.
+- فصل الخطوات والأفكار بأسطر مستقلة مرقمة (\\n).
+- تجنب الرموز المعكوسة وصياغة الأسس والكسور بالعربية السليمة (مثال: ٢ أس (-١) وعلامة ÷).
+- الكتابة باللغة العربية السليمة والواضحة فقط دون أي تعليقات جانبية.
+
+أخرج النتيجة بصيغة JSON فقط بهذا الهيكل:
+{
+  "is_target_correct": false,
+  "best_correct_index": 0,
+  "best_correct_letter": "أ",
+  "verdict_summary": "خلاصة الحكم العلمي (مثال: الخيار ب غير صحيح والحل الأصح هو د)",
+  "discussion_text": "١) فحص الخيار المحدد: ...\\n٢) الخطأ الشائع والفرضيات: ...\\n٣) مقارنة الخيارات والموازنة: ...\\n٤) القرار العلمي وتحديد الحل الأصح: ...",
+  "updated_explanation": "الشرح الكامل المنقح المعتمد للمسألة شاملاً التدقيق والمناقشة..."
+}`;
+
+      const modelsToTry = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-flash-latest'];
+      let lastError = null;
+
+      for (const model of modelsToTry) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: promptText }] }],
+              generationConfig: {
+                temperature: 0.1,
+                responseMimeType: "application/json"
+              }
+            })
+          });
+
+          if (!resp.ok) {
+            const errData = await resp.json().catch(() => ({}));
+            throw new Error(errData.error ? errData.error.message : `خطأ HTTP ${resp.status}`);
+          }
+
+          const resJson = await resp.json();
+          const txt = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!txt) throw new Error("لم يتم استلام نص من نموذج الذكاء الاصطناعي.");
+
+          return JSON.parse(txt.replace(/```json|```/g, '').trim());
+        } catch (err) {
+          lastError = err;
+          console.warn(`Attempt with ${model} failed:`, err);
+        }
+      }
+
+      throw lastError || new Error("تعذر إتمام مناقشة وتدقيق الخيار البديل.");
+    }
+
+    async function discussSelectedOptionWithAi() {
+      // Find selected choice
+      const radios = document.getElementsByName('ocr-correct-choice');
+      let targetIdx = 0;
+      for (const r of radios) {
+        if (r.checked) {
+          targetIdx = parseInt(r.value, 10);
+          break;
+        }
+      }
+
+      const qStem = document.getElementById('ocr-field-question').value.trim();
+      const opts = [
+        document.getElementById('ocr-opt-0').value.trim() || 'الخيار أ',
+        document.getElementById('ocr-opt-1').value.trim() || 'الخيار ب',
+        document.getElementById('ocr-opt-2').value.trim() || 'الخيار ج',
+        document.getElementById('ocr-opt-3').value.trim() || 'الخيار د'
+      ];
+      const sec = document.getElementById('ocr-field-section').value;
+      const topic = document.getElementById('ocr-field-topic').value;
+      const curExp = document.getElementById('ocr-field-explanation').value.trim();
+
+      if (!qStem) {
+        alert("يرجى إدخال أو استخراج نص المسألة أولاً قبل تدقيق الخيارات.");
+        return;
+      }
+
+      const letters = ['أ', 'ب', 'ج', 'د'];
+      const targetLetter = letters[targetIdx];
+      const targetOptVal = opts[targetIdx];
+
+      const btn = document.getElementById('btn-discuss-alternative');
+      const oldHtml = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span>⏳ جاري تدقيق الخيار (${targetLetter}) بالذكاء الاصطناعي...</span>`;
+      }
+
+      const box = document.getElementById('ocr-alternative-discussion-box');
+      const contentBox = document.getElementById('ocr-alternative-discussion-content');
+      const verdictSpan = document.getElementById('ocr-alt-disc-verdict');
+      const titleSpan = document.getElementById('ocr-alt-disc-title');
+
+      try {
+        const apiKey = getGeminiApiKey();
+        let result = null;
+
+        if (apiKey) {
+          result = await callGeminiAiDiscussChoice(qStem, opts, targetIdx, curExp, sec, topic, apiKey);
+        } else {
+          // Local fallback analysis
+          const localSol = solveStrictSymbolicProblem(qStem, opts, sec, topic, qStem);
+          const isCorrect = (localSol.correctIndex === targetIdx);
+          result = {
+            is_target_correct: isCorrect,
+            best_correct_index: localSol.correctIndex,
+            best_correct_letter: letters[localSol.correctIndex],
+            verdict_summary: isCorrect
+              ? `✓ الخيار (${targetLetter}: ${targetOptVal}) مطابق للحل الرياضي الصارم.`
+              : `⚠️ الخيار (${targetLetter}: ${targetOptVal}) غير مطابق، والحل الأصح هو الخيار (${letters[localSol.correctIndex]}).`,
+            discussion_text: `١) تدقيق الخيار المحدد (${targetLetter}): بمطابقة معطيات المسألة يتبين أن القيمة ${targetOptVal} ${isCorrect ? 'صحيحة تماماً ومحققة لكافة الشروط' : 'غير متطابقة حسابياً'}.\n` +
+                             `٢) التحقق والتدقيق الصارم: تم فحص المسألة وتطبيق القواعد الرياضية المعتمدة.\n` +
+                             `٣) المقارنة والنتيجة: الخيار الأصح رياضياً هو الخيار (${letters[localSol.correctIndex]}).`,
+            updated_explanation: localSol.explanation
+          };
+        }
+
+        if (result) {
+          window.lastAlternativeDiscussionResult = result;
+          if (titleSpan) {
+            titleSpan.innerText = `🔬 تقرير التدقيق والمناقشة العلمية للخيار (${targetLetter}: "${targetOptVal}"):`;
+          }
+          if (contentBox) {
+            contentBox.innerText = sanitizeRtlExplanation(result.discussion_text || '');
+          }
+          if (verdictSpan) {
+            if (result.is_target_correct) {
+              verdictSpan.className = "text-xs font-black text-emerald-700 flex items-center gap-1";
+              verdictSpan.innerHTML = `<span>✓ نتيجة التدقيق: الخيار (${targetLetter}) صحيح والأصح علمياً.</span>`;
+            } else {
+              verdictSpan.className = "text-xs font-black text-rose-700 flex items-center gap-1";
+              verdictSpan.innerHTML = `<span>⚠️ نتيجة التدقيق: الخيار (${targetLetter}) غير صحيح، والحل الأصح المعتمد هو (${result.best_correct_letter || letters[result.best_correct_index]}).</span>`;
+            }
+          }
+          if (box) {
+            box.classList.remove('hidden');
+            box.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      } catch (err) {
+        console.warn("Discussion failed:", err);
+        alert("تنبيه: " + (err.message || "تعذر إتمام التدقيق والمناقشة بالذكاء الاصطناعي"));
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = oldHtml;
+        }
+      }
+    }
+
+    function closeAlternativeDiscussionBox() {
+      const box = document.getElementById('ocr-alternative-discussion-box');
+      if (box) box.classList.add('hidden');
+    }
+
+    function applyAlternativeDiscussionToExplanation() {
+      const res = window.lastAlternativeDiscussionResult;
+      if (!res) {
+        alert("لا توجد نتائج مناقشة للاعتماد بعد.");
+        return;
+      }
+
+      if (typeof res.best_correct_index === 'number') {
+        onOcrCorrectChoiceChange(res.best_correct_index);
+      }
+
+      const expField = document.getElementById('ocr-field-explanation');
+      if (expField) {
+        let combined = '';
+        if (res.updated_explanation) {
+          combined = res.updated_explanation;
+        } else {
+          const cur = expField.value.trim();
+          combined = cur + "\n\n📌 مناقشة الخيارات والتدقيق الإضافي:\n" + res.discussion_text;
+        }
+        expField.value = sanitizeRtlExplanation(combined);
+      }
+
+      if (currentOcrQuestion) {
+        currentOcrQuestion.correct_index = res.best_correct_index;
+        currentOcrQuestion.explanation = expField.value;
+      }
+
+      alert("✓ تم اعتماد نتيجة التدقيق وتحديث الخيار الصحيح والشرح بنجاح!");
+      closeAlternativeDiscussionBox();
+    }
+
     function applySolverResultToOcrFields(sol, questionStem, options) {
       if (sol.section) {
         document.getElementById('ocr-field-section').value = sol.section;
         updateOcrSectionBadge();
       }
       if (sol.topic) document.getElementById('ocr-field-topic').value = sol.topic;
-      document.getElementById('ocr-field-question').value = questionStem || 'مسألة قدرات نموذجية';
+      const cleanQ = sanitizeRtlQuestion(questionStem || 'مسألة قدرات نموذجية');
+      document.getElementById('ocr-field-question').value = cleanQ;
 
-      options.forEach((opt, i) => {
+      const cleanOptions = (options || []).map(opt => sanitizeRtlQuestion(opt));
+      cleanOptions.forEach((opt, i) => {
         const inp = document.getElementById('ocr-opt-' + i);
         if (inp) inp.value = opt;
       });
 
-      onOcrCorrectChoiceChange(sol.correctIndex !== undefined ? sol.correctIndex : 0);
+      const cleanExp = sanitizeRtlExplanation(sol.explanation || '');
+      const cleanRule = sanitizeRtlQuestion(sol.speed_rule || sol.speedRule || '');
 
-      document.getElementById('ocr-field-explanation').value = sol.explanation;
-      document.getElementById('ocr-field-speed-rule').value = sol.speedRule;
+      const rawChoice = sol.correct_index !== undefined ? sol.correct_index : sol.correctIndex;
+      const cIdx = determineAuthoritativeCorrectIndex(rawChoice, cleanOptions, cleanExp);
+      onOcrCorrectChoiceChange(cIdx);
+
+      document.getElementById('ocr-field-explanation').value = cleanExp;
+      document.getElementById('ocr-field-speed-rule').value = cleanRule;
 
       currentOcrQuestion = {
         section: sol.section,
         section_ar: sol.section === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي',
         topic: sol.topic,
-        question: questionStem,
-        options,
-        correct_index: sol.correctIndex,
-        explanation: sol.explanation,
-        speed_rule: sol.speedRule,
+        question: cleanQ,
+        options: cleanOptions,
+        correct_index: cIdx,
+        explanation: cleanExp,
+        speed_rule: cleanRule,
         level: 1
       };
 
