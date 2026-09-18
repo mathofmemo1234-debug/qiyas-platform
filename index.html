@@ -4695,26 +4695,79 @@
       return res.trim();
     }
 
-    function determineAuthoritativeCorrectIndex(rawIdx, options, explanation) {
-      let candidate = null;
+    function safeExtractAndUnwrapJson(rawText) {
+      if (!rawText) return null;
+      if (typeof rawText === 'object') return unwrapObj(rawText);
 
-      // 1. Parse rawIdx if provided as number or string
-      if (typeof rawIdx === 'number' && rawIdx >= 0 && rawIdx <= 3) {
-        candidate = rawIdx;
-      } else if (typeof rawIdx === 'string') {
-        const s = rawIdx.trim();
-        if (/^[0-3]$/.test(s)) candidate = parseInt(s, 10);
-        else if (s === 'أ' || s === 'ا' || /^a$/i.test(s)) candidate = 0;
-        else if (s === 'ب' || /^b$/i.test(s)) candidate = 1;
-        else if (s === 'ج' || /^c$/i.test(s)) candidate = 2;
-        else if (s === 'د' || /^d$/i.test(s)) candidate = 3;
+      let str = String(rawText).trim();
+      str = str.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+
+      const firstBrace = str.indexOf('{');
+      const lastBrace = str.lastIndexOf('}');
+      if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) {
+        throw new Error("لم يتم العثور على كائن JSON صالح في استجابة النموذج.");
       }
 
-      if (!explanation) return candidate !== null ? candidate : 0;
+      const jsonCandidate = str.slice(firstBrace, lastBrace + 1);
 
-      const expNorm = String(explanation).replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+      let parsed = null;
+      try {
+        parsed = JSON.parse(jsonCandidate);
+      } catch (e1) {
+        try {
+          const repaired = jsonCandidate.replace(/:\s*"([^"\\]*(?:\\.[^"\\]*)*)"/gs, (match, p1) => {
+            return ': "' + p1.replace(/\r?\n/g, '\\n').replace(/\t/g, '\\t') + '"';
+          });
+          parsed = JSON.parse(repaired);
+        } catch (e2) {
+          throw new Error("فشل فك تشفير JSON: " + e1.message);
+        }
+      }
 
-      // 2. Priority 1: Check full option text matching in conclusion or explanation!
+      function unwrapObj(obj) {
+        if (!obj || typeof obj !== 'object') return obj;
+        if (obj.data && typeof obj.data === 'object' && !Array.isArray(obj.data)) return unwrapObj(obj.data);
+        if (obj.result && typeof obj.result === 'object' && !Array.isArray(obj.result)) return unwrapObj(obj.result);
+        if (obj.response && typeof obj.response === 'object' && !Array.isArray(obj.response)) return unwrapObj(obj.response);
+        if (obj.question_data && typeof obj.question_data === 'object') return unwrapObj(obj.question_data);
+        return obj;
+      }
+
+      return unwrapObj(parsed);
+    }
+
+    function determineAuthoritativeCorrectIndex(rawIdx, options, explanation, rawLetter, verdict) {
+      let candidate = null;
+
+      // 0. Priority 0: Explicit correct_letter ('أ', 'ب', 'ج', 'د')
+      if (rawLetter && typeof rawLetter === 'string') {
+        const letClean = rawLetter.trim();
+        if (letClean === 'أ' || letClean === 'ا' || /^a$/i.test(letClean) || letClean === '1') candidate = 0;
+        else if (letClean === 'ب' || /^b$/i.test(letClean) || letClean === '2') candidate = 1;
+        else if (letClean === 'ج' || /^c$/i.test(letClean) || letClean === '3') candidate = 2;
+        else if (letClean === 'د' || /^d$/i.test(letClean) || letClean === '4') candidate = 3;
+      }
+
+      // 1. Parse rawIdx if provided as number or string and not determined yet
+      if (candidate === null) {
+        if (typeof rawIdx === 'number' && rawIdx >= 0 && rawIdx <= 3) {
+          candidate = rawIdx;
+        } else if (typeof rawIdx === 'string') {
+          const s = rawIdx.trim();
+          if (/^[0-3]$/.test(s)) candidate = parseInt(s, 10);
+          else if (s === 'أ' || s === 'ا' || /^a$/i.test(s)) candidate = 0;
+          else if (s === 'ب' || /^b$/i.test(s)) candidate = 1;
+          else if (s === 'ج' || /^c$/i.test(s)) candidate = 2;
+          else if (s === 'د' || /^d$/i.test(s)) candidate = 3;
+        }
+      }
+
+      const textToSearch = [verdict || '', explanation || ''].join(' ');
+      if (!textToSearch.trim()) return candidate !== null ? candidate : 0;
+
+      const expNorm = String(textToSearch).replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+
+      // 2. Priority 1: Check full option text matching in verdict or explanation!
       if (Array.isArray(options)) {
         for (let i = 0; i < options.length; i++) {
           const opt = String(options[i]).trim();
@@ -4807,8 +4860,10 @@
       }
     }
 
-    function applyAiVisionResultToFields(aiRes) {
+    function applyAiVisionResultToFields(rawAiRes) {
+      const aiRes = safeExtractAndUnwrapJson(rawAiRes);
       if (!aiRes) return;
+
       if (aiRes.question) {
         const cleanQ = sanitizeRtlQuestion(aiRes.question);
         document.getElementById('ocr-field-question').value = cleanQ;
@@ -4839,12 +4894,28 @@
         document.getElementById('ocr-field-topic').value = aiRes.topic;
       }
 
-      const cleanExplanation = sanitizeRtlExplanation(aiRes.explanation || '');
+      // Combine reasoning-first steps into a comprehensive authoritative explanation
+      let fullExplanation = '';
+      if (aiRes.calculation_steps) {
+        fullExplanation += aiRes.calculation_steps;
+      }
+      if (aiRes.options_matching_analysis) {
+        fullExplanation += (fullExplanation ? '\n\n📌 مطابقة الناتج والخيارات:\n' : '') + aiRes.options_matching_analysis;
+      }
+      if (aiRes.verdict_and_final_answer) {
+        fullExplanation += (fullExplanation ? '\n\n🏆 النتيجة المعتمدة: ' : '') + aiRes.verdict_and_final_answer;
+      }
+      if (!fullExplanation && aiRes.explanation) {
+        fullExplanation = aiRes.explanation;
+      }
+
+      const cleanExplanation = sanitizeRtlExplanation(fullExplanation);
       const cleanSpeedRule = sanitizeRtlQuestion(aiRes.speed_rule || aiRes.speedRule || '');
 
-      // Authoritatively determine correct index strictly matching explanation verdict
+      // Authoritatively determine correct index strictly matching explanation verdict and correct_letter
       const rawIdx = (aiRes.correct_index !== undefined) ? aiRes.correct_index : aiRes.correctIndex;
-      const cIdx = determineAuthoritativeCorrectIndex(rawIdx, cleanOptions, cleanExplanation);
+      const rawLetter = aiRes.correct_letter || aiRes.correctLetter;
+      const cIdx = determineAuthoritativeCorrectIndex(rawIdx, cleanOptions, cleanExplanation, rawLetter, aiRes.verdict_and_final_answer);
       onOcrCorrectChoiceChange(cIdx);
 
       document.getElementById('ocr-field-explanation').value = cleanExplanation;
@@ -4865,7 +4936,7 @@
       const badge = document.getElementById('ocr-ai-engine-badge');
       if (badge) {
         badge.className = "text-[10px] px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-900 font-bold border border-purple-300";
-        badge.innerText = "Google Gemini Vision (رؤية بصرية فائقة الدقة)";
+        badge.innerText = "Google Gemini AI (تحليل مدقق فائق الدقة)";
       }
 
       const rContainer = document.getElementById('ocr-result-container');
@@ -4883,44 +4954,33 @@
       const promptText = `أنت أستاذ ومحكم أول معتمد في المركز الوطني للقياس لاختبارات القدرات العامة (القسم الكمي واللفظي).
 انظر بدقة متناهية إلى صورة السؤال المرفقة وحللها بشكل علمي وصارم ودقيق، وحلها حلاً نموذجياً مخصصاً 100% موجه لهذه المسألة تحديداً مستنداً لأرقامها ومعطياتها بالكامل دون أي عبارات عامة أو قوالب مكررة.
 
-المطلوب منك بدقة فائقة: تطبيق بروتوكول التدقيق الصارم والتحقق المزدوج قبل اعتماد أي خيار، ومناقشة الخيارات البديلة لتحديد الخيار الأصح قطعياً:
-١) استخراج المعطيات وتطبيق خطوات الحل المباشر خطوة بخطوة في أسطر مستقلة.
-٢) التدقيق الرياضي والتحقق العكسي الصارم (التعويض العكسي أو الفحص المضاد للتحقق من خلو الحل من أي خطأ حسابي أو لغوي).
-٣) مناقشة الخيارات البديلة والأخطاء الشائعة: تفنيد أي خيار مضلل أو حل بديل محتمل وبيان سبب بطلانه علمياً مقارنة بالحل الصحيح.
-٤) التحديد النهائي للحل الأصح بالأدلة والبراهين القاطعة.
+توجيه إلزامي لمنع أي خطأ في الحل:
+يجب عليك حساب المسألة تفصيلياً بالأرقام والمعادلات والتحقق العكسي منها أولاً في خانة calculation_steps، وبعد أن تصل للناتج النهائي الرياضي، قم بمطابقته الصريحة مع الخيارات الأربعة وتفنيد الخاطئة في options_matching_analysis، ثم اكتب النتيجة القطعية في verdict_and_final_answer، وأخيراً حدد الحرف correct_letter ورقم الخيار correct_index.
 
 توجيهات حاسمة للغة العربية واتجاه الكتابة من اليمين لليسار (RTL):
 - اكتب جميع الشروحات والمعطيات والخطوات بلغة عربية سليمة وواضحة جداً من اليمين إلى اليسار.
-- ممنوع منعاً باتاً حشر خطوات الحل في فقرة واحدة متصلة! يجب وضع كل خطوة في سطر مستقل جديد (\\n) مع الترقيم المنظم (١، ٢، ٣...).
+- اجعل كل خطوة في سطر مستقل جديد (\\n) مع الترقيم المنظم (١، ٢، ٣...).
 - في المسائل الرياضية: قم بتفكيك المقدار المعقد إلى حدوده الأولية، ثم احسب وبسّط كل حد في سطر مستقل، ثم اكتب خطوة جمع أو مقارنة الحدود في سطر مستقل.
 - لتفادي انعكاس الأقواس والرموز في المتصفحات بسبب خوارزمية الاتجاهين (BiDi)، استخدم الصياغة اللفظية والرياضية العربية السليمة:
   * للأسس: اكتبها بصيغة (الأساس أس القوة) مثل: "٢ أس (-١) = ١ ÷ ٢ = ٠.٥" وتجنب كتابة علامة ^ داخل أقواس معكوسة.
   * للقسمة والكسور المركبة: استخدم علامة "÷" بوضوح مثل: "١ ÷ (٢ أس -١) = ١ ÷ ٠.٥ = ٢" لتفادي انقلاب الشرطة المائلة.
-- اكتب نص المسألة بصياغة عربية سليمة ومرتبة من اليمين لليسار.
 - اذكر قانون السرعة الذهبي لإنجاز المسألة في أقل من دقيقة.
-- اكتب بلغة عربية سليمة وواضحة فقط دون وضع أي عبارات توضيحية أو إشارة لنوع اللغة.
 
-المطلوب منك استخراجه وحله بصيغة JSON فقط:
-1. استخراج نص المسألة كاملاً كما في الصورة بلغة عربية سليمة من اليمين لليسار.
-2. استخراج الخيارات الأربعة (أ، ب، ج، د) كما هي في الصورة أو استنتاجها بدقة.
-3. تحديد القسم: "quantitative" للكمي، أو "verbal" للفظي.
-4. تحديد الموضوع الدقيق للمسألة.
-5. تحديد رقم الخيار الصحيح بعد التدقيق والتحقق الصارم (0 للخيار أ، 1 للخيار ب، 2 للخيار ج، 3 للخيار د).
-6. كتابة شرح تفصيلي مدقق خطوة بخطوة مخصص حصراً للمسألة وأرقامها، مقسم لأسطر مرقمة بوضوح من اليمين لليسار (\\n) متضمناً التحقق ومناقشة البدائل.
-7. ذكر قانون الحل السريع.
-
-أخرج الإجابة بصيغة JSON فقط بهذا الهيكل الدقيق بدون أي زيادات خارج JSON:
+أخرج الإجابة بصيغة JSON فقط بهذا الترتيب الإلزامي وبدون أي نصوص خارجه:
 {
   "section": "quantitative",
-  "topic": "الموضوع الدقيق",
-  "question": "نص المسألة كاملاً مرتباً من اليمين لليسار",
+  "topic": "الموضوع الدقيق للمسألة",
+  "question": "نص المسألة كاملاً مرتباً بلغة عربية سليمة من اليمين لليسار",
   "options": ["الخيار أ", "الخيار ب", "الخيار ج", "الخيار د"],
+  "calculation_steps": "١) استخراج المعطيات بالأرقام...\\n٢) حساب وتبسيط كل حد على حدة في سطر مستقل...\\n٣) التدقيق الحسابي والتحقق العكسي الصارم بالتعويض...",
+  "options_matching_analysis": "مطابقة الناتج الحسابي الدقيق مع الخيارات وتفنيد الخيارات الخاطئة...",
+  "verdict_and_final_answer": "النتيجة النهائية القطعية (الخيار الصحيح هو ...)",
+  "correct_letter": "أ أو ب أو ج أو د",
   "correct_index": 0,
-  "explanation": "١) المعطيات: ...\\n٢) تفكيك وتبسيط الحدود خطوة بخطوة: ...\\n٣) التدقيق والتحقق العكسي الصارم: ...\\n٤) مناقشة الخيارات البديلة والأخطاء الشائعة: ...\\n٥) النتيجة المعتمدة (الحل الأصح): ...",
-  "speed_rule": "قانون الحل السريع..."
+  "speed_rule": "قانون الحل السريع"
 }`;
 
-      const modelsToTry = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-flash-latest'];
+      const modelsToTry = ['gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-3.7-flash', 'gemini-flash-latest'];
       let lastError = null;
 
       for (const model of modelsToTry) {
@@ -4957,7 +5017,7 @@
           const txt = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
           if (!txt) throw new Error("لم يتم استلام نص من نموذج الذكاء الاصطناعي.");
 
-          return JSON.parse(txt.replace(/```json|```/g, '').trim());
+          return safeExtractAndUnwrapJson(txt);
         } catch (err) {
           lastError = err;
           console.warn(`Attempt with ${model} failed:`, err);
@@ -4969,7 +5029,7 @@
 
     async function callGeminiAiSolve(questionStem, options, section, topic, apiKey) {
       const promptText = `أنت أستاذ ومحكم أول معتمد في المركز الوطني للقياس لاختبارات القدرات العامة (الكمي واللفظي).
-المطلوب منك تحليل مسألة القدرات التالية بشكل علمي وصارم ودقيق، وتطبيق بروتوكول التدقيق المزدوج الشديد ومناقشة الخيارات البديلة قبل تحديد الحل الأصح بنسبة 100%:
+المطلوب منك تحليل مسألة القدرات التالية بشكل علمي وصارم ودقيق، وتطبيق بروتوكول التدقيق المزدوج الشديد والتفكير الحسابي الاستباقي قبل تحديد الخيار بنسبة 100%:
 
 نص المسألة:
 ${questionStem}
@@ -4983,33 +5043,28 @@ ${questionStem}
 القسم المرجح: ${section === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي'}
 الموضوع: ${topic || 'عام'}
 
-توجيهات التدقيق الصارم ومناقشة الخيارات لتحديد الحل الأصح:
-١) التدقيق الشديد والتأكد التام من صحة الناتج قبل تثبيت الخيار (الحل المباشر خطوة بخطوة + التدقيق والتحقق العكسي).
-٢) مناقشة الخيارات البديلة والأخطاء الشائعة: تفنيد الخيارات الأخرى بالأرقام وبيان سبب عدم صحتها.
-٣) تحديد الخيار الأصح واليقيني بالأدلة الرياضية والمنطقية القاطعة.
+توجيه إلزامي لمنع أي خطأ في الحل:
+يجب عليك حساب المسألة تفصيلياً بالأرقام والمعادلات والتحقق العكسي منها أولاً في calculation_steps، وبعد استخراج الناتج الحسابي النهائي، طابقه مع الخيارات الأربعة وفنّد الخيارات الخاطئة في options_matching_analysis، ثم اذكر النتيجة القطعية في verdict_and_final_answer، وأخيراً حدد الحرف correct_letter ورقم الخيار correct_index.
 
-توجيهات حاسمة للغة العربية واتجاه الكتابة من اليمين لليسار (RTL):
-1. اكتب الحل والشرح بالكامل بلغة عربية سليمة وواضحة جداً من اليمين لليسار.
-2. اجعل كل خطوة في سطر جديد مستقل (\\n) مع ترقيم الخطوات (١، ٢، ٣...)، وممنوع تماماً دمج الخطوات في فقرة واحدة متصلة.
-3. اكتب المعادلات الحسابية بوضوح متوافق مع الاتجاه العربي:
-   - استخدم الصياغة العربية للأسس والكسور لتجنب انقلاب الأقواس والرموز في المتصفح (مثال: استخدام 'أس' مثل '٢ أس (-١) = ١ ÷ ٢ = ٠.٥' وعلامة '÷' في الكسور المركبة).
-   - احسب كل حد بشكل منفصل في سطر، ثم اجمع أو قارن النواتج في سطر مستقل.
-4. اذكر سبب صحة الخيار الصحيح ومطابقته للناتج واستبعاد باقي الخيارات بالأرقام.
-5. اذكر قانون السرعة الذهبي لإنجاز المسألة في أقل من 60 ثانية.
-6. اكتب باللغة العربية السليمة والواضحة فقط وتجنب تماماً أي عبارات اعتراضية أو إشارة لنوع اللغة.
+توجيهات التنسيق العربي (RTL):
+- الكتابة بلغة عربية سليمة وواضحة من اليمين لليسار مع فصل الخطوات بأسطر مستقلة (\\n).
+- تفكيك الأسس والكسور بصياغة عربية واضحة (مثل: ٢ أس (-١) وعلامة ÷) لمنع انعكاس الأقواس والرموز.
 
-صياغة الإجابة بصيغة JSON فقط بهذا الشكل وبدون أي علامات خارج صيغة JSON:
+أخرج الإجابة بصيغة JSON فقط بهذا الترتيب الإلزامي:
 {
   "section": "${section}",
   "topic": "اسم الموضوع الدقيق",
   "question": "نص المسألة بعد التدقيق من اليمين لليسار",
   "options": ["الخيار أ", "الخيار ب", "الخيار ج", "الخيار د"],
+  "calculation_steps": "١) المعطيات وتحليل المسألة: ...\\n٢) التبسيط والحل المباشر بالأرقام: ...\\n٣) التدقيق والتحقق العكسي الصارم: ...",
+  "options_matching_analysis": "مطابقة الناتج مع الخيارات وبيان سبب استبعاد باقي الخيارات بالأرقام...",
+  "verdict_and_final_answer": "النتيجة النهائية القطعية المعتمدة (الخيار الصحيح هو ...)",
+  "correct_letter": "أ أو ب أو ج أو د",
   "correct_index": 0,
-  "explanation": "١) المعطيات وتحليل المسألة: ...\\n٢) التبسيط والحل المباشر: ...\\n٣) التدقيق والتحقق العكسي الصارم: ...\\n٤) مناقشة الخيارات البديلة والأخطاء الشائعة: ...\\n٥) النتيجة المعتمدة (الحل الأصح): ...",
   "speed_rule": "قانون الحل السريع الخاص بالمسألة..."
 }`;
 
-      const modelsToTry = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-flash-latest'];
+      const modelsToTry = ['gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-3.7-flash', 'gemini-flash-latest'];
       let lastError = null;
 
       for (const model of modelsToTry) {
@@ -5036,7 +5091,7 @@ ${questionStem}
           const txt = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
           if (!txt) throw new Error("لم يتم استلام نص من نموذج الذكاء الاصطناعي.");
 
-          return JSON.parse(txt.replace(/```json|```/g, '').trim());
+          return safeExtractAndUnwrapJson(txt);
         } catch (err) {
           lastError = err;
           console.warn(`Attempt with ${model} failed:`, err);
@@ -5093,7 +5148,7 @@ ${questionStem}
   "updated_explanation": "الشرح الكامل المنقح المعتمد للمسألة شاملاً التدقيق والمناقشة..."
 }`;
 
-      const modelsToTry = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-flash-latest'];
+      const modelsToTry = ['gemini-3.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.5-flash', 'gemini-3.7-flash', 'gemini-flash-latest'];
       let lastError = null;
 
       for (const model of modelsToTry) {
@@ -5120,7 +5175,7 @@ ${questionStem}
           const txt = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
           if (!txt) throw new Error("لم يتم استلام نص من نموذج الذكاء الاصطناعي.");
 
-          return JSON.parse(txt.replace(/```json|```/g, '').trim());
+          return safeExtractAndUnwrapJson(txt);
         } catch (err) {
           lastError = err;
           console.warn(`Attempt with ${model} failed:`, err);
@@ -5781,13 +5836,12 @@ ${questionStem}
         return { section, topic, correctIndex: 0, explanation, speedRule };
       }
 
-      const opt0 = options[0] || 'الخيار الأول';
-      explanation = "📌 التحليل المنطقي والرياضي لمعطيات المسألة الحالية:\n" +
-        "١) معطيات السؤال المستخلصة: " + (nums.length > 0 ? "القيم الرقمية الواردة [" + nums.join(' ، ') + "]" : "المفردات الأساسية الواردة في نص السؤال") + "\n" +
-        "٢) استقراء الشروط والمطلوب: بمقارنة المعطيات بالخيارات المطروحة (" + options.filter(Boolean).join(' ، ') + ")، وتحليل العلاقات المنطقية والرياضية.\n" +
-        "٣) النتيجة المحققة: الخيار الأقرب للصحة وفق الشروط هو الخيار (" + ['أ', 'ب', 'ج', 'د'][0] + ": " + opt0 + ").\n" +
-        "٤) التوجيه النموذجي: يُرجى مراجعة صياغة السؤال وخياراته الأربعة للتأكد من مطابقة القوانين الفرعية بدقة.";
-      speedRule = "⚡ استراتيجية استبعاد المشتتات: ابدأ باستبعاد الخيارات البعيدة منطقياً لحصر الإجابة بين خيارين.";
+      explanation = "⚠️ تنبيه التدقيق الحسابي:\n" +
+        "١) تم استخلاص المعطيات المتاحة: " + (nums.length > 0 ? "القيم الرقمية [" + nums.join(' ، ') + "]" : "مفردات المسألة") + ".\n" +
+        "٢) للحصول على الحل النموذجي القطعي والمدقق بنسبة 100% الخاص بمسألتك تحديداً خطوة بخطوة:\n" +
+        "   - اضغط على زر [✨ تحليل وحل مخصص بـ Gemini AI] للحل الفوري الذكي بالبرهان الرياضي الكامل.\n" +
+        "   - أو اضغط على [🔍 تدقيق ومناقشة الخيار المختار] لفحص الخيارات واختيار الأصح يقيناً.";
+      speedRule = "⚡ استخدم محرك Gemini AI المباشر لحل المسائل المعقدة والهندسية بدقة تامة دون تخمين.";
 
       return { section, topic, correctIndex: 0, explanation, speedRule };
     }
@@ -5893,12 +5947,7 @@ ${questionStem}
           } else {
             const aiRes = await callGeminiAiSolve(questionStem, options, initialSection, initialTopic, geminiKey);
             if (aiRes) {
-              applySolverResultToOcrFields(aiRes, aiRes.question || questionStem, aiRes.options || options);
-              const badge = document.getElementById('ocr-ai-engine-badge');
-              if (badge) {
-                badge.className = "text-[10px] px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-900 font-bold border border-purple-300";
-                badge.innerText = "Google Gemini AI (توليدي مخصص)";
-              }
+              applyAiVisionResultToFields(aiRes);
               return;
             }
           }
