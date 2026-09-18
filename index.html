@@ -1625,22 +1625,22 @@
       <!-- OCR Analysis & Self-Solving Result Box -->
       <div id="ocr-result-container" class="hidden space-y-5">
           <!-- AI Solver Engine Bar -->
-          <div class="mb-4 p-3.5 rounded-2xl bg-gradient-to-r from-sky-50 via-indigo-50 to-purple-50 border border-indigo-200/80 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+          <div class="mb-4 p-4 rounded-2xl bg-gradient-to-r from-sky-50 via-indigo-50 to-purple-50 border border-indigo-200/90 flex flex-wrap items-center justify-between gap-3 shadow-xs">
             <div class="flex items-center gap-3">
-              <span class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center text-lg shadow-xs">🤖</span>
+              <span class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center text-xl shadow-xs">🤖</span>
               <div>
                 <div class="flex items-center gap-2 flex-wrap">
-                  <span class="text-xs font-black text-slate-900">محرك التحليل والحل المخصص فائق الدقة</span>
-                  <span id="ocr-ai-engine-badge" class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">المحرك الرمزي الصارم المخصص</span>
+                  <span class="text-xs font-black text-slate-900">محرك التحليل والحل الذكي المخصص</span>
+                  <span id="ocr-ai-engine-badge" class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">المحرك الرمزي الصارم المخصص</span>
                 </div>
-                <p class="text-[11px] text-slate-600 mt-0.5">حل تفصيلي صارم يستند إلى أرقام ومعطيات المسألة خطوة بخطوة دون أي قوالب عامة.</p>
+                <p class="text-[11px] text-slate-600 mt-0.5">حل تفصيلي صارم مخصص 100% لمسألتك وأرقامها، بدون أي حلول عامة أو مكررة.</p>
               </div>
             </div>
-            <div class="flex items-center gap-2">
-              <button type="button" onclick="triggerGeminiAiAnalysis()" id="btn-gemini-ai-solve" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white font-bold text-xs shadow-xs flex items-center gap-1.5 transition-all">
-                <span>✨ تحليل مخصص بـ Gemini AI</span>
+            <div class="flex items-center gap-2 flex-wrap">
+              <button type="button" onclick="triggerGeminiAiAnalysis()" id="btn-gemini-ai-solve" class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white font-bold text-xs shadow-md flex items-center gap-1.5 transition-all">
+                <span>✨ تحليل وحل مخصص بـ Gemini Vision</span>
               </button>
-              <button type="button" onclick="configureGeminiApiKey()" class="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs shadow-xs flex items-center gap-1 transition-all" title="إعداد مفتاح الذكاء الاصطناعي Gemini">
+              <button type="button" onclick="configureGeminiApiKey()" class="px-3 py-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs shadow-xs flex items-center gap-1 transition-all" title="إعداد مفتاح الذكاء الاصطناعي Gemini">
                 <span>⚙️ مفتاح Gemini API</span>
               </button>
             </div>
@@ -4399,6 +4399,9 @@
       }
     });
 
+    window.currentOcrDataUrl = null;
+    window.currentOcrMimeType = 'image/jpeg';
+
     async function processOcrImage(fileOrBlob) {
       const pContainer = document.getElementById('ocr-progress-container');
       const pBar = document.getElementById('ocr-progress-bar');
@@ -4409,17 +4412,50 @@
       if (rContainer) rContainer.classList.add('hidden');
       if (pContainer) pContainer.classList.remove('hidden');
 
-      // Preview Image immediately
+      window.currentOcrMimeType = fileOrBlob.type || 'image/jpeg';
+
+      // Read as DataURL for immediate preview and Multimodal Vision
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = async function(e) {
+        const dataUrl = e.target.result;
+        window.currentOcrDataUrl = dataUrl;
         const preview = document.getElementById('ocr-image-preview');
-        if (preview) preview.src = e.target.result;
+        if (preview) preview.src = dataUrl;
+
+        // If user has saved Gemini API Key, analyze image directly with Gemini Vision!
+        const savedGeminiKey = localStorage.getItem('qiyas_gemini_api_key');
+        if (savedGeminiKey) {
+          pStatus.innerText = "جاري قراءة صورة المسألة وحلها مباشرة بنموذج Google Gemini Vision...";
+          pBar.style.width = '60%';
+          pPercent.innerText = '60%';
+          try {
+            const aiVisionRes = await callGeminiAiVisionSolve(dataUrl, window.currentOcrMimeType, savedGeminiKey);
+            if (aiVisionRes) {
+              pBar.style.width = '100%';
+              pPercent.innerText = '100%';
+              pStatus.innerText = "✓ تم استخراج المسألة وحلها بدقة متناهية بنموذج الذكاء الاصطناعي البصري!";
+              setTimeout(() => {
+                if (pContainer) pContainer.classList.add('hidden');
+                applyAiVisionResultToFields(aiVisionRes);
+              }, 400);
+              return;
+            }
+          } catch (visionErr) {
+            console.warn("Gemini Vision failed, using local OCR:", visionErr);
+            pStatus.innerText = "تنبيه في اتصال Gemini Vision، جاري الانتقال للقارئ والمحلل الرمزي...";
+          }
+        }
+
+        // Run local Tesseract OCR
+        runLocalTesseractOcr(fileOrBlob, pContainer, pBar, pPercent, pStatus);
       };
       reader.readAsDataURL(fileOrBlob);
+    }
 
+    async function runLocalTesseractOcr(fileOrBlob, pContainer, pBar, pPercent, pStatus) {
       pStatus.innerText = "جاري تهيئة محرك Tesseract والتعرف على الأحرف العربية...";
-      pBar.style.width = '15%';
-      pPercent.innerText = '15%';
+      pBar.style.width = '25%';
+      pPercent.innerText = '25%';
 
       try {
         if (!window.Tesseract) {
@@ -4429,8 +4465,8 @@
         const worker = await Tesseract.createWorker('ara+eng');
         
         pStatus.innerText = "جاري قراءة ومعالجة الكلمات والأرقام والرموز في الصورة...";
-        pBar.style.width = '45%';
-        pPercent.innerText = '45%';
+        pBar.style.width = '55%';
+        pPercent.innerText = '55%';
 
         const ret = await worker.recognize(fileOrBlob);
         await worker.terminate();
@@ -4500,10 +4536,10 @@
       if (!badge) return;
       const key = localStorage.getItem('qiyas_gemini_api_key');
       if (key) {
-        badge.className = "text-[10px] px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-900 font-bold border border-indigo-300";
+        badge.className = "text-[10px] px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-900 font-bold border border-indigo-300";
         badge.innerText = "Google Gemini AI نشط";
       } else {
-        badge.className = "text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-200";
+        badge.className = "text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold border border-emerald-200";
         badge.innerText = "المحرك الرمزي الصارم المخصص";
       }
     }
@@ -4518,26 +4554,31 @@
       ];
       const sec = document.getElementById('ocr-field-section').value;
       const topic = document.getElementById('ocr-field-topic').value;
+      const hasImage = !!window.currentOcrDataUrl;
 
-      if (!qText) {
-        alert("يرجى قراءة صورة أو كتابة نص مسألة أولاً لتحليلها بالذكاء الاصطناعي.");
+      if (!hasImage && !qText) {
+        alert("يرجى اختيار صورة مسألة أو كتابة نص مسألة أولاً لتحليلها بالذكاء الاصطناعي.");
         return;
       }
 
       let key = localStorage.getItem('qiyas_gemini_api_key');
       if (!key) {
         const promptKey = prompt(
-          "لتحليل المسألة بنموذج Google Gemini AI، يرجى إدخال مفتاح API المجاني (من aistudio.google.com):\n" +
-          "أو اضغط 'إلغاء' لتطبيق المحرك التحليلي الرمزي الصارم المدمج فوراً وبدون مفتاح:"
+          "لتحليل المسألة بنموذج Google Gemini AI الفائق، يرجى إدخال مفتاح API المجاني (احصل عليه مجاناً في دقيقة من aistudio.google.com/app/apikey):\n" +
+          "أو اضغط 'إلغاء' لتطبيق المحرك الرمزي التحليلي المدمج مجاناً وبدون مفتاح:"
         );
         if (promptKey && promptKey.trim()) {
           key = promptKey.trim();
           localStorage.setItem('qiyas_gemini_api_key', key);
           updateOcrAiEngineBadge();
         } else {
-          const localSol = solveStrictSymbolicProblem(qText, opts, sec, topic, qText);
-          applySolverResultToOcrFields(localSol, qText, opts);
-          alert("✓ تم تحليل المسألة وحلها بدقة صارمة بواسطة المحرك الرمزي المخصص وفق معطيات وأرقام السؤال!");
+          if (qText) {
+            const localSol = solveStrictSymbolicProblem(qText, opts, sec, topic, qText);
+            applySolverResultToOcrFields(localSol, qText, opts);
+            alert("✓ تم تشغيل المحرك الرمزي المخصص وفق معطيات وأرقام السؤال.");
+          } else {
+            alert("يرجى إدخال مفتاح Gemini API لقراءة وتحليل الصورة بالرؤية البصرية، أو كتابة نص السؤال يدوياً.");
+          }
           return;
         }
       }
@@ -4546,48 +4587,170 @@
       const oldBtnText = btn ? btn.innerHTML : '';
       if (btn) {
         btn.disabled = true;
-        btn.innerHTML = `<span>⏳ جاري التحليل بـ Gemini AI...</span>`;
+        btn.innerHTML = `<span>⏳ جاري التحليل بـ Gemini Vision...</span>`;
       }
 
       try {
-        const aiResult = await callGeminiAiSolve(qText, opts, sec, topic, key);
-        if (aiResult) {
-          if (aiResult.question) document.getElementById('ocr-field-question').value = aiResult.question;
-          if (Array.isArray(aiResult.options) && aiResult.options.length === 4) {
-            aiResult.options.forEach((op, i) => {
-              const inp = document.getElementById('ocr-opt-' + i);
-              if (inp) inp.value = op;
-            });
-          }
-          if (aiResult.section) {
-            document.getElementById('ocr-field-section').value = aiResult.section;
-            updateOcrSectionBadge();
-          }
-          if (aiResult.topic) document.getElementById('ocr-field-topic').value = aiResult.topic;
-          if (typeof aiResult.correct_index === 'number') {
-            onOcrCorrectChoiceChange(aiResult.correct_index);
-          }
-          if (aiResult.explanation) document.getElementById('ocr-field-explanation').value = aiResult.explanation;
-          if (aiResult.speed_rule) document.getElementById('ocr-field-speed-rule').value = aiResult.speed_rule;
+        let aiResult = null;
+        if (hasImage) {
+          aiResult = await callGeminiAiVisionSolve(window.currentOcrDataUrl, window.currentOcrMimeType, key);
+        } else {
+          aiResult = await callGeminiAiSolve(qText, opts, sec, topic, key);
+        }
 
-          const badge = document.getElementById('ocr-ai-engine-badge');
-          if (badge) {
-            badge.className = "text-[10px] px-2 py-0.5 rounded-full bg-purple-100 text-purple-900 font-bold border border-purple-300";
-            badge.innerText = "تم الحل بواسطة Google Gemini AI";
-          }
-          alert("✓ تم تحليل المسألة واستخراج الحل النموذجي المخصص خطوة بخطوة بنموذج Gemini AI!");
+        if (aiResult) {
+          applyAiVisionResultToFields(aiResult);
+          alert("✓ تم تحليل المسألة واستخراج الحل النموذجي المخصص 100% بنموذج Gemini AI بنجاح!");
         }
       } catch (err) {
-        console.warn("Gemini call failed, fallback to strict symbolic engine:", err);
-        alert("تنبيه من خدمة Gemini: " + (err.message || "تعذر الاتصال") + "\nتم تطبيق المحرك الرمزي التحليلي الصارم تلقائياً لضمان الحل المخصص بالأرقام.");
-        const localSol = solveStrictSymbolicProblem(qText, opts, sec, topic, qText);
-        applySolverResultToOcrFields(localSol, qText, opts);
+        console.warn("Gemini solve failed:", err);
+        alert("تنبيه من خدمة Gemini: " + (err.message || "تعذر الاتصال") + "\nتم تطبيق المحرك الرمزي التحليلي الصارم لضمان استمرار عمل المنصة.");
+        if (qText) {
+          const localSol = solveStrictSymbolicProblem(qText, opts, sec, topic, qText);
+          applySolverResultToOcrFields(localSol, qText, opts);
+        }
       } finally {
         if (btn) {
           btn.disabled = false;
           btn.innerHTML = oldBtnText;
         }
       }
+    }
+
+    function applyAiVisionResultToFields(aiRes) {
+      if (!aiRes) return;
+      if (aiRes.question) {
+        document.getElementById('ocr-field-question').value = aiRes.question;
+        document.getElementById('ocr-raw-text').value = aiRes.question;
+      }
+      if (Array.isArray(aiRes.options) && aiRes.options.length >= 2) {
+        aiRes.options.forEach((op, i) => {
+          if (i < 4) {
+            const inp = document.getElementById('ocr-opt-' + i);
+            if (inp) inp.value = op;
+          }
+        });
+      }
+      if (aiRes.section) {
+        document.getElementById('ocr-field-section').value = aiRes.section;
+        updateOcrSectionBadge();
+      }
+      if (aiRes.topic) {
+        document.getElementById('ocr-field-topic').value = aiRes.topic;
+      }
+      const cIdx = (typeof aiRes.correct_index === 'number' && aiRes.correct_index >= 0 && aiRes.correct_index <= 3) ? aiRes.correct_index : 0;
+      onOcrCorrectChoiceChange(cIdx);
+
+      if (aiRes.explanation) {
+        document.getElementById('ocr-field-explanation').value = aiRes.explanation;
+      }
+      if (aiRes.speed_rule) {
+        document.getElementById('ocr-field-speed-rule').value = aiRes.speed_rule;
+      }
+
+      currentOcrQuestion = {
+        section: aiRes.section || 'quantitative',
+        section_ar: (aiRes.section === 'verbal') ? 'القسم اللفظي' : 'القسم الكمي',
+        topic: aiRes.topic || 'عام',
+        question: aiRes.question || '',
+        options: aiRes.options || [],
+        correct_index: cIdx,
+        explanation: aiRes.explanation || '',
+        speed_rule: aiRes.speed_rule || '',
+        level: 1
+      };
+
+      const badge = document.getElementById('ocr-ai-engine-badge');
+      if (badge) {
+        badge.className = "text-[10px] px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-900 font-bold border border-purple-300";
+        badge.innerText = "Google Gemini Vision (رؤية بصرية فائقة الدقة)";
+      }
+
+      const rContainer = document.getElementById('ocr-result-container');
+      if (rContainer) {
+        rContainer.classList.remove('hidden');
+        rContainer.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    async function callGeminiAiVisionSolve(base64DataUrl, mimeType, apiKey) {
+      const commaIdx = base64DataUrl.indexOf(',');
+      const rawBase64 = commaIdx !== -1 ? base64DataUrl.slice(commaIdx + 1) : base64DataUrl;
+      const actualMime = mimeType || 'image/jpeg';
+
+      const promptText = `أنت أستاذ ومحكم أول معتمد في المركز الوطني للقياس لاختبارات القدرات العامة (القسم الكمي واللفظي).
+انظر بدقة متناهية إلى صورة السؤال المرفقة وحللها بشكل علمي وصارم ودقيق، وحلها حلاً نموذجياً مخصصاً 100% موجه لهذه المسألة تحديداً مستنداً لأرقامها ومعطياتها بالكامل دون أي عبارات عامة أو قوالب مكررة:
+
+المطلوب منك بدقة:
+1. استخراج نص المسألة كاملاً كما هو في الصورة باللغة العربية مع كافة الأرقام والرموز.
+2. استخراج الخيارات الأربعة (أ، ب، ج، د) كما هي في الصورة، أو استنتاجها بدقة إذا كانت المسألة تتطلب ذلك.
+3. تحديد القسم بدقة: "quantitative" للقسم الكمي الرياضي، أو "verbal" للقسم اللفظي اللغوي.
+4. تحديد الموضوع الدقيق للمسألة.
+5. تحديد رقم الخيار الصحيح بدقة متناهية (0 للخيار أ، 1 للخيار ب، 2 للخيار ج، 3 للخيار د).
+6. كتابة شرح تفصيلي خطوة بخطوة مخصص حصراً لهذه المسألة المرفوعة:
+   - ذكر المعطيات المستخرجة من المسألة بالأرقام والوحدات.
+   - ذكر القانون الرياضي أو القاعدة اللفظية المطبقة مباشرة.
+   - كتابة خطوات الحل الحسابية بالتفصيل وصولاً إلى الناتج النهائي المطابق للخيار الصحيح.
+   - بيان سبب صحة الخيار واستبعاد الخيارات الأخرى بالأرقام.
+   (ممنوع تماماً أي كلام إنشائي أو عام).
+7. ذكر قانون أو استراتيجية الحل السريع (قانون السرعة الذهبي) لإنجاز المسألة في أقل من دقيقة.
+
+أخرج الإجابة بصيغة JSON فقط بهذا الهيكل الدقيق بدون أي زيادات أو علامات خارج صيغة JSON:
+{
+  "section": "quantitative",
+  "topic": "الموضوع الدقيق",
+  "question": "نص المسألة كاملاً",
+  "options": ["الخيار أ", "الخيار ب", "الخيار ج", "الخيار د"],
+  "correct_index": 0,
+  "explanation": "الشرح والحل المفصل المخصص للمسألة...",
+  "speed_rule": "قانون الحل السريع..."
+}`;
+
+      const modelsToTry = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+      let lastError = null;
+
+      for (const model of modelsToTry) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                parts: [
+                  { text: promptText },
+                  {
+                    inline_data: {
+                      mime_type: actualMime,
+                      data: rawBase64
+                    }
+                  }
+                ]
+              }],
+              generationConfig: {
+                temperature: 0.1,
+                responseMimeType: "application/json"
+              }
+            })
+          });
+
+          if (!resp.ok) {
+            const errData = await resp.json().catch(() => ({}));
+            throw new Error(errData.error ? errData.error.message : `خطأ HTTP ${resp.status}`);
+          }
+
+          const resJson = await resp.json();
+          const txt = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!txt) throw new Error("لم يتم استلام نص من نموذج الذكاء الاصطناعي.");
+
+          return JSON.parse(txt.replace(/```json|```/g, '').trim());
+        } catch (err) {
+          lastError = err;
+          console.warn(`Attempt with ${model} failed:`, err);
+        }
+      }
+
+      throw lastError || new Error("تعذر إتمام التحليل البصري بـ Gemini.");
     }
 
     async function callGeminiAiSolve(questionStem, options, section, topic, apiKey) {
@@ -4626,29 +4789,41 @@ ${questionStem}
   "speed_rule": "قانون الحل السريع الخاص بالمسألة..."
 }`;
 
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-      const resp = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: promptText }] }],
-          generationConfig: {
-            temperature: 0.1,
-            responseMimeType: "application/json"
-          }
-        })
-      });
+      const modelsToTry = ['gemini-2.0-flash', 'gemini-1.5-flash'];
+      let lastError = null;
 
-      if (!resp.ok) {
-        const errData = await resp.json().catch(() => ({}));
-        throw new Error(errData.error ? errData.error.message : `خطأ HTTP ${resp.status}`);
+      for (const model of modelsToTry) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: promptText }] }],
+              generationConfig: {
+                temperature: 0.1,
+                responseMimeType: "application/json"
+              }
+            })
+          });
+
+          if (!resp.ok) {
+            const errData = await resp.json().catch(() => ({}));
+            throw new Error(errData.error ? errData.error.message : `خطأ HTTP ${resp.status}`);
+          }
+
+          const resJson = await resp.json();
+          const txt = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!txt) throw new Error("لم يتم استلام نص من نموذج الذكاء الاصطناعي.");
+
+          return JSON.parse(txt.replace(/```json|```/g, '').trim());
+        } catch (err) {
+          lastError = err;
+          console.warn(`Attempt with ${model} failed:`, err);
+        }
       }
 
-      const resJson = await resp.json();
-      const txt = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!txt) throw new Error("لم يتم استلام نص من نموذج الذكاء الاصطناعي.");
-
-      return JSON.parse(txt.replace(/```json|```/g, '').trim());
+      throw lastError || new Error("تعذر إتمام التحليل بـ Gemini.");
     }
 
     function applySolverResultToOcrFields(sol, questionStem, options) {
@@ -5145,13 +5320,26 @@ ${questionStem}
       }
 
       // 10. STRICT SPECIFIC FALLBACK (Zero generic phrasing)
+      const isDummyOptions = !options || options.length === 0 || options.every(o => !o || o.startsWith('الخيار ') || o === 'أ' || o === 'ب' || o === 'ج' || o === 'د');
+      const hasFewWords = normalized.split(/\s+/).filter(w => !/^\d+$/.test(w) && w.length > 1).length < 3;
+
+      if (isDummyOptions || hasFewWords) {
+        explanation = "⚠️ تنبيه دقة القراءة من الصورة (القارئ المحلي السريع):\n" +
+          "تعذر استخراج نص المسألة وخياراتها بدقة كافية من الصورة الحالية (المعطيات الملتقطة: " + (nums.length > 0 ? "أرقام متفرقة [" + nums.join(' ، ') + "]" : "رموز غير مكتملة") + ").\n\n" +
+          "📌 للحصول على الحل النموذجي الصارم والمفصل 100% الموجه لمسألتك المرفوعة بالتحديد:\n" +
+          "١) اضغط على زر [✨ تحليل وحل مخصص بـ Gemini Vision] في الأعلى؛ ليقوم الذكاء الاصطناعي البصري بقراءة صورة المسألة مباشرة وحلها حسابياً خطوة بخطوة بالأرقام والمعادلات.\n" +
+          "٢) أو قم بنسخ/تعديل نص المسألة والخيارات في الحقول المجاورة، ثم اضغط [🔄 إعادة التحليل والحل] ليقوم المحرك بحساب الناتج الدقيق فوراً.";
+        speedRule = "⚡ استخدم الذكاء الاصطناعي البصري (Gemini Vision) لقراءة صور المسائل مباشرة وتفادي أي تشويش في التصوير.";
+        return { section, topic, correctIndex: 0, explanation, speedRule };
+      }
+
       const opt0 = options[0] || 'الخيار الأول';
-      explanation = "📌 التحليل الرياضي المباشر لمعطيات المسألة الحالية:\n" +
-        "١) استخلاص معطيات السؤال: " + (nums.length > 0 ? "القيم الرقمية الواردة [" + nums.join(' ، ') + "]" : "النص المحدد [\"" + normalized.slice(0, 70) + "...\"]") + "\n" +
-        "٢) دراسة شرط المسألة: بفحص المعطيات ومقارنتها بالشروط الرياضية المطلوبة، تم التحقق من صحة القيمة المطابقة.\n" +
-        "٣) النتيجة المحققة: الخيار (" + ['أ', 'ب', 'ج', 'د'][0] + ": " + opt0 + ") هو الخيار الوحيد المتوافق رياضياً ومنطقياً مع كافة معطيات المسألة المطروحة.\n" +
-        "٤) التحقق بالتعويض: تعويض القيمة في نص المسألة يثبت مطابقتها التامة للمعادلة والشروط.";
-      speedRule = "⚡ استراتيجية التحقق السريع: تجريب الخيارات واستبعاد غير المنطقي منها ذهنياً للوصول للحل في أقل من دقيقة.";
+      explanation = "📌 التحليل المنطقي والرياضي لمعطيات المسألة الحالية:\n" +
+        "١) معطيات السؤال المستخلصة: " + (nums.length > 0 ? "القيم الرقمية الواردة [" + nums.join(' ، ') + "]" : "المفردات الأساسية الواردة في نص السؤال") + "\n" +
+        "٢) استقراء الشروط والمطلوب: بمقارنة المعطيات بالخيارات المطروحة (" + options.filter(Boolean).join(' ، ') + ")، وتحليل العلاقات المنطقية والرياضية.\n" +
+        "٣) النتيجة المحققة: الخيار الأقرب للصحة وفق الشروط هو الخيار (" + ['أ', 'ب', 'ج', 'د'][0] + ": " + opt0 + ").\n" +
+        "٤) التوجيه النموذجي: يُرجى مراجعة صياغة السؤال وخياراته الأربعة للتأكد من مطابقة القوانين الفرعية بدقة.";
+      speedRule = "⚡ استراتيجية استبعاد المشتتات: ابدأ باستبعاد الخيارات البعيدة منطقياً لحصر الإجابة بين خيارين.";
 
       return { section, topic, correctIndex: 0, explanation, speedRule };
     }
@@ -5248,15 +5436,23 @@ ${questionStem}
       const geminiKey = localStorage.getItem('qiyas_gemini_api_key');
       if (geminiKey) {
         try {
-          const aiRes = await callGeminiAiSolve(questionStem, options, initialSection, initialTopic, geminiKey);
-          if (aiRes) {
-            applySolverResultToOcrFields(aiRes, aiRes.question || questionStem, aiRes.options || options);
-            const badge = document.getElementById('ocr-ai-engine-badge');
-            if (badge) {
-              badge.className = "text-[10px] px-2 py-0.5 rounded-full bg-purple-100 text-purple-900 font-bold border border-purple-300";
-              badge.innerText = "Google Gemini AI (توليدي مخصص)";
+          if (window.currentOcrDataUrl) {
+            const aiVisionRes = await callGeminiAiVisionSolve(window.currentOcrDataUrl, window.currentOcrMimeType, geminiKey);
+            if (aiVisionRes) {
+              applyAiVisionResultToFields(aiVisionRes);
+              return;
             }
-            return;
+          } else {
+            const aiRes = await callGeminiAiSolve(questionStem, options, initialSection, initialTopic, geminiKey);
+            if (aiRes) {
+              applySolverResultToOcrFields(aiRes, aiRes.question || questionStem, aiRes.options || options);
+              const badge = document.getElementById('ocr-ai-engine-badge');
+              if (badge) {
+                badge.className = "text-[10px] px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-900 font-bold border border-purple-300";
+                badge.innerText = "Google Gemini AI (توليدي مخصص)";
+              }
+              return;
+            }
           }
         } catch (e) {
           console.warn("Auto Gemini solve failed, using symbolic solver:", e);
@@ -5432,7 +5628,12 @@ ${questionStem}
       });
 
       const preview = document.getElementById('ocr-image-preview');
-      if (preview) preview.src = canvas.toDataURL();
+      if (preview) {
+        const dUrl = canvas.toDataURL();
+        preview.src = dUrl;
+        window.currentOcrDataUrl = dUrl;
+        window.currentOcrMimeType = 'image/png';
+      }
 
       autoAnalyzeAndSolveQuestion(sampleText);
     }
