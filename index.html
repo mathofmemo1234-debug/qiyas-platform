@@ -55,6 +55,13 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
 
+  <!-- Firebase SDKs (Cloud Firestore & Auth) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="firebase-service.js"></script>
+
   <style>
     body {
       font-family: 'Cairo', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -619,6 +626,10 @@
         <button onclick="setAdminSubTab('files')" id="btn-admin-sub-files" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2">
           <span>📁 ملفات المراجع والنظام</span>
         </button>
+        <button onclick="setAdminSubTab('firebase')" id="btn-admin-sub-firebase" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2">
+          <span>☁️ قاعدة بيانات Firebase</span>
+          <span id="firebase-tab-pill" class="w-2 h-2 rounded-full bg-slate-300"></span>
+        </button>
       </div>
 
       <!-- VIEW 1: QUESTIONS MANAGEMENT -->
@@ -738,6 +749,147 @@
             </div>
             <h4 class="font-bold text-slate-900 text-sm">foundation_data.json</h4>
             <p class="text-xs text-slate-500">بيانات مستويات التأسيس الأربعة للقسم الكمي واللفظي.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 4: FIREBASE CLOUD DATABASE -->
+      <div id="admin-view-firebase" class="hidden space-y-6">
+        <!-- Live Connection Status Banner -->
+        <div id="firebase-status-banner" class="p-6 rounded-3xl bg-slate-50 border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div id="firebase-status-icon" class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl border border-amber-200">
+              ⚡
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="font-black text-slate-900 text-base">حالة قاعدة بيانات Firebase Cloud Firestore</h3>
+                <span id="firebase-status-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-200 text-slate-700">غير متصل (يعمل محلياً)</span>
+              </div>
+              <p class="text-xs text-slate-500 mt-1" id="firebase-status-desc">
+                المنصة تعمل حالياً بنمط التخزين المحلي الآمن. يمكنك ربطها بمشروع Firebase سحابي لمزامنة الأسئلة والطلاب عبر الأجهزة.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="testFirebaseLiveConnection()" id="btn-test-firebase" class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5">
+              <span>🔄 اختبار الاتصال</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Left: Firebase Credentials Form -->
+          <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-5">
+            <div class="flex items-center justify-between">
+              <h3 class="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                <span>🔑 مفاتيح إعدادات مشروع Firebase</span>
+              </h3>
+              <span class="text-[11px] font-bold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">مجاني مدى الحياة (Spark)</span>
+            </div>
+
+            <p class="text-xs text-slate-500 leading-relaxed">
+              انسخ مفاتيح تكوين تطبيق الويب من صفحة إعدادات مشروعك في <strong>Firebase Console</strong> وألصقها هنا، ثم اضغط حفظ ليتم تفعيل الاتصال والمزامنة فوراً.
+            </p>
+
+            <form onsubmit="handleSaveFirebaseConfig(event)" class="space-y-3 text-xs">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Project ID (معرّف المشروع):</label>
+                  <input type="text" id="fb-input-projectId" placeholder="qiyas-platform-12345" class="w-full p-2.5 rounded-xl border border-slate-200 font-mono text-xs outline-none focus:border-amber-500" required>
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">API Key:</label>
+                  <input type="text" id="fb-input-apiKey" placeholder="AIzaSy..." class="w-full p-2.5 rounded-xl border border-slate-200 font-mono text-xs outline-none focus:border-amber-500" required>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Auth Domain:</label>
+                  <input type="text" id="fb-input-authDomain" placeholder="project-id.firebaseapp.com" class="w-full p-2.5 rounded-xl border border-slate-200 font-mono text-xs outline-none focus:border-amber-500">
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Storage Bucket:</label>
+                  <input type="text" id="fb-input-storageBucket" placeholder="project-id.firebasestorage.app" class="w-full p-2.5 rounded-xl border border-slate-200 font-mono text-xs outline-none focus:border-amber-500">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Messaging Sender ID:</label>
+                  <input type="text" id="fb-input-messagingSenderId" placeholder="123456789012" class="w-full p-2.5 rounded-xl border border-slate-200 font-mono text-xs outline-none focus:border-amber-500">
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">App ID:</label>
+                  <input type="text" id="fb-input-appId" placeholder="1:123456789012:web:abcdef" class="w-full p-2.5 rounded-xl border border-slate-200 font-mono text-xs outline-none focus:border-amber-500">
+                </div>
+              </div>
+
+              <div class="pt-2 flex items-center justify-between">
+                <button type="button" onclick="clearFirebaseConfig()" class="text-rose-600 hover:text-rose-800 text-xs font-bold">
+                  إلغاء الربط والرجوع للوضع المحلي
+                </button>
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5">
+                  <span>💾 حفظ المفاتيح وتفعيل الاتصال</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right: Operations & Step-by-Step Guide -->
+          <div class="space-y-6">
+            <!-- Operations Box -->
+            <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+              <h3 class="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                <span>🚀 أدوات المزامنة السحابية الفورية</span>
+              </h3>
+              <p class="text-xs text-slate-500">
+                بعد ربط مشروع Firebase، يمكنك نقل بنك الأسئلة ومزامنة حسابات الطلاب بنقرة زر واحدة.
+              </p>
+
+              <div class="space-y-2.5">
+                <button onclick="triggerSyncAllQuestionsToFirebase()" class="w-full p-3.5 rounded-2xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-900 font-bold text-xs flex items-center justify-between transition-all">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">📤</span>
+                    <span class="text-right">رفع بنك الأسئلة بالكامل (٧٠ سؤالاً) إلى Cloud Firestore</span>
+                  </div>
+                  <span class="text-[11px] bg-white px-2 py-0.5 rounded-md text-indigo-700 border border-indigo-200 font-mono">sync</span>
+                </button>
+
+                <button onclick="triggerDownloadQuestionsFromFirebase()" class="w-full p-3.5 rounded-2xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-900 font-bold text-xs flex items-center justify-between transition-all">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">📥</span>
+                    <span class="text-right">سحب وتحديث الأسئلة من Firestore إلى المتصفح</span>
+                  </div>
+                  <span class="text-[11px] bg-white px-2 py-0.5 rounded-md text-sky-700 border border-sky-200 font-mono">pull</span>
+                </button>
+
+                <button onclick="triggerSyncStudentsToFirebase()" class="w-full p-3.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-900 font-bold text-xs flex items-center justify-between transition-all">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">👥</span>
+                    <span class="text-right">مزامنة حسابات الطلاب والنتائج سحابياً</span>
+                  </div>
+                  <span class="text-[11px] bg-white px-2 py-0.5 rounded-md text-emerald-700 border border-emerald-200 font-mono">backup</span>
+                </button>
+              </div>
+
+              <!-- Sync Progress / Result Box -->
+              <div id="fb-sync-status" class="hidden p-3 rounded-xl text-xs font-bold text-center"></div>
+            </div>
+
+            <!-- Guide Box -->
+            <div class="bg-gradient-to-br from-amber-50 to-orange-50/50 p-6 rounded-3xl border border-amber-200/80 space-y-3">
+              <h4 class="font-extrabold text-amber-950 text-sm flex items-center gap-2">
+                <span>📖 خطوات إنشاء قاعدة بيانات Firebase مجاناً (في دقيقتين):</span>
+              </h4>
+              <ol class="text-xs text-amber-900 space-y-2 list-decimal list-inside font-medium leading-relaxed">
+                <li>افتح وحدة تحكم Firebase: <a href="https://console.firebase.google.com" target="_blank" class="underline font-bold text-indigo-700">console.firebase.google.com</a> وسجل بحساب Google.</li>
+                <li>اضغط على <strong>«Add project»</strong> وسمّ المشروع (مثلاً: <code class="bg-white/80 px-1 py-0.5 rounded font-mono">qiyas-training</code>).</li>
+                <li>من القائمة الجانبية اختر <strong>Build ➔ Firestore Database</strong> ثم اضغط <strong>Create database</strong> واضبط القواعد على <em>Start in test mode</em>.</li>
+                <li>انتقل إلى <strong>Project Settings ⚙️</strong> ثم انقر على أيقونة الويب <strong>&lt;/&gt;</strong> وانسخ مفاتيح التكوين والصقها في النموذج هنا!</li>
+              </ol>
+            </div>
           </div>
         </div>
       </div>
@@ -1239,6 +1391,7 @@
       renderFoundation();
       renderAuthWidget();
       updateAdminStatusUI();
+      initFirebaseIntegration();
     }
 
     async function loadQuestions() {
@@ -1398,8 +1551,14 @@
     }
 
     function startLevelPractice(section, level) {
-      const filtered = allQuestions.filter(q => q.section === section && (q.level === level || !q.level));
-      const list = (filtered.length > 0 ? filtered : allQuestions.filter(q => q.section === section)).slice(0, 5);
+      let filtered = allQuestions.filter(q => q.section === section && q.level === level);
+      if (filtered.length === 0) {
+        filtered = allQuestions.filter(q => q.section === section);
+      }
+      if (filtered.length === 0) {
+        filtered = allQuestions;
+      }
+      const list = [...filtered].sort(() => 0.5 - Math.random()).slice(0, 5);
       launchTest(list, 'practice');
     }
 
@@ -1486,6 +1645,14 @@
 
     // ================= TEST RUNNER ENGINE =================
     function launchTest(questionsList, mode) {
+      if (!questionsList || questionsList.length === 0) {
+        alert("لا توجد أسئلة متاحة حالياً لهذا الاختبار. يرجى اختيار قسم آخر.");
+        return;
+      }
+
+      // الانتقال المباشر لشاشة الاختبار المخصص
+      switchTab('custom-test');
+
       activeTest = {
         questions: questionsList,
         currentIndex: 0,
@@ -1506,6 +1673,7 @@
       }
 
       renderTestQuestion();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function startExamTimer() {
@@ -2471,12 +2639,15 @@
       document.getElementById('admin-view-questions').classList.add('hidden');
       document.getElementById('admin-view-students').classList.add('hidden');
       document.getElementById('admin-view-files').classList.add('hidden');
+      const vFb = document.getElementById('admin-view-firebase');
+      if (vFb) vFb.classList.add('hidden');
 
       const bQ = document.getElementById('btn-admin-sub-questions');
       const bS = document.getElementById('btn-admin-sub-students');
       const bF = document.getElementById('btn-admin-sub-files');
+      const bFb = document.getElementById('btn-admin-sub-firebase');
 
-      [bQ, bS, bF].forEach(b => {
+      [bQ, bS, bF, bFb].forEach(b => {
         if (b) b.className = "px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2";
       });
 
@@ -2491,6 +2662,11 @@
       } else if (sub === 'files') {
         document.getElementById('admin-view-files').classList.remove('hidden');
         if (bF) bF.className = "px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2";
+      } else if (sub === 'firebase') {
+        if (vFb) vFb.classList.remove('hidden');
+        if (bFb) bFb.className = "px-5 py-2.5 rounded-xl bg-amber-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2";
+        populateFirebaseSettingsForm();
+        updateFirebaseStatusUI();
       }
     }
 
@@ -2811,6 +2987,14 @@
         }
       }
       renderAdminDashboardStats();
+
+      // Cloud Sync with Firebase
+      if (window.FirebaseService && FirebaseService.isConnected()) {
+        FirebaseService.recordTestResult(st ? st.username : 'guest', result);
+        if (st) {
+          FirebaseService.syncStudent(st);
+        }
+      }
     }
 
     // 4. QUESTION MANAGEMENT (ADMIN CRUD)
@@ -3282,6 +3466,246 @@
       const tempQ = { question: qText, topic, section, correct_index: correctIdx, options };
       document.getElementById('m-explanation').value = generateSmartArabicExplanation(tempQ);
       document.getElementById('m-speed-rule').value = generateSmartSpeedRule(tempQ);
+    }
+
+    // ================= FIREBASE CLOUD FIRESTORE INTEGRATION =================
+    function initFirebaseIntegration() {
+      if (window.FirebaseService) {
+        FirebaseService.init();
+        updateFirebaseStatusUI();
+      }
+    }
+
+    function updateFirebaseStatusUI() {
+      const isConn = window.FirebaseService && FirebaseService.isConnected();
+      const cfg = window.FirebaseService ? FirebaseService.getFirebaseConfig() : null;
+      const pill = document.getElementById('firebase-tab-pill');
+      const badge = document.getElementById('firebase-status-badge');
+      const desc = document.getElementById('firebase-status-desc');
+      const icon = document.getElementById('firebase-status-icon');
+
+      if (pill) {
+        pill.className = isConn ? "w-2 h-2 rounded-full bg-emerald-500 animate-pulse" : "w-2 h-2 rounded-full bg-slate-300";
+      }
+
+      if (badge) {
+        if (isConn) {
+          badge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300";
+          badge.innerText = `متصل سحابياً (${cfg ? cfg.projectId : 'Firestore'})`;
+        } else {
+          badge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-200 text-slate-700";
+          badge.innerText = "غير متصل (يعمل بالوضع المحلي)";
+        }
+      }
+
+      if (desc) {
+        if (isConn) {
+          desc.innerText = `قاعدة البيانات السحابية نشطة ومتصلة بمشروع (${cfg ? cfg.projectId : ''}). جميع الأسئلة والنتائج متاحة للمزامنة الحية.`;
+        } else {
+          desc.innerText = "المنصة تعمل حالياً بنمط التخزين المحلي السريع والآمن. يمكنك ربطها بمشروع Firebase سحابي لمزامنة الأسئلة والنتائج عبر كل الأجهزة.";
+        }
+      }
+
+      if (icon) {
+        if (isConn) {
+          icon.className = "w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl border border-emerald-200";
+          icon.innerText = "☁️";
+        } else {
+          icon.className = "w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl border border-amber-200";
+          icon.innerText = "⚡";
+        }
+      }
+    }
+
+    async function testFirebaseLiveConnection() {
+      if (!window.FirebaseService) return;
+      const cfg = FirebaseService.getFirebaseConfig();
+      if (!cfg || !cfg.apiKey || cfg.apiKey === 'YOUR_API_KEY') {
+        alert("يرجى إدخال مفاتيح التكوين (Project ID و API Key) في النموذج أدناه والضغط على 'حفظ المفاتيح' أولاً.");
+        return;
+      }
+      const btn = document.getElementById('btn-test-firebase');
+      if (btn) btn.innerText = "جاري الفحص...";
+      const res = await FirebaseService.testConnection(cfg);
+      if (btn) btn.innerText = "🔄 اختبار الاتصال";
+
+      if (res.success) {
+        FirebaseService.init(cfg);
+        updateFirebaseStatusUI();
+        alert("✓ تم الاتصال بنجاح بقاعدة بيانات Firebase Cloud Firestore!");
+      } else {
+        alert("تنبيه الاتصال:\n" + res.message);
+      }
+    }
+
+    function populateFirebaseSettingsForm() {
+      if (!window.FirebaseService) return;
+      const cfg = FirebaseService.getFirebaseConfig() || {};
+      const elProj = document.getElementById('fb-input-projectId');
+      const elKey = document.getElementById('fb-input-apiKey');
+      const elAuth = document.getElementById('fb-input-authDomain');
+      const elBucket = document.getElementById('fb-input-storageBucket');
+      const elSender = document.getElementById('fb-input-messagingSenderId');
+      const elApp = document.getElementById('fb-input-appId');
+
+      if (elProj) elProj.value = cfg.projectId || '';
+      if (elKey) elKey.value = (cfg.apiKey && cfg.apiKey !== 'YOUR_API_KEY') ? cfg.apiKey : '';
+      if (elAuth) elAuth.value = cfg.authDomain || '';
+      if (elBucket) elBucket.value = cfg.storageBucket || '';
+      if (elSender) elSender.value = cfg.messagingSenderId || '';
+      if (elApp) elApp.value = cfg.appId || '';
+    }
+
+    async function handleSaveFirebaseConfig(e) {
+      e.preventDefault();
+      const cfg = {
+        projectId: document.getElementById('fb-input-projectId').value.trim(),
+        apiKey: document.getElementById('fb-input-apiKey').value.trim(),
+        authDomain: document.getElementById('fb-input-authDomain').value.trim() || undefined,
+        storageBucket: document.getElementById('fb-input-storageBucket').value.trim() || undefined,
+        messagingSenderId: document.getElementById('fb-input-messagingSenderId').value.trim() || undefined,
+        appId: document.getElementById('fb-input-appId').value.trim() || undefined
+      };
+
+      const statusBox = document.getElementById('fb-sync-status');
+      if (statusBox) {
+        statusBox.className = "p-3 rounded-xl text-xs font-bold text-center bg-amber-50 text-amber-800 border border-amber-200 block";
+        statusBox.innerText = "جاري فحص الاتصال بقاعدة بيانات Firebase...";
+      }
+
+      localStorage.setItem('qiyas_firebase_config', JSON.stringify(cfg));
+      const res = await FirebaseService.testConnection(cfg);
+
+      if (res.success) {
+        FirebaseService.init(cfg);
+        updateFirebaseStatusUI();
+        if (statusBox) {
+          statusBox.className = "p-3 rounded-xl text-xs font-bold text-center bg-emerald-50 text-emerald-800 border border-emerald-200 block";
+          statusBox.innerText = "✓ تم الحفظ والاتصال بنجاح بقاعدة بيانات Firestore!";
+        }
+        alert("تم ربط وتفعيل قاعدة بيانات Firebase Firestore بنجاح!");
+      } else {
+        FirebaseService.init(cfg);
+        updateFirebaseStatusUI();
+        if (statusBox) {
+          statusBox.className = "p-3 rounded-xl text-xs font-bold text-center bg-rose-50 text-rose-800 border border-rose-200 block";
+          statusBox.innerText = "تنبيه: " + res.message;
+        }
+        alert("تم حفظ المفاتيح ولكن الاتصال أرجع تنبيهاً:\n" + res.message + "\nتأكد من إنشاء Firestore Database في وحدة تحكم Firebase واختيار Test Mode للقراءة والكتابة.");
+      }
+    }
+
+    function clearFirebaseConfig() {
+      if (confirm("هل تريد إلغاء ربط Firebase والعودة للتخزين المحلي؟")) {
+        localStorage.removeItem('qiyas_firebase_config');
+        populateFirebaseSettingsForm();
+        if (window.FirebaseService) FirebaseService.init(null);
+        updateFirebaseStatusUI();
+        const statusBox = document.getElementById('fb-sync-status');
+        if (statusBox) {
+          statusBox.className = "p-3 rounded-xl text-xs font-bold text-center bg-slate-100 text-slate-700 border border-slate-200 block";
+          statusBox.innerText = "تم إلغاء الربط والرجوع إلى وضع التخزين المحلي.";
+        }
+      }
+    }
+
+    async function triggerSyncAllQuestionsToFirebase() {
+      if (!window.FirebaseService || !FirebaseService.isConnected()) {
+        alert("يرجى إدخال مفاتيح مشروع Firebase أولاً والضغط على 'حفظ المفاتيح وتفعيل الاتصال'.");
+        return;
+      }
+
+      const statusBox = document.getElementById('fb-sync-status');
+      if (statusBox) {
+        statusBox.className = "p-3 rounded-xl text-xs font-bold text-center bg-indigo-50 text-indigo-800 border border-indigo-200 block";
+        statusBox.innerText = `جاري رفع ومزامنة ${toAr(allQuestions.length)} مسألة إلى Cloud Firestore...`;
+      }
+
+      try {
+        const count = await FirebaseService.uploadQuestions(allQuestions, (done, total) => {
+          if (statusBox) {
+            statusBox.innerText = `جاري الرفع السحابي: ${toAr(done)} من ${toAr(total)} سؤالاً...`;
+          }
+        });
+        if (statusBox) {
+          statusBox.className = "p-3 rounded-xl text-xs font-bold text-center bg-emerald-50 text-emerald-800 border border-emerald-200 block";
+          statusBox.innerText = `✓ تم رفع وتحديث ${toAr(count)} سؤالاً بنجاح في مجموعة (questions) على Firestore!`;
+        }
+        alert(`تمت مزامنة جميع الأسئلة (${count} سؤالاً) إلى Cloud Firestore بنجاح!`);
+      } catch (err) {
+        if (statusBox) {
+          statusBox.className = "p-3 rounded-xl text-xs font-bold text-center bg-rose-50 text-rose-800 border border-rose-200 block";
+          statusBox.innerText = "خطأ أثناء الرفع: " + err.message;
+        }
+        alert("فشل الرفع: " + err.message);
+      }
+    }
+
+    async function triggerDownloadQuestionsFromFirebase() {
+      if (!window.FirebaseService || !FirebaseService.isConnected()) {
+        alert("يرجى ربط مشروع Firebase أولاً.");
+        return;
+      }
+
+      const statusBox = document.getElementById('fb-sync-status');
+      if (statusBox) {
+        statusBox.className = "p-3 rounded-xl text-xs font-bold text-center bg-sky-50 text-sky-800 border border-sky-200 block";
+        statusBox.innerText = "جاري سحب الأسئلة من Firestore...";
+      }
+
+      try {
+        const list = await FirebaseService.downloadQuestions();
+        if (!list || list.length === 0) {
+          if (statusBox) {
+            statusBox.className = "p-3 rounded-xl text-xs font-bold text-center bg-amber-50 text-amber-800 border border-amber-200 block";
+            statusBox.innerText = "لم يتم العثور على وثائق في مجموعة (questions) بعد.";
+          }
+          alert("قاعدة بيانات Firestore لا تحتوي على أسئلة بعد. استخدم زر 'رفع بنك الأسئلة' أولاً.");
+          return;
+        }
+
+        allQuestions = list;
+        localStorage.setItem('qiyas_questions_override', JSON.stringify(list));
+        document.getElementById('header-total-q').innerText = toAr(allQuestions.length) + ' سؤالاً';
+        renderAdminQuestionsList();
+        renderAdminDashboardStats();
+        populateTopicCheckboxes();
+
+        if (statusBox) {
+          statusBox.className = "p-3 rounded-xl text-xs font-bold text-center bg-emerald-50 text-emerald-800 border border-emerald-200 block";
+          statusBox.innerText = `✓ تم استيراد ${toAr(list.length)} سؤالاً وتحديث المنصة بنجاح!`;
+        }
+        alert(`تم جلب وتحديث ${list.length} سؤالاً بنجاح من Cloud Firestore!`);
+      } catch (err) {
+        if (statusBox) {
+          statusBox.className = "p-3 rounded-xl text-xs font-bold text-center bg-rose-50 text-rose-800 border border-rose-200 block";
+          statusBox.innerText = "خطأ أثناء السحب: " + err.message;
+        }
+        alert("فشل الجلب من السحابة: " + err.message);
+      }
+    }
+
+    async function triggerSyncStudentsToFirebase() {
+      if (!window.FirebaseService || !FirebaseService.isConnected()) {
+        alert("يرجى ربط مشروع Firebase أولاً.");
+        return;
+      }
+
+      const statusBox = document.getElementById('fb-sync-status');
+      const studentsList = getStudentsList();
+      if (statusBox) {
+        statusBox.className = "p-3 rounded-xl text-xs font-bold text-center bg-emerald-50 text-emerald-800 border border-emerald-200 block";
+        statusBox.innerText = `جاري مزامنة ${toAr(studentsList.length)} حساب طالب...`;
+      }
+
+      for (const st of studentsList) {
+        await FirebaseService.syncStudent(st);
+      }
+
+      if (statusBox) {
+        statusBox.innerText = `✓ تمت مزامنة جميع حسابات وسجلات الطلاب بنجاح في Cloud Firestore!`;
+      }
+      alert("تمت مزامنة حسابات الطلاب ونتائجهم سحابياً بنجاح!");
     }
 
     // Scratchpad

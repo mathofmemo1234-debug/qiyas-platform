@@ -1,10 +1,5 @@
-// إعدادات الربط السحابي مع Firebase Firestore (اختياري)
-// إذا رغبت في ربط المنصة بالسحابة ومزامنة بيانات الطلاب عن بُعد:
-// 1. توجه إلى: https://console.firebase.google.com
-// 2. أنشئ مشروعاً جديداً وفعّل Firestore Database
-// 3. الصق بيانات مشروعك هنا، وسيقوم النظام بالاتصال السحابي تلقائياً
-
-export const firebaseConfig = {
+// firebase-config.js - مفاتيح وإعدادات مشروع Firebase Cloud Firestore
+const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
   projectId: "YOUR_PROJECT_ID",
@@ -13,6 +8,10 @@ export const firebaseConfig = {
   appId: "YOUR_APP_ID"
 };
 
-export const isFirebaseConfigured = () => {
-  return firebaseConfig.apiKey && firebaseConfig.apiKey !== "YOUR_API_KEY";
-};
+// Make available globally in browser and in Node/ES modules
+if (typeof window !== 'undefined') {
+  window.defaultFirebaseConfig = firebaseConfig;
+}
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = firebaseConfig;
+}
