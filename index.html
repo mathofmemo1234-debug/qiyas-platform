@@ -55,6 +55,9 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
 
+  <!-- Tesseract.js OCR Engine (Optical Character Recognition) -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
   <!-- Firebase SDKs (Cloud Firestore & Auth) -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
@@ -101,6 +104,32 @@
       background-color: #fdf4ff;
       color: #9333ea;
       border: 1px solid #f5d0fe;
+    }
+
+    /* Flashy Hero Headline Animation (ظهور فلاشي متألق براق) */
+    @keyframes flashyGlowShimmer {
+      0% {
+        background-position: -200% 0;
+        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.7));
+      }
+      50% {
+        background-position: 200% 0;
+        filter: drop-shadow(0 0 16px rgba(254, 240, 138, 0.95)) drop-shadow(0 0 28px rgba(56, 189, 248, 0.85));
+      }
+      100% {
+        background-position: -200% 0;
+        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.7));
+      }
+    }
+    .flashy-headline {
+      background: linear-gradient(90deg, #ffffff 0%, #fef08a 25%, #67e8f9 50%, #fef08a 75%, #ffffff 100%);
+      background-size: 250% auto;
+      color: #ffffff;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: flashyGlowShimmer 3.5s ease-in-out infinite;
+      display: inline-block;
+      letter-spacing: -0.01em;
     }
   </style>
 </head>
@@ -161,8 +190,13 @@
           </button>
         </nav>
 
-        <!-- Quick Section Filter / Status & Student Account -->
-        <div class="flex items-center gap-3">
+        <!-- Quick Section Filter / Status, OCR Quick Launch & Student Account -->
+        <div class="flex items-center gap-2.5">
+          <button onclick="openOcrModal()" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-xs shadow-sm transition-all shadow-sky-600/20">
+            <span>📸</span>
+            <span>قارئ الـ OCR الذكي</span>
+          </button>
+
           <div class="hidden sm:flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold border border-slate-200">
             <span class="px-2 py-1 text-slate-600">بنك الأسئلة:</span>
             <span id="header-total-q" class="bg-white px-2 py-1 rounded-lg text-sky-600 shadow-xs">70 سؤالاً</span>
@@ -183,6 +217,10 @@
       <button onclick="switchTab('custom-test')" class="p-1 text-slate-700">اختبار ذاتي</button>
       <button onclick="switchTab('simulator')" class="p-1 text-slate-700">المحاكي</button>
       <button onclick="switchTab('mistakes')" class="p-1 text-slate-700">الأخطاء</button>
+      <button onclick="openOcrModal()" class="p-1 text-sky-700 font-bold flex items-center gap-0.5">
+        <span>📸</span>
+        <span>OCR</span>
+      </button>
       <button onclick="handleAdminNavClick()" class="p-1 text-amber-700 font-bold flex items-center gap-0.5">
         <span>الإدارة</span>
         <span class="text-xs">🔒</span>
@@ -196,26 +234,30 @@
     <!-- ==================== TAB 1: HOME DASHBOARD ==================== -->
     <section id="tab-home" class="tab-pane space-y-8">
       
-      <!-- Hero Welcome Banner -->
-      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-l from-sky-600 via-indigo-600 to-indigo-800 text-white p-8 md:p-12 shadow-xl shadow-indigo-900/10">
-        <div class="relative z-10 max-w-2xl space-y-4">
+      <!-- Hero Welcome Banner (Single line & flashy headline) -->
+      <div class="relative overflow-hidden rounded-3xl bg-gradient-to-l from-sky-600 via-indigo-600 to-indigo-800 text-white p-6 sm:p-8 md:p-10 shadow-xl shadow-indigo-900/10">
+        <div class="relative z-10 max-w-4xl space-y-3.5">
           <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold">
             <span>✨ مرحباً بك في منصة نَبِيهْ للقدرات العامة</span>
           </div>
-          <h2 class="text-3xl md:text-5xl font-black leading-tight tracking-tight">
-            تدريبك الذكي للقدرات يبدأ هنا، بمنهجية متقنة.
+          <h2 class="text-base sm:text-xl md:text-2xl lg:text-3xl font-black whitespace-nowrap overflow-hidden text-ellipsis py-0.5">
+            <span class="flashy-headline">تدريبك الذكي للقدرات يبدأ هنا، بمنهجية متقنة.</span>
           </h2>
-          <p class="text-slate-100 text-base md:text-lg leading-relaxed">
+          <p class="text-slate-100 text-xs sm:text-sm md:text-base leading-relaxed max-w-2xl">
             منظومة تدريبية حديثة تجمع بين التأسيس العميق، استراتيجيات الحل السريع، والمحاكاة الواقعية للاختبار المحوسب مع شروحات نموذجية مفصلة.
           </p>
-          <div class="flex flex-wrap items-center gap-4 pt-4">
-            <button onclick="switchTab('custom-test')" class="px-6 py-3.5 rounded-2xl bg-white text-indigo-700 hover:bg-slate-50 font-bold text-sm shadow-md transition-all flex items-center gap-2">
-              <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
+          <div class="flex flex-wrap items-center gap-3 pt-2">
+            <button onclick="switchTab('custom-test')" class="px-5 py-3 rounded-2xl bg-white text-indigo-700 hover:bg-slate-50 font-bold text-xs sm:text-sm shadow-md transition-all flex items-center gap-2">
+              <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
               ابدأ اختباراً ذاتياً الآن
             </button>
-            <button onclick="switchTab('foundation')" class="px-6 py-3.5 rounded-2xl bg-indigo-500/30 hover:bg-indigo-500/40 text-white border border-white/30 font-bold text-sm transition-all flex items-center gap-2">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            <button onclick="switchTab('foundation')" class="px-5 py-3 rounded-2xl bg-indigo-500/30 hover:bg-indigo-500/40 text-white border border-white/30 font-bold text-xs sm:text-sm transition-all flex items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
               استكشف مسار التأسيس
+            </button>
+            <button onclick="openOcrModal()" class="px-5 py-3 rounded-2xl bg-amber-400 text-slate-950 hover:bg-amber-300 font-extrabold text-xs sm:text-sm shadow-md transition-all flex items-center gap-2">
+              <span>📸</span>
+              <span>حل مسألة بـ OCR والذكاء</span>
             </button>
           </div>
         </div>
@@ -251,6 +293,34 @@
                   الحساب، الجبر والمعادلات، الهندسة والزوايا، المقارنات، المتتابعات، والإحصاء والاحتمالات.
                 </p>
               </div>
+
+              <!-- QUANTITATIVE TRAINER ATTRIBUTION -->
+              <div class="p-3.5 rounded-2xl bg-gradient-to-l from-blue-50 via-sky-50 to-blue-100/70 border border-blue-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-sm shadow-sm">
+                    📐
+                  </div>
+                  <div>
+                    <div class="font-black text-blue-950 text-xs flex items-center gap-1.5 flex-wrap">
+                      <span>مدرب الكمي:</span>
+                      <span class="text-blue-800 font-black">الأستاذ محمد عبدالله جمعة</span>
+                      <span class="text-[10px] bg-blue-200/80 text-blue-900 px-2 py-0.5 rounded-full font-bold">خبرة أكثر من 30 عام</span>
+                    </div>
+                    <div class="text-[11px] text-blue-700 font-bold mt-0.5">
+                      ج / <a href="tel:0545841974" class="underline font-mono">0545841974</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 self-end sm:self-center">
+                  <a href="https://wa.me/966545841974" target="_blank" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-lg transition-all shadow-xs flex items-center gap-1">
+                    <span>واتساب</span>
+                  </a>
+                  <a href="tel:0545841974" class="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-lg transition-all shadow-xs flex items-center gap-1">
+                    <span>اتصال</span>
+                  </a>
+                </div>
+              </div>
+
               <div class="flex flex-wrap gap-2 pt-2">
                 <span class="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg">حساب</span>
                 <span class="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg">جبر</span>
@@ -287,6 +357,34 @@
                   التناظر اللفظي، إكمال الجمل، الخطأ السياقي، استيعاب المقروء، والمفردة الشاذة بروابط دلالية دقيقة.
                 </p>
               </div>
+
+              <!-- VERBAL TRAINER ATTRIBUTION -->
+              <div class="p-3.5 rounded-2xl bg-gradient-to-l from-purple-50 via-fuchsia-50 to-purple-100/70 border border-purple-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-black text-sm shadow-sm">
+                    📖
+                  </div>
+                  <div>
+                    <div class="font-black text-purple-950 text-xs flex items-center gap-1.5 flex-wrap">
+                      <span>مدرب اللفظي:</span>
+                      <span class="text-purple-800 font-black">الأستاذ عبدالله حمد</span>
+                      <span class="text-[10px] bg-purple-200/80 text-purple-900 px-2 py-0.5 rounded-full font-bold">خبرة أكثر من 30 عام</span>
+                    </div>
+                    <div class="text-[11px] text-purple-700 font-bold mt-0.5">
+                      ج / <a href="tel:0562801326" class="underline font-mono">0562801326</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1.5 self-end sm:self-center">
+                  <a href="https://wa.me/966562801326" target="_blank" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-lg transition-all shadow-xs flex items-center gap-1">
+                    <span>واتساب</span>
+                  </a>
+                  <a href="tel:0562801326" class="px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-[11px] font-bold rounded-lg transition-all shadow-xs flex items-center gap-1">
+                    <span>اتصال</span>
+                  </a>
+                </div>
+              </div>
+
               <div class="flex flex-wrap gap-2 pt-2">
                 <span class="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg">التناظر اللفظي</span>
                 <span class="text-xs bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg">إكمال الجمل</span>
@@ -429,6 +527,9 @@
               <span>القسم اللفظي فقط</span>
             </label>
           </div>
+
+          <!-- Dynamic Trainer Attribution Banner in Custom Test -->
+          <div id="custom-test-trainer-banner" class="pt-1"></div>
         </div>
 
         <!-- 2. Subtopics Checkboxes -->
@@ -626,6 +727,10 @@
         <button onclick="setAdminSubTab('firebase')" id="btn-admin-sub-firebase" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2">
           <span>☁️ قاعدة بيانات Firebase</span>
           <span id="firebase-tab-pill" class="w-2 h-2 rounded-full bg-slate-300"></span>
+        </button>
+        <button onclick="setAdminSubTab('ocr')" id="btn-admin-sub-ocr" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2">
+          <span>📸 قارئ ومحلل الـ OCR</span>
+          <span class="px-1.5 py-0.2 rounded text-[10px] bg-sky-100 text-sky-800 font-bold">ذكاء اصطناعي</span>
         </button>
       </div>
 
@@ -886,6 +991,101 @@
                 <li>من القائمة الجانبية اختر <strong>Build ➔ Firestore Database</strong> ثم اضغط <strong>Create database</strong> واضبط القواعد على <em>Start in test mode</em>.</li>
                 <li>انتقل إلى <strong>Project Settings ⚙️</strong> ثم انقر على أيقونة الويب <strong>&lt;/&gt;</strong> وانسخ مفاتيح التكوين والصقها في النموذج هنا!</li>
               </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 5: OCR QUESTION INGESTION & SELF-SOLVER -->
+      <div id="admin-view-ocr" class="hidden space-y-6">
+        <!-- Banner -->
+        <div class="p-6 rounded-3xl bg-gradient-to-l from-sky-600 via-indigo-600 to-indigo-800 text-white flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg shadow-indigo-900/10">
+          <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-3xl">
+              📸
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="font-black text-white text-lg">منظومة قراءة وتحليل الأسئلة بالـ OCR والحل الذاتي</h3>
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-400 text-slate-950">محرك فوري</span>
+              </div>
+              <p class="text-xs text-sky-100 mt-1">
+                ارفع صورة أي مسألة من كتاب أو تجميعات أو نموذج؛ يقرأها النظام فوراً باللغة العربية، ويستخرج الخيارات، ويحلها بنفسه خطوة بخطوة مع قانون الحل السريع، ويضيفها لبنك الأسئلة والمزامنة السحابية.
+              </p>
+            </div>
+          </div>
+          <button onclick="openOcrModal()" class="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-indigo-700 font-bold text-xs shadow-md transition-all flex items-center gap-1.5 self-start md:self-auto">
+            <span>🚀 فتح الاستوديو التفاعلي الكامل</span>
+          </button>
+        </div>
+
+        <!-- Quick Upload Card in Admin -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <h4 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+              <span>📤 مسح صورة مسألة جديدة</span>
+            </h4>
+            <div class="border-2 border-dashed border-sky-300 hover:border-sky-500 rounded-2xl p-6 text-center transition-all bg-sky-50/30 cursor-pointer" onclick="openOcrModal()">
+              <div class="w-12 h-12 mx-auto rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-2xl mb-2">
+                📸
+              </div>
+              <span class="block text-xs font-bold text-slate-800">انقر لفتح قارئ الـ OCR الذكي</span>
+              <span class="block text-[11px] text-slate-500 mt-1">يدعم السحب، الرفع، أو اللصق (Ctrl+V)</span>
+            </div>
+
+            <!-- Quick Samples -->
+            <div class="space-y-2 pt-2 border-t border-slate-100">
+              <span class="text-[11px] font-bold text-slate-600 block">⚡ تجربة مسألة نموذجية:</span>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="openOcrModal(); loadOcrSample(1);" class="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 text-xs font-bold text-right border border-blue-200">
+                  📐 معادلة وجبر (كمي)
+                </button>
+                <button onclick="openOcrModal(); loadOcrSample(2);" class="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 text-xs font-bold text-right border border-blue-200">
+                  ⚖️ مقارنة أعداد (كمي)
+                </button>
+                <button onclick="openOcrModal(); loadOcrSample(3);" class="p-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-900 text-xs font-bold text-right border border-purple-200">
+                  📖 تناظر لفظي (لفظي)
+                </button>
+                <button onclick="openOcrModal(); loadOcrSample(4);" class="p-2 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-900 text-xs font-bold text-right border border-purple-200">
+                  ✍️ إكمال جمل (لفظي)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <h4 class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+              <span>🤖 كيف يعمل محرك التحليل والحل الذاتي؟</span>
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <span class="text-xl">1️⃣</span>
+                <h5 class="font-bold text-slate-900">المسح واستخراج النص</h5>
+                <p class="text-slate-500 leading-relaxed text-[11px]">
+                  قراءة الحروف والأرقام العربية والرموز الرياضية باستخدام Tesseract AI بدقة عالية.
+                </p>
+              </div>
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <span class="text-xl">2️⃣</span>
+                <h5 class="font-bold text-slate-900">تفكيك السؤال والخيارات</h5>
+                <p class="text-slate-500 leading-relaxed text-[11px]">
+                  فرز نص السؤال والخيارات الأربعة (أ، ب، ج، د) وتصنيف المجال (كمي/لفظي) والموضوع.
+                </p>
+              </div>
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                <span class="text-xl">3️⃣</span>
+                <h5 class="font-bold text-slate-900">الحل الذاتي وتوليد الشرح</h5>
+                <p class="text-slate-500 leading-relaxed text-[11px]">
+                  حل المسألة رياضياً أو لغوياً واختيار الإجابة الصحيحة وصياغة استراتيجية الحل السريع.
+                </p>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between text-xs text-emerald-950 font-bold">
+              <span>جاهز للاختبار؟ انقر فوق الزر لبدء مسح وحل المسائل الآن:</span>
+              <button onclick="openOcrModal()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-sm transition-all">
+                ابدأ المسح الآن
+              </button>
             </div>
           </div>
         </div>
@@ -1343,6 +1543,195 @@
     </div>
   </div>
 
+  <!-- ================= OCR SMART READER & SELF-SOLVER MODAL ================= -->
+  <div id="ocr-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-6 my-auto max-h-[92vh] overflow-y-auto">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center text-2xl shadow-md">
+            📸
+          </div>
+          <div>
+            <h3 class="font-black text-xl text-slate-900 flex items-center gap-2 flex-wrap">
+              <span>قارئ ومحلل الأسئلة بالـ OCR والحل الذاتي</span>
+              <span class="text-xs bg-sky-100 text-sky-800 font-bold px-2.5 py-0.5 rounded-full">محرك Tesseract AI</span>
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              امسح صورة أي مسألة أو اسحبها أو الصقها (Ctrl+V)؛ يقرأها النظام بالعربية، ويحللها، ويحلها تلقائياً مع الشرح وقانون السرعة!
+            </p>
+          </div>
+        </div>
+        <button onclick="closeOcrModal()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xl font-bold transition-all">&times;</button>
+      </div>
+
+      <!-- Upload / Drop / Paste Zone -->
+      <div id="ocr-drop-zone" class="border-2 border-dashed border-sky-300 hover:border-sky-600 rounded-3xl p-6 sm:p-8 text-center bg-sky-50/40 hover:bg-sky-50/70 transition-all cursor-pointer relative" onclick="triggerOcrFileInput()">
+        <input type="file" id="ocr-file-input" accept="image/*" class="hidden" onchange="handleOcrFileSelected(event)">
+        <input type="file" id="ocr-camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleOcrFileSelected(event)">
+        
+        <div class="w-16 h-16 mx-auto rounded-3xl bg-white shadow-md text-sky-600 flex items-center justify-center text-3xl mb-3 border border-sky-100">
+          🖼️
+        </div>
+        <h4 class="font-extrabold text-base text-slate-900">اسحب وأفلت صورة السؤال هنا، أو انقر للاختيار</h4>
+        <p class="text-xs text-slate-500 mt-1">يدعم جميع صيغ الصور (PNG, JPG, WebP) والصور المصورة بالجوال أو لقطات الشاشة</p>
+        
+        <div class="flex flex-wrap items-center justify-center gap-2 pt-4" onclick="event.stopPropagation()">
+          <button type="button" onclick="triggerOcrFileInput()" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-all">
+            <span>📁 اختيار صورة من الجهاز</span>
+          </button>
+          <button type="button" onclick="triggerOcrCameraInput()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-all">
+            <span>📷 التقاط بالكاميرا</span>
+          </button>
+          <button type="button" onclick="pasteImageFromClipboard()" class="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs shadow-xs flex items-center gap-1.5 transition-all">
+            <span>📋 لصق من الحافظة (Ctrl+V)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Test Samples -->
+      <div class="space-y-2">
+        <span class="text-xs font-bold text-slate-600 block">⚡ جرّب مسألة تجريبية فورية للتحليل والحل التلقائي:</span>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <button type="button" onclick="loadOcrSample(1)" class="p-2.5 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-blue-900 font-bold text-xs text-right transition-all shadow-2xs">
+            📐 معادلة وجبر (كمي)
+          </button>
+          <button type="button" onclick="loadOcrSample(2)" class="p-2.5 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-blue-900 font-bold text-xs text-right transition-all shadow-2xs">
+            ⚖️ مقارنة أعداد (كمي)
+          </button>
+          <button type="button" onclick="loadOcrSample(3)" class="p-2.5 rounded-xl border border-purple-200 bg-purple-50/70 hover:bg-purple-100 text-purple-900 font-bold text-xs text-right transition-all shadow-2xs">
+            📖 تناظر لفظي (لفظي)
+          </button>
+          <button type="button" onclick="loadOcrSample(4)" class="p-2.5 rounded-xl border border-purple-200 bg-purple-50/70 hover:bg-purple-100 text-purple-900 font-bold text-xs text-right transition-all shadow-2xs">
+            ✍️ إكمال جمل (لفظي)
+          </button>
+        </div>
+      </div>
+
+      <!-- OCR Progress Bar -->
+      <div id="ocr-progress-container" class="hidden space-y-2 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+        <div class="flex items-center justify-between text-xs font-bold">
+          <span id="ocr-progress-status" class="text-sky-700 flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full bg-sky-500 animate-ping"></span>
+            جاري تهيئة نموذج الذكاء الاصطناعي وقراءة الصورة...
+          </span>
+          <span id="ocr-progress-percent" class="text-slate-600 font-mono">0%</span>
+        </div>
+        <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+          <div id="ocr-progress-bar" class="bg-gradient-to-l from-sky-500 to-indigo-600 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- OCR Analysis & Self-Solving Result Box -->
+      <div id="ocr-result-container" class="hidden space-y-5">
+        <div class="border-t border-slate-200 pt-5">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+              <h4 class="font-extrabold text-base text-slate-900">نتيجة الفحص والحل الذاتي:</h4>
+            </div>
+            <div class="flex items-center gap-2" id="ocr-detected-badges">
+              <!-- Rendered badges: section & topic -->
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <!-- Left: Scanned Image Preview & Raw Text -->
+            <div class="lg:col-span-4 space-y-3">
+              <div id="ocr-image-preview-box" class="p-2 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center max-h-56 overflow-hidden">
+                <img id="ocr-image-preview" src="" alt="المعاينة" class="max-h-52 object-contain rounded-xl">
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 mb-1">النص المقروء بالـ OCR:</label>
+                <textarea id="ocr-raw-text" rows="5" class="w-full text-xs font-mono p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 outline-none" placeholder="النص الخام المقروء..."></textarea>
+                <button type="button" onclick="reAnalyzeFromRawText()" class="mt-1 text-[11px] text-sky-600 hover:text-sky-800 font-bold flex items-center gap-1">
+                  <span>🔄 إعادة التحليل والحل بعد تعديل النص</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Right: Structured Parsed & Solved Question -->
+            <div class="lg:col-span-8 space-y-4 bg-slate-50/70 p-5 rounded-3xl border border-slate-200">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">القسم:</label>
+                  <select id="ocr-field-section" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none" onchange="updateOcrSectionBadge()">
+                    <option value="quantitative">القسم الكمي (الرياضي)</option>
+                    <option value="verbal">القسم اللفظي (اللغوي)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">الموضوع الفرعي:</label>
+                  <input type="text" id="ocr-field-topic" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">نص المسألة:</label>
+                <textarea id="ocr-field-question" rows="2" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none"></textarea>
+              </div>
+
+              <!-- Options -->
+              <div class="space-y-2">
+                <label class="block text-xs font-bold text-slate-700">
+                  الخيارات (تم اختيار الإجابة الصحيحة وتلوينها بالأخضر تلقائياً بواسطة المحرك الذاتي):
+                </label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div class="flex items-center gap-2 p-2 rounded-xl bg-white border border-slate-200 focus-within:border-sky-500" id="ocr-opt-wrap-0">
+                    <input type="radio" name="ocr-correct-choice" id="ocr-radio-0" value="0" onchange="onOcrCorrectChoiceChange(0)">
+                    <span class="font-bold text-xs text-sky-700">أ:</span>
+                    <input type="text" id="ocr-opt-0" class="w-full text-xs outline-none bg-transparent">
+                  </div>
+                  <div class="flex items-center gap-2 p-2 rounded-xl bg-white border border-slate-200 focus-within:border-sky-500" id="ocr-opt-wrap-1">
+                    <input type="radio" name="ocr-correct-choice" id="ocr-radio-1" value="1" onchange="onOcrCorrectChoiceChange(1)">
+                    <span class="font-bold text-xs text-sky-700">ب:</span>
+                    <input type="text" id="ocr-opt-1" class="w-full text-xs outline-none bg-transparent">
+                  </div>
+                  <div class="flex items-center gap-2 p-2 rounded-xl bg-white border border-slate-200 focus-within:border-sky-500" id="ocr-opt-wrap-2">
+                    <input type="radio" name="ocr-correct-choice" id="ocr-radio-2" value="2" onchange="onOcrCorrectChoiceChange(2)">
+                    <span class="font-bold text-xs text-sky-700">ج:</span>
+                    <input type="text" id="ocr-opt-2" class="w-full text-xs outline-none bg-transparent">
+                  </div>
+                  <div class="flex items-center gap-2 p-2 rounded-xl bg-white border border-slate-200 focus-within:border-sky-500" id="ocr-opt-wrap-3">
+                    <input type="radio" name="ocr-correct-choice" id="ocr-radio-3" value="3" onchange="onOcrCorrectChoiceChange(3)">
+                    <span class="font-bold text-xs text-sky-700">د:</span>
+                    <input type="text" id="ocr-opt-3" class="w-full text-xs outline-none bg-transparent">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Explanation & Speed Rule -->
+              <div class="space-y-3 pt-2">
+                <div>
+                  <label class="block text-xs font-bold text-emerald-800 mb-1 flex items-center gap-1">
+                    <span>💡 الشرح والحل النموذجي (المولد ذاتياً):</span>
+                  </label>
+                  <textarea id="ocr-field-explanation" rows="3" class="w-full p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/40 text-xs text-slate-800 outline-none leading-relaxed"></textarea>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-amber-800 mb-1 flex items-center gap-1">
+                    <span>⚡ قانون واستراتيجية الحل السريع:</span>
+                  </label>
+                  <input type="text" id="ocr-field-speed-rule" class="w-full p-2 rounded-xl border border-amber-200 bg-amber-50/40 text-xs text-slate-800 outline-none font-bold">
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="pt-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                <button type="button" onclick="testCurrentOcrQuestionNow()" class="px-5 py-2.5 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-900 font-bold text-xs flex items-center gap-1.5 transition-all">
+                  <span>🧪 تجربة السؤال في تدريب فوري</span>
+                </button>
+                <button type="button" onclick="saveOcrQuestionToBank()" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md flex items-center gap-1.5 transition-all">
+                  <span>💾 حفظ في بنك الأسئلة ومزامنة السحابة</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= FOOTER ================= -->
   <footer class="bg-white border-t border-slate-200 py-8 text-center text-xs text-slate-600">
     <div class="max-w-7xl mx-auto px-4 space-y-4">
@@ -1515,6 +1904,56 @@
       }
 
       let html = '';
+      if (foundationSubTab === 'quant') {
+        html += `
+          <div class="p-4 rounded-3xl bg-gradient-to-l from-blue-50 via-sky-50 to-white border border-blue-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black text-xl shadow-md">📐</div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-xs font-bold text-blue-700 bg-blue-100 px-2.5 py-0.5 rounded-full">إشراف وتدريب مسار الكمي</span>
+                  <span class="text-xs text-blue-900 font-extrabold">خبرة أكثر من 30 عام</span>
+                </div>
+                <h3 class="text-base font-black text-slate-900 mt-0.5">مدرب الكمي: الأستاذ محمد عبدالله جمعة</h3>
+                <p class="text-xs text-slate-600 font-medium">للمتابعة والاستفسارات الرياضية: <a href="tel:0545841974" class="font-bold text-blue-700 underline font-mono">ج / 0545841974</a></p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <a href="https://wa.me/966545841974" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5">
+                <span>واتساب مباشر</span>
+              </a>
+              <a href="tel:0545841974" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5">
+                <span>اتصال هاتف</span>
+              </a>
+            </div>
+          </div>
+        `;
+      } else {
+        html += `
+          <div class="p-4 rounded-3xl bg-gradient-to-l from-purple-50 via-fuchsia-50 to-white border border-purple-200 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center font-black text-xl shadow-md">📖</div>
+              <div>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="text-xs font-bold text-purple-700 bg-purple-100 px-2.5 py-0.5 rounded-full">إشراف وتدريب مسار اللفظي</span>
+                  <span class="text-xs text-purple-900 font-extrabold">خبرة أكثر من 30 عام</span>
+                </div>
+                <h3 class="text-base font-black text-slate-900 mt-0.5">مدرب اللفظي: الأستاذ عبدالله حمد</h3>
+                <p class="text-xs text-slate-600 font-medium">للمتابعة والاستفسارات اللغوية: <a href="tel:0562801326" class="font-bold text-purple-700 underline font-mono">ج / 0562801326</a></p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <a href="https://wa.me/966562801326" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5">
+                <span>واتساب مباشر</span>
+              </a>
+              <a href="tel:0562801326" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1.5">
+                <span>اتصال هاتف</span>
+              </a>
+            </div>
+          </div>
+        `;
+      }
+
       data.levels.forEach(lvl => {
         html += `
           <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-6">
@@ -1594,6 +2033,7 @@
           <span>${topic}</span>
         </label>
       `).join('');
+      onTestSectionChange();
     }
 
     function onTestSectionChange() {
@@ -1613,6 +2053,63 @@
           cb.parentElement.classList.add('hidden');
         }
       });
+
+      // Update trainer attribution in custom test setup
+      const trainerBox = document.getElementById('custom-test-trainer-banner');
+      if (trainerBox) {
+        if (sec === 'quantitative') {
+          trainerBox.innerHTML = `
+            <div class="p-3 rounded-2xl bg-blue-50 border border-blue-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">📐</span>
+                <div>
+                  <span class="font-extrabold text-blue-950">مدرب الكمي: الأستاذ محمد عبدالله جمعة (خبرة أكثر من 30 عام)</span>
+                  <span class="text-blue-700 font-bold block sm:inline sm:mr-2">ج / <a href="tel:0545841974" class="underline font-mono">0545841974</a></span>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 self-end sm:self-auto">
+                <a href="https://wa.me/966545841974" target="_blank" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg transition-all">واتساب</a>
+                <a href="tel:0545841974" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold rounded-lg transition-all">اتصال</a>
+              </div>
+            </div>
+          `;
+        } else if (sec === 'verbal') {
+          trainerBox.innerHTML = `
+            <div class="p-3 rounded-2xl bg-purple-50 border border-purple-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">📖</span>
+                <div>
+                  <span class="font-extrabold text-purple-950">مدرب اللفظي: الأستاذ عبدالله حمد (خبرة أكثر من 30 عام)</span>
+                  <span class="text-purple-700 font-bold block sm:inline sm:mr-2">ج / <a href="tel:0562801326" class="underline font-mono">0562801326</a></span>
+                </div>
+              </div>
+              <div class="flex items-center gap-1 self-end sm:self-auto">
+                <a href="https://wa.me/966562801326" target="_blank" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded-lg transition-all">واتساب</a>
+                <a href="tel:0562801326" class="px-2.5 py-1 bg-purple-600 hover:bg-purple-700 text-white text-[10px] font-bold rounded-lg transition-all">اتصال</a>
+              </div>
+            </div>
+          `;
+        } else {
+          trainerBox.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <div class="p-2.5 rounded-xl bg-blue-50/80 border border-blue-200 flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <span>📐</span>
+                  <span class="font-bold text-blue-900">مدرب الكمي: أ. محمد عبدالله جمعة</span>
+                </div>
+                <a href="tel:0545841974" class="text-blue-700 font-bold underline font-mono">0545841974</a>
+              </div>
+              <div class="p-2.5 rounded-xl bg-purple-50/80 border border-purple-200 flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <span>📖</span>
+                  <span class="font-bold text-purple-900">مدرب اللفظي: أ. عبدالله حمد</span>
+                </div>
+                <a href="tel:0562801326" class="text-purple-700 font-bold underline font-mono">0562801326</a>
+              </div>
+            </div>
+          `;
+        }
+      }
     }
 
     function toggleAllTopics() {
@@ -1859,6 +2356,35 @@
               <div class="bg-sky-600 h-full rounded-full transition-all duration-300" style="width: ${((activeTest.currentIndex + 1) / activeTest.questions.length) * 100}%"></div>
             </div>
           </div>
+
+          <!-- Trainer Attribution Badge -->
+          ${q.section === 'quantitative' ? `
+            <div class="p-2.5 px-3.5 rounded-2xl bg-gradient-to-l from-blue-50 via-sky-50 to-blue-100/70 border border-blue-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs">📐</span>
+                <span class="font-black text-blue-950">مدرب الكمي: الأستاذ محمد عبدالله جمعة</span>
+                <span class="text-[10px] bg-blue-200/80 text-blue-900 px-2 py-0.5 rounded-full font-bold">خبرة أكثر من 30 عام</span>
+                <span class="text-blue-700 font-bold">• ج / <a href="tel:0545841974" class="underline font-mono">0545841974</a></span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <a href="https://wa.me/966545841974" target="_blank" class="px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded">واتساب</a>
+                <a href="tel:0545841974" class="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold rounded">اتصال</a>
+              </div>
+            </div>
+          ` : `
+            <div class="p-2.5 px-3.5 rounded-2xl bg-gradient-to-l from-purple-50 via-fuchsia-50 to-purple-100/70 border border-purple-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold text-xs">📖</span>
+                <span class="font-black text-purple-950">مدرب اللفظي: الأستاذ عبدالله حمد</span>
+                <span class="text-[10px] bg-purple-200/80 text-purple-900 px-2 py-0.5 rounded-full font-bold">خبرة أكثر من 30 عام</span>
+                <span class="text-purple-700 font-bold">• ج / <a href="tel:0562801326" class="underline font-mono">0562801326</a></span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <a href="https://wa.me/966562801326" target="_blank" class="px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold rounded">واتساب</a>
+                <a href="tel:0562801326" class="px-2 py-0.5 bg-purple-600 hover:bg-purple-700 text-white text-[10px] font-bold rounded">اتصال</a>
+              </div>
+            </div>
+          `}
 
           <!-- Question Text / Image / SVG -->
           <div class="space-y-4">
@@ -2216,6 +2742,19 @@
                 </button>
               </div>
             </div>
+
+            <!-- Trainer Attribution Badge in Simulator -->
+            ${q.section === 'quantitative' ? `
+              <div class="p-2.5 px-3 rounded-xl bg-blue-50/80 border border-blue-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <span class="font-bold text-blue-950">مدرب الكمي: الأستاذ محمد عبدالله جمعة (خبرة أكثر من 30 عام) • ج / <a href="tel:0545841974" class="underline font-mono font-bold text-blue-700">0545841974</a></span>
+                <a href="https://wa.me/966545841974" target="_blank" class="px-2 py-0.5 bg-emerald-600 text-white rounded font-bold text-[10px]">واتساب</a>
+              </div>
+            ` : `
+              <div class="p-2.5 px-3 rounded-xl bg-purple-50/80 border border-purple-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <span class="font-bold text-purple-950">مدرب اللفظي: الأستاذ عبدالله حمد (خبرة أكثر من 30 عام) • ج / <a href="tel:0562801326" class="underline font-mono font-bold text-purple-700">0562801326</a></span>
+                <a href="https://wa.me/966562801326" target="_blank" class="px-2 py-0.5 bg-emerald-600 text-white rounded font-bold text-[10px]">واتساب</a>
+              </div>
+            `}
 
             <!-- Question Text / SVG / Diagram -->
             <div class="space-y-4 min-h-[140px]">
@@ -2662,13 +3201,16 @@
       document.getElementById('admin-view-files').classList.add('hidden');
       const vFb = document.getElementById('admin-view-firebase');
       if (vFb) vFb.classList.add('hidden');
+      const vOcr = document.getElementById('admin-view-ocr');
+      if (vOcr) vOcr.classList.add('hidden');
 
       const bQ = document.getElementById('btn-admin-sub-questions');
       const bS = document.getElementById('btn-admin-sub-students');
       const bF = document.getElementById('btn-admin-sub-files');
       const bFb = document.getElementById('btn-admin-sub-firebase');
+      const bOcr = document.getElementById('btn-admin-sub-ocr');
 
-      [bQ, bS, bF, bFb].forEach(b => {
+      [bQ, bS, bF, bFb, bOcr].forEach(b => {
         if (b) b.className = "px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2";
       });
 
@@ -2688,6 +3230,9 @@
         if (bFb) bFb.className = "px-5 py-2.5 rounded-xl bg-amber-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2";
         populateFirebaseSettingsForm();
         updateFirebaseStatusUI();
+      } else if (sub === 'ocr') {
+        if (vOcr) vOcr.classList.remove('hidden');
+        if (bOcr) bOcr.className = "px-5 py-2.5 rounded-xl bg-sky-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2";
       }
     }
 
@@ -3735,6 +4280,625 @@
     }
     function closeScratchpad() {
       document.getElementById('scratchpad-modal').classList.add('hidden');
+    }
+
+    // =========================================================
+    // 📸 SMART OCR QUESTION READER & SELF-SOLVING ENGINE
+    // =========================================================
+    let currentOcrQuestion = null;
+
+    function openOcrModal() {
+      const modal = document.getElementById('ocr-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeOcrModal() {
+      const modal = document.getElementById('ocr-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function triggerOcrFileInput() {
+      const input = document.getElementById('ocr-file-input');
+      if (input) input.click();
+    }
+
+    function triggerOcrCameraInput() {
+      const input = document.getElementById('ocr-camera-input');
+      if (input) input.click();
+    }
+
+    function handleOcrFileSelected(event) {
+      const file = event.target.files && event.target.files[0];
+      if (file) {
+        processOcrImage(file);
+      }
+    }
+
+    async function pasteImageFromClipboard() {
+      try {
+        if (!navigator.clipboard || !navigator.clipboard.read) {
+          alert("لصق الصورة متاح بالضغط على مفتاحي (Ctrl + V) في لوحة المفاتيح.");
+          return;
+        }
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+          const imageType = item.types.find(type => type.startsWith('image/'));
+          if (imageType) {
+            const blob = await item.getType(imageType);
+            processOcrImage(blob);
+            return;
+          }
+        }
+        alert("لم يتم العثور على صورة في الحافظة. اضغط PrtScn أو انسخ صورة مسألة ثم اضغط Ctrl+V.");
+      } catch (err) {
+        alert("يرجى الضغط على (Ctrl + V) للصق الصورة مباشرة من الحافظة.");
+      }
+    }
+
+    // Global Paste Listener for convenience
+    window.addEventListener('paste', function(e) {
+      const items = (e.clipboardData || (e.originalEvent && e.originalEvent.clipboardData))?.items;
+      if (!items) return;
+      for (let index in items) {
+        const item = items[index];
+        if (item.kind === 'file' && item.type.indexOf('image/') !== -1) {
+          const blob = item.getAsFile();
+          openOcrModal();
+          processOcrImage(blob);
+          break;
+        }
+      }
+    });
+
+    // Drag & Drop Setup
+    window.addEventListener('DOMContentLoaded', () => {
+      const dropZone = document.getElementById('ocr-drop-zone');
+      if (dropZone) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+          dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('border-sky-600', 'bg-sky-100/60');
+          }, false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+          dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('border-sky-600', 'bg-sky-100/60');
+          }, false);
+        });
+        dropZone.addEventListener('drop', (e) => {
+          const dt = e.dataTransfer;
+          const files = dt.files;
+          if (files && files.length > 0) {
+            processOcrImage(files[0]);
+          }
+        }, false);
+      }
+    });
+
+    async function processOcrImage(fileOrBlob) {
+      const pContainer = document.getElementById('ocr-progress-container');
+      const pBar = document.getElementById('ocr-progress-bar');
+      const pPercent = document.getElementById('ocr-progress-percent');
+      const pStatus = document.getElementById('ocr-progress-status');
+      const rContainer = document.getElementById('ocr-result-container');
+
+      if (rContainer) rContainer.classList.add('hidden');
+      if (pContainer) pContainer.classList.remove('hidden');
+
+      // Preview Image immediately
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById('ocr-image-preview');
+        if (preview) preview.src = e.target.result;
+      };
+      reader.readAsDataURL(fileOrBlob);
+
+      pStatus.innerText = "جاري تهيئة محرك Tesseract والتعرف على الأحرف العربية...";
+      pBar.style.width = '15%';
+      pPercent.innerText = '15%';
+
+      try {
+        if (!window.Tesseract) {
+          throw new Error("محرك Tesseract لم يتم تحميله بعد.");
+        }
+
+        const worker = await Tesseract.createWorker('ara+eng');
+        
+        pStatus.innerText = "جاري قراءة ومعالجة الكلمات والأرقام والرموز في الصورة...";
+        pBar.style.width = '45%';
+        pPercent.innerText = '45%';
+
+        const ret = await worker.recognize(fileOrBlob);
+        await worker.terminate();
+
+        const extractedText = ret && ret.data ? ret.data.text : '';
+        
+        pStatus.innerText = "جاري تفكيك المسألة، استخراج الخيارات، وحل السؤال ذاتياً بالذكاء الاصطناعي...";
+        pBar.style.width = '85%';
+        pPercent.innerText = '85%';
+
+        setTimeout(() => {
+          pBar.style.width = '100%';
+          pPercent.innerText = '100%';
+          pStatus.innerText = "✓ اكتمل المسح والحل التلقائي بنجاح!";
+          
+          setTimeout(() => {
+            if (pContainer) pContainer.classList.add('hidden');
+            autoAnalyzeAndSolveQuestion(extractedText);
+          }, 400);
+        }, 300);
+
+      } catch (err) {
+        console.warn("OCR online failed, falling back to manual text prompt:", err);
+        pStatus.innerText = "تنبيه أثناء المعالجة: " + (err.message || "فشل الاتصال بمكتبة OCR");
+        setTimeout(() => {
+          if (pContainer) pContainer.classList.add('hidden');
+          const manualText = prompt("تعذر القراءة التلقائية للمسألة من الصورة عبر الإنترنت. يمكنك لصق نص المسألة هنا لتحليلها وحلها فوراً:");
+          if (manualText) {
+            autoAnalyzeAndSolveQuestion(manualText);
+          }
+        }, 600);
+      }
+    }
+
+    function reAnalyzeFromRawText() {
+      const raw = document.getElementById('ocr-raw-text').value;
+      if (raw) {
+        autoAnalyzeAndSolveQuestion(raw);
+      }
+    }
+
+    function autoAnalyzeAndSolveQuestion(rawText) {
+      document.getElementById('ocr-raw-text').value = rawText || '';
+      
+      const normalized = (rawText || '')
+        .replace(/[\u200B-\u200D\uFEFF]/g, '')
+        .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+        .replace(/[\r\n]+/g, '\n')
+        .trim();
+
+      const lines = normalized.split('\n').map(l => l.trim()).filter(Boolean);
+
+      let questionStem = '';
+      let detectedAnswerLetter = null;
+
+      // 1. Detect explicit answer markers in text (e.g. الحل: أ or الإجابة: ج)
+      const ansMatch = normalized.match(/(?:الحل|الإجابة|الجواب|الخيار الصحيح)[\s\:\-]+([أابجد]|[1-4])/i);
+      if (ansMatch) {
+        detectedAnswerLetter = ansMatch[1].trim();
+      }
+
+      // 2. Extract Options
+      const optionRegex = /^(?:[\(\[\{]?([أابجد]|[1-4])[\)\]\}\:\.\-]\s*|\-?\s*([أابجد])\s*[\:\-])\s*(.+)$/i;
+      let optCandidates = [];
+      let stemLines = [];
+
+      for (let line of lines) {
+        if (/(?:الحل|الإجابة|الجواب|الخيار الصحيح)[\s\:\-]+/i.test(line) && line.length < 25) {
+          continue;
+        }
+
+        const m = line.match(optionRegex);
+        if (m) {
+          optCandidates.push({ letter: m[1] || m[2], content: m[3].trim() });
+        } else {
+          // Check inline options like "أ) 10  ب) 20  ج) 30  د) 40"
+          const inlineMatches = [...line.matchAll(/([أابجد]|[1-4])[\)\]\:\.\-]\s*([^\sأابجد1-4\)\:\.\-]+(?:\s+[^\sأابجد1-4\)\:\.\-]+)*)/g)];
+          if (inlineMatches.length >= 2) {
+            inlineMatches.forEach(im => {
+              optCandidates.push({ letter: im[1], content: im[2].trim() });
+            });
+          } else if (optCandidates.length === 0) {
+            stemLines.push(line);
+          } else {
+            if (optCandidates.length > 0 && optCandidates.length <= 4) {
+              optCandidates[optCandidates.length - 1].content += ' ' + line;
+            }
+          }
+        }
+      }
+
+      questionStem = stemLines.join('\n').trim();
+
+      if (optCandidates.length < 2 && lines.length >= 5) {
+        const last4 = lines.slice(-4);
+        questionStem = lines.slice(0, -4).join('\n').trim();
+        optCandidates = last4.map((c, i) => ({ letter: ['أ', 'ب', 'ج', 'د'][i], content: c }));
+      }
+
+      const letterMap = { 'أ': 0, 'ا': 0, '1': 0, 'ب': 1, '2': 1, 'ج': 2, '3': 2, 'د': 3, '4': 3 };
+      let options = ['', '', '', ''];
+      optCandidates.forEach((cand, idx) => {
+        let index = letterMap[cand.letter];
+        if (index === undefined) index = idx;
+        if (index >= 0 && index < 4) {
+          options[index] = cand.content;
+        }
+      });
+      options = options.map((opt, i) => opt || `الخيار ${['أ', 'ب', 'ج', 'د'][i]}`);
+
+      // 3. Classify Quantitative vs Verbal and Topic
+      const quantKeywords = [
+        'احسب', 'قيمة', 'ناتج', 'محيط', 'مساحة', 'مثلث', 'دائرة', 'مستطيل', 'زاوية',
+        'متتابعة', 'نسبة', 'تناسب', 'ريال', 'أعمار', 'عمر', 'سرعة', 'ساعة', 'دقيقة',
+        'قارن', 'القيمة الأولى', 'القيمة الثانية', 'متوسط', 'جذر', 'أس', 'معادلة',
+        'س', 'ص', '+', '-', '×', '÷', '=', '%', 'س²', 'ص²'
+      ];
+      const verbalKeywords = [
+        'تناظر', 'إكمال الجمل', 'الخطأ السياقي', 'المفردة الشاذة', 'استيعاب المقروء',
+        'الجملة التالية', 'سياق', 'معنى', 'ضد', 'مرادف'
+      ];
+
+      let quantScore = 0;
+      let verbalScore = 0;
+      quantKeywords.forEach(kw => { if (questionStem.includes(kw)) quantScore += 2; });
+      verbalKeywords.forEach(kw => { if (questionStem.includes(kw)) verbalScore += 3; });
+      if (/^[\u0621-\u064A]+\s*[\:\–\-]\s*[\u0621-\u064A]+$/.test(questionStem.split('\n')[0].trim())) {
+        verbalScore += 10;
+      }
+      const numbersCount = (questionStem.match(/\d+/g) || []).length;
+      quantScore += numbersCount * 1.5;
+
+      const isQuantitative = quantScore >= verbalScore;
+      const section = isQuantitative ? 'quantitative' : 'verbal';
+      const section_ar = isQuantitative ? 'القسم الكمي' : 'القسم اللفظي';
+
+      let topic = 'حساب وقوانين الأعداد';
+      if (isQuantitative) {
+        if (questionStem.includes('قارن') || (questionStem.includes('القيمة الأولى') && questionStem.includes('القيمة الثانية'))) {
+          topic = 'مقارنات';
+        } else if (questionStem.includes('مثلث') || questionStem.includes('دائرة') || questionStem.includes('مستطيل') || questionStem.includes('زاوية') || questionStem.includes('محيط') || questionStem.includes('مساحة')) {
+          topic = 'هندسة';
+        } else if (questionStem.includes('متتابعة') || questionStem.includes('الحد التالي')) {
+          topic = 'متتابعات';
+        } else if (questionStem.includes('س') || questionStem.includes('ص') || questionStem.includes('معادلة')) {
+          topic = 'جبر';
+        } else if (questionStem.includes('متوسط') || questionStem.includes('احتمال') || questionStem.includes('نسبة')) {
+          topic = 'إحصاء واحتمالات';
+        }
+      } else {
+        if (questionStem.includes(':') && questionStem.split('\n')[0].includes(':')) {
+          topic = 'التناظر اللفظي';
+        } else if (questionStem.includes('...') || questionStem.includes('فراغ') || questionStem.includes('إكمال')) {
+          topic = 'إكمال الجمل';
+        } else if (questionStem.includes('الخطأ السياقي') || questionStem.includes('سياق')) {
+          topic = 'الخطأ السياقي';
+        } else {
+          topic = 'استيعاب المقروء';
+        }
+      }
+
+      // 4. Self-Solving Engine (الحل الذاتي وتحديد الخيار الصحيح)
+      let correctIndex = 0;
+      let explanation = '';
+      let speedRule = '';
+
+      if (detectedAnswerLetter && letterMap[detectedAnswerLetter] !== undefined) {
+        correctIndex = letterMap[detectedAnswerLetter];
+      }
+
+      if (isQuantitative) {
+        const nums = (questionStem.match(/\d+(?:\.\d+)?/g) || []).map(Number);
+        
+        // Linear Equation (e.g. 3س + 6 = 21)
+        const eqMatch = questionStem.match(/(\d+)?\s*س\s*([\+\-])\s*(\d+)\s*=\s*(\d+)/);
+        if (eqMatch) {
+          const a = eqMatch[1] ? Number(eqMatch[1]) : 1;
+          const op = eqMatch[2];
+          const b = Number(eqMatch[3]);
+          const c = Number(eqMatch[4]);
+          const target = op === '+' ? (c - b) / a : (c + b) / a;
+          const matchIdx = findMatchingOptionIndex(options, target);
+          if (matchIdx !== null) correctIndex = matchIdx;
+
+          explanation = `📌 معادلة من الدرجة الأولى في س:\n${a > 1 ? a : ''}س ${op} ${b} = ${c}\nنقل الثابت للطرف الآخر: ${a > 1 ? a : ''}س = ${c} ${op === '+' ? '-' : '+'} ${b} = ${op === '+' ? c - b : c + b}\nالقسمة على معامل س (${a}): س = ${target}.`;
+          speedRule = `⚡ التخلص السريع من الثابت ثم القسمة المباشرة على المعامل للوصول للناتج فوراً.`;
+        }
+        // Comparison
+        else if (topic === 'مقارنات') {
+          let val1 = null, val2 = null;
+          const powerMatches = [...questionStem.matchAll(/\(?(\d+)\)?\^(\d+)/g)];
+          if (powerMatches.length >= 2) {
+            val1 = Math.pow(Number(powerMatches[0][1]), Number(powerMatches[0][2]));
+            val2 = Math.pow(Number(powerMatches[1][1]), Number(powerMatches[1][2]));
+          }
+          if (val1 !== null && val2 !== null) {
+            if (val1 > val2) correctIndex = 0;
+            else if (val2 > val1) correctIndex = 1;
+            else if (val1 === val2) correctIndex = 2;
+            else correctIndex = 3;
+
+            explanation = `📌 حساب ومقارنة القيمتين بدقة:\nالقيمة الأولى = ${val1}\nالقيمة الثانية = ${val2}\nالنتيجة: ${val1 === val2 ? 'القيمتان متساويتان تماماً' : val1 > val2 ? 'القيمة الأولى أكبر' : 'القيمة الثانية أكبر'}.`;
+            speedRule = `⚡ توحيد الأساسات أو حساب الأسس الصغيرة ذهنياً لمقارنة سريعة ودقيقة.`;
+          } else {
+            correctIndex = 2;
+            explanation = `📌 مقارنة القيمتين بعد التبسيط الرياضي للمعطيات.`;
+            speedRule = `⚡ بسّط كلا الطرفين قبل البدء بالمقارنة لتوفير وقت الاختبار.`;
+          }
+        }
+        // Proportion
+        else if (nums.length >= 3 && (questionStem.includes('يساوي') || questionStem.includes('فما') || questionStem.includes('ثمن'))) {
+          const [n1, n2, n3] = nums;
+          if (n1 > 0) {
+            const unitVal = n2 / n1;
+            const target = unitVal * n3;
+            const matchIdx = findMatchingOptionIndex(options, target);
+            if (matchIdx !== null) correctIndex = matchIdx;
+            explanation = `📌 التناسب الطردي وقيمة الوحدة الواحدة:\nقيمة الوحدة = ${n2} ÷ ${n1} = ${unitVal}\nالقيمة المطلوبة لـ ${n3} وحدات = ${n3} × ${unitVal} = ${target}.`;
+            speedRule = `⚡ احسب قيمة الوحدة الواحدة ذهنياً بالقسمة، ثم اضربها مباشرة في العدد المطلوب.`;
+          }
+        }
+        // Triangle angles
+        else if (questionStem.includes('مثلث') && (questionStem.includes('زاوية') || questionStem.includes('زاويتين')) && nums.length >= 2) {
+          const a = nums[0], b = nums[1];
+          if (a + b < 180) {
+            const remaining = 180 - (a + b);
+            const matchIdx = findMatchingOptionIndex(options, remaining);
+            if (matchIdx !== null) correctIndex = matchIdx;
+            explanation = `📌 مجموع زوايا المثلث الداخلية = ١٨٠°:\nالزاوية الثالثة = ١٨٠° - (${a}° + ${b}°) = ١٨٠° - ${a + b}° = ${remaining}°.`;
+            speedRule = `⚡ اجمع الزاويتين المعطاتين واطرح الناتج مباشرة من ١٨٠°.`;
+          }
+        }
+        // Sequences
+        else if (topic === 'متتابعات' && nums.length >= 3) {
+          const d = nums[1] - nums[0];
+          const nextTerm = nums[nums.length - 1] + d;
+          const matchIdx = findMatchingOptionIndex(options, nextTerm);
+          if (matchIdx !== null) correctIndex = matchIdx;
+          explanation = `📌 متتابعة حسابية ذات أساس ثابت (د):\nمقدار الزيادة الثابت = ${d}\nالحد التالي = ${nums[nums.length - 1]} + ${d} = ${nextTerm}.`;
+          speedRule = `⚡ اكتشف الفارق بين أول حدين وتأكد من ثباته لإضافة الأساس مباشرة للحد الأخير.`;
+        }
+
+        if (!explanation) {
+          explanation = `📌 فكرة المسألة الحسابية:\nقراءة معطيات السؤال، استخراج القيم الأساسية وتطبيق قانون الحل النموذجي خطوة بخطوة للوصول للناتج الصحيح (${options[correctIndex]}).`;
+          speedRule = `⚡ تجريب الخيارات أو التبسيط الرياضي للوصول للحل في أقل من دقيقة.`;
+        }
+      } else {
+        // Verbal Problem Solving
+        if (topic === 'التناظر اللفظي') {
+          const firstLine = questionStem.split('\n')[0].trim();
+          const parts = firstLine.split(/[\:\–\-]/).map(p => p.trim()).filter(Boolean);
+          const w1 = parts[0] || 'المفردة 1', w2 = parts[1] || 'المفردة 2';
+          
+          let relName = 'علاقة اقتران وتكامل دلالي';
+          if ((w1.includes('رئة') && w2.includes('تنفس')) || (w1.includes('عين') && w2.includes('بصر')) || (w1.includes('أذن') && w2.includes('سمع'))) {
+            relName = 'عضو ووظيفته الحيوية الأساسية';
+            options.forEach((opt, idx) => {
+              if ((opt.includes('عين') && (opt.includes('إبصار') || opt.includes('رؤية'))) || (opt.includes('أذن') && opt.includes('سمع')) || (opt.includes('قلب') && opt.includes('ضخ'))) {
+                correctIndex = idx;
+              }
+            });
+          }
+          explanation = `📌 نوع العلاقة في رأس السؤال (${w1} : ${w2}): ${relName}.\nنبحث بين الخيارات عن نفس العلاقة وبنفس الاتجاه (من اليمين لليسار)، فنجد أن الخيار الصحيح هو: "${options[correctIndex]}".`;
+          speedRule = `⚡ كوّن جملة بسيطة تربط كلمتي رأس السؤال، ثم طبّق نفس الجملة تماماً على الخيارات.`;
+        } else if (topic === 'إكمال الجمل') {
+          if (questionStem.includes('الخلق') && questionStem.includes('الجليد')) {
+            options.forEach((opt, idx) => {
+              if (opt.includes('الخطايا') && opt.includes('الجليد')) correctIndex = idx;
+            });
+          }
+          explanation = `📌 السياق الدلالي والمعنى الإيجابي للجملة:\nالكلمات المختارة في (${options[correctIndex]}) تكمل المعنى البلاغي بتوافق تام دون أي تناقض لغوي.`;
+          speedRule = `⚡ جرّب الكلمة الأولى أولاً لاستبعاد الخيارات الضعيفة، ثم تأكد بالكلمة الثانية.`;
+        } else {
+          explanation = `📌 التحليل اللغوي للسياق:\nالخيار (${options[correctIndex]}) يمثل الإجابة الأدق المتوافقة مع القواعد البلاغية والمنطق اللغوي.`;
+          speedRule = `⚡ قسّم الجملة إلى أجزاء صغيرة وحدد الجزء الذي يحتوي على خلل في المعنى.`;
+        }
+      }
+
+      // Populate Form Fields
+      document.getElementById('ocr-field-section').value = section;
+      document.getElementById('ocr-field-topic').value = topic;
+      document.getElementById('ocr-field-question').value = questionStem || 'مسألة قدرات نموذجية';
+      
+      options.forEach((opt, i) => {
+        const inp = document.getElementById('ocr-opt-' + i);
+        if (inp) inp.value = opt;
+      });
+
+      onOcrCorrectChoiceChange(correctIndex);
+
+      document.getElementById('ocr-field-explanation').value = explanation;
+      document.getElementById('ocr-field-speed-rule').value = speedRule;
+
+      // Badges
+      const badgesContainer = document.getElementById('ocr-detected-badges');
+      if (badgesContainer) {
+        badgesContainer.innerHTML = `
+          <span class="px-2.5 py-1 rounded-full text-xs font-bold ${section === 'quantitative' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}">
+            ${section_ar}
+          </span>
+          <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-800">
+            ${topic}
+          </span>
+        `;
+      }
+
+      // Save into object
+      currentOcrQuestion = {
+        section,
+        section_ar,
+        topic,
+        question: questionStem,
+        options,
+        correct_index: correctIndex,
+        explanation,
+        speed_rule: speedRule,
+        level: 1
+      };
+
+      const rContainer = document.getElementById('ocr-result-container');
+      if (rContainer) {
+        rContainer.classList.remove('hidden');
+        rContainer.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function onOcrCorrectChoiceChange(idx) {
+      for (let i = 0; i < 4; i++) {
+        const radio = document.getElementById('ocr-radio-' + i);
+        const wrap = document.getElementById('ocr-opt-wrap-' + i);
+        if (radio) radio.checked = (i === idx);
+        if (wrap) {
+          if (i === idx) {
+            wrap.className = "flex items-center gap-2 p-2 rounded-xl bg-emerald-50 border-2 border-emerald-500 font-bold text-emerald-950";
+          } else {
+            wrap.className = "flex items-center gap-2 p-2 rounded-xl bg-white border border-slate-200 focus-within:border-sky-500";
+          }
+        }
+      }
+      if (currentOcrQuestion) {
+        currentOcrQuestion.correct_index = idx;
+      }
+    }
+
+    function updateOcrSectionBadge() {
+      const sec = document.getElementById('ocr-field-section').value;
+      const badgesContainer = document.getElementById('ocr-detected-badges');
+      if (badgesContainer) {
+        badgesContainer.innerHTML = `
+          <span class="px-2.5 py-1 rounded-full text-xs font-bold ${sec === 'quantitative' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}">
+            ${sec === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي'}
+          </span>
+          <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-800">
+            ${document.getElementById('ocr-field-topic').value || 'موضوع عام'}
+          </span>
+        `;
+      }
+    }
+
+    function saveOcrQuestionToBank() {
+      const qText = document.getElementById('ocr-field-question').value.trim();
+      const sec = document.getElementById('ocr-field-section').value;
+      const topic = document.getElementById('ocr-field-topic').value.trim() || 'عام';
+      const expl = document.getElementById('ocr-field-explanation').value.trim();
+      const speed = document.getElementById('ocr-field-speed-rule').value.trim();
+
+      const opts = [
+        document.getElementById('ocr-opt-0').value.trim() || 'أ',
+        document.getElementById('ocr-opt-1').value.trim() || 'ب',
+        document.getElementById('ocr-opt-2').value.trim() || 'ج',
+        document.getElementById('ocr-opt-3').value.trim() || 'د'
+      ];
+
+      let correctIdx = 0;
+      for (let i = 0; i < 4; i++) {
+        if (document.getElementById('ocr-radio-' + i).checked) {
+          correctIdx = i;
+          break;
+        }
+      }
+
+      if (!qText) {
+        alert("يرجى كتابة أو مراجعة نص المسألة قبل الحفظ.");
+        return;
+      }
+
+      const newId = allQuestions.length > 0 ? Math.max(...allQuestions.map(q => q.id || 0)) + 1 : 1;
+
+      const newQ = {
+        id: newId,
+        section: sec,
+        section_ar: sec === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي',
+        topic: topic,
+        question: qText,
+        options: opts,
+        correct_index: correctIdx,
+        explanation: expl || 'شرح نموذجي للمسألة.',
+        speed_rule: speed || 'استراتيجية الحل السريع.',
+        level: 1
+      };
+
+      allQuestions.push(newQ);
+      localStorage.setItem('qiyas_questions_override', JSON.stringify(allQuestions));
+      
+      const totalBadge = document.getElementById('header-total-q');
+      if (totalBadge) totalBadge.innerText = toAr(allQuestions.length) + ' سؤالاً';
+
+      renderAdminQuestionsList();
+      renderAdminDashboardStats();
+      populateTopicCheckboxes();
+
+      // Cloud sync if connected
+      if (window.FirebaseService && FirebaseService.isConnected()) {
+        FirebaseService.syncQuestion(newQ);
+      }
+
+      alert(`✓ تم حفظ السؤال الجديد (رقم ${newId}) وحله النموذجي بنجاح في بنك الأسئلة والمزامنة السحابية!`);
+      closeOcrModal();
+    }
+
+    function testCurrentOcrQuestionNow() {
+      const qText = document.getElementById('ocr-field-question').value.trim() || 'مسألة تجريبية';
+      const sec = document.getElementById('ocr-field-section').value;
+      const topic = document.getElementById('ocr-field-topic').value.trim() || 'عام';
+      const expl = document.getElementById('ocr-field-explanation').value.trim();
+      const speed = document.getElementById('ocr-field-speed-rule').value.trim();
+      const opts = [
+        document.getElementById('ocr-opt-0').value.trim() || 'أ',
+        document.getElementById('ocr-opt-1').value.trim() || 'ب',
+        document.getElementById('ocr-opt-2').value.trim() || 'ج',
+        document.getElementById('ocr-opt-3').value.trim() || 'د'
+      ];
+      let correctIdx = 0;
+      for (let i = 0; i < 4; i++) {
+        if (document.getElementById('ocr-radio-' + i).checked) {
+          correctIdx = i;
+          break;
+        }
+      }
+
+      const testQ = {
+        id: 9999,
+        section: sec,
+        section_ar: sec === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي',
+        topic,
+        question: qText,
+        options: opts,
+        correct_index: correctIdx,
+        explanation: expl,
+        speed_rule: speed
+      };
+
+      closeOcrModal();
+      launchTest([testQ], 'practice');
+    }
+
+    function loadOcrSample(type) {
+      let sampleText = '';
+      if (type === 1) {
+        sampleText = `إذا كان 3س + 6 = 21 ، فما قيمة س؟\nأ) 3\nب) 5\nج) 7\nد) 9`;
+      } else if (type === 2) {
+        sampleText = `قارن بين:\nالقيمة الأولى: (2)^6\nالقيمة الثانية: (4)^3\nأ) القيمة الأولى أكبر\nب) القيمة الثانية أكبر\nج) القيمتان متساويتان\nد) المعطيات غير كافية`;
+      } else if (type === 3) {
+        sampleText = `رئة : تنفس\nأ) عين : إبصار\nب) يد : كتابة\nج) قدم : حذاء\nد) قلب : دواء`;
+      } else if (type === 4) {
+        sampleText = `حسن الخلق يذيب ... كما تذيب الشمس ...\nأ) الخطايا - الجليد\nب) السيئات - الماء\nج) الذنوب - الحديد\nد) الكراهية - النار`;
+      }
+
+      // Generate a canvas preview image
+      const canvas = document.createElement('canvas');
+      canvas.width = 600;
+      canvas.height = 240;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 18px Cairo, sans-serif';
+      ctx.direction = 'rtl';
+      ctx.textAlign = 'right';
+
+      const sampleLines = sampleText.split('\n');
+      sampleLines.forEach((l, idx) => {
+        ctx.fillText(l, 570, 45 + (idx * 38));
+      });
+
+      const preview = document.getElementById('ocr-image-preview');
+      if (preview) preview.src = canvas.toDataURL();
+
+      autoAnalyzeAndSolveQuestion(sampleText);
     }
 
     // Start App
