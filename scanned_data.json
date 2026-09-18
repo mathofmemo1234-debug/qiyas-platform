@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "image": "questions_images/q_1.png",
+    "correct_index": 0,
+    "explanation": "المسألة تطلب ناتج جمع أعداد صحيحة بسيطة:\n\n$$١ + ١ = ٢$$\n\nوبالتالي، فإن الإجابة الصحيحة هي الخيار (أ) والذي قيمته $٢$.",
+    "verified": true
+  },
+  {
+    "id": 2,
+    "image": "questions_images/q_2.png",
+    "correct_index": 0,
+    "explanation": "تطبيق القاعدة الرياضية المباشرة للحل السريع.",
+    "verified": false
+  },
+  {
+    "id": 3,
+    "image": "questions_images/q_3.png",
+    "correct_index": 0,
+    "explanation": "تطبيق القاعدة الرياضية المباشرة للحل السريع.",
+    "verified": false
+  },
+  {
+    "id": 4,
+    "image": "questions_images/q_4.png",
+    "correct_index": 0,
+    "explanation": "تطبيق القاعدة الرياضية المباشرة للحل السريع.",
+    "verified": false
+  }
+]

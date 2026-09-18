@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Logs
+*.log
+
+# Temporary test images
+temp_page*.png
+test_page_1.png
+cropped_question_1.png
+
+# System / OS
+Thumbs.db
+.DS_Store
