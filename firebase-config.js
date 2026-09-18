@@ -1,11 +1,11 @@
 // firebase-config.js - مفاتيح وإعدادات مشروع Firebase Cloud Firestore
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAFBq8PJuSeAh8yYEE3_0b9ceDHUT-e8SI",
+  authDomain: "qiyas-training-3dcf3.firebaseapp.com",
+  projectId: "qiyas-training-3dcf3",
+  storageBucket: "qiyas-training-3dcf3.firebasestorage.app",
+  messagingSenderId: "331912816759",
+  appId: "1:331912816759:web:8fb46a516ad38b9c87be72"
 };
 
 // Make available globally in browser and in Node/ES modules
