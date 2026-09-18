@@ -48,7 +48,7 @@
         processEscapes: true
       },
       chtml: {
-        displayAlign: 'right'
+        displayAlign: 'center'
       },
       options: { enableMenu: false }
     };
@@ -62,19 +62,20 @@
       color: #1e293b;
       direction: rtl;
     }
-    /* توجيه الرياضيات والمعادلات من اليمين إلى اليسار */
+    /* توجيه الرياضيات والمعادلات بشكل سليم هندسياً داخل النص العربي */
     mjx-container {
-      direction: rtl !important;
       display: inline-block !important;
+      direction: ltr !important;
       margin: 0 4px !important;
       vertical-align: middle;
       unicode-bidi: isolate;
-      text-align: right !important;
+      text-align: center !important;
     }
     mjx-container[jax="CHTML"][display="true"] {
-      text-align: right !important;
-      margin: 1em 0 !important;
-      direction: rtl !important;
+      display: block !important;
+      text-align: center !important;
+      margin: 0.8em auto !important;
+      direction: ltr !important;
     }
     /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -1014,6 +1015,55 @@
       el.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
+    // تنسيق ذكي لأسئلة المقارنات والمسائل الرياضية للفصل التام بين القيمتين
+    function renderQuestionDisplay(q) {
+      const text = q.question || '';
+      if (text.includes('القيمة الأولى') && text.includes('القيمة الثانية')) {
+        let introArr = [];
+        let val1 = '';
+        let val2 = '';
+
+        const lines = text.split('\n');
+        lines.forEach(l => {
+          let line = l.trim();
+          if (line.includes('القيمة الأولى:') && line.includes('القيمة الثانية:')) {
+            const i1 = line.indexOf('القيمة الأولى:');
+            const i2 = line.indexOf('القيمة الثانية:');
+            introArr.push(line.substring(0, i1).trim());
+            val1 = line.substring(i1 + 'القيمة الأولى:'.length, i2).replace(/^[–\-]\s*/, '').trim();
+            val2 = line.substring(i2 + 'القيمة الثانية:'.length).replace(/^[–\-]\s*/, '').trim();
+          } else if (line.startsWith('القيمة الأولى:') || line.startsWith('- القيمة الأولى:') || line.startsWith('– القيمة الأولى:')) {
+            val1 = line.replace(/^[–\-]?\s*القيمة الأولى:\s*/, '').trim();
+          } else if (line.startsWith('القيمة الثانية:') || line.startsWith('- القيمة الثانية:') || line.startsWith('– القيمة الثانية:')) {
+            val2 = line.replace(/^[–\-]?\s*القيمة الثانية:\s*/, '').trim();
+          } else if (line) {
+            introArr.push(line);
+          }
+        });
+
+        const intro = introArr.filter(Boolean).join(' ') || 'قارن بين القيمتين:';
+
+        return `
+          <div class="space-y-4">
+            <h3 class="text-base md:text-xl font-extrabold text-slate-900 leading-relaxed">${intro}</h3>
+            <div class="grid grid-cols-2 gap-4 my-4">
+              <!-- القيمة الأولى (اليمين) -->
+              <div class="p-5 md:p-6 rounded-3xl bg-blue-50/80 border-2 border-blue-200 text-center shadow-xs flex flex-col justify-center items-center">
+                <span class="text-xs font-black text-blue-700 bg-white px-3.5 py-1 rounded-full border border-blue-200 mb-3 shadow-xs">القيمة الأولى</span>
+                <div class="text-xl md:text-3xl font-bold text-slate-900 leading-normal" dir="ltr">${val1}</div>
+              </div>
+              <!-- القيمة الثانية (اليسار) -->
+              <div class="p-5 md:p-6 rounded-3xl bg-purple-50/80 border-2 border-purple-200 text-center shadow-xs flex flex-col justify-center items-center">
+                <span class="text-xs font-black text-purple-700 bg-white px-3.5 py-1 rounded-full border border-purple-200 mb-3 shadow-xs">القيمة الثانية</span>
+                <div class="text-xl md:text-3xl font-bold text-slate-900 leading-normal" dir="ltr">${val2}</div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+      return `<h3 class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed whitespace-pre-line">${text}</h3>`;
+    }
+
     function renderTestQuestion() {
       const container = document.getElementById('custom-test-active');
       if (!container || !activeTest.questions.length) return;
@@ -1110,9 +1160,7 @@
 
           <!-- Question Text / Image / SVG -->
           <div class="space-y-4">
-            <h3 class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed">
-              ${q.question}
-            </h3>
+            ${renderQuestionDisplay(q)}
 
             ${q.diagram_svg ? `
               <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-center justify-center max-h-60 overflow-hidden">
@@ -1459,7 +1507,7 @@
 
             <!-- Question Text / SVG / Diagram -->
             <div class="space-y-4 min-h-[140px]">
-              <h3 class="text-xl font-bold text-slate-900 leading-relaxed">${q.question}</h3>
+              ${renderQuestionDisplay(q)}
               ${q.diagram_svg ? `
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-center justify-center max-h-60 overflow-hidden">
                   ${q.diagram_svg}
@@ -1699,7 +1747,7 @@
             </button>
           </div>
 
-          <h4 class="font-bold text-slate-900 text-sm leading-relaxed">${q.question}</h4>
+          <div class="py-1">${renderQuestionDisplay(q)}</div>
 
           <div class="p-3 rounded-xl bg-indigo-50/60 border border-indigo-200/60 text-xs text-slate-800 space-y-1">
             <span class="font-bold text-indigo-900 block">💡 الشرح النموذجي:</span>
