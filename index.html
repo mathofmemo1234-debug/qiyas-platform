@@ -72,17 +72,14 @@
     /* توجيه الرياضيات والمعادلات بشكل سليم هندسياً داخل النص العربي */
     mjx-container {
       display: inline-block !important;
-      direction: ltr !important;
       margin: 0 4px !important;
       vertical-align: middle;
-      unicode-bidi: isolate;
       text-align: center !important;
     }
     mjx-container[jax="CHTML"][display="true"] {
       display: block !important;
       text-align: center !important;
       margin: 0.8em auto !important;
-      direction: ltr !important;
     }
     /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -1396,6 +1393,13 @@
 
     async function loadQuestions() {
       try {
+        const Q_VERSION = 'v3_pure_rtl_arabic';
+        const savedVer = localStorage.getItem('qiyas_q_version');
+        if (savedVer !== Q_VERSION) {
+          localStorage.removeItem('qiyas_questions_override');
+          localStorage.setItem('qiyas_q_version', Q_VERSION);
+        }
+
         const res = await fetch('questions.json?t=' + Date.now());
         allQuestions = await res.json();
         
