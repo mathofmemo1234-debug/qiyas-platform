@@ -151,17 +151,22 @@
             <span id="mistakes-count-badge" class="hidden px-1.5 py-0.2 text-[10px] bg-rose-500 text-white rounded-full font-bold">0</span>
           </button>
 
-          <button onclick="switchTab('admin-files')" id="nav-admin-files" class="nav-tab-btn px-4 py-2 rounded-xl transition-all text-slate-600 hover:text-slate-900 flex items-center gap-1.5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-            إدارة الملفات والأسئلة
+          <button onclick="handleAdminNavClick()" id="nav-admin-files" class="nav-tab-btn px-4 py-2 rounded-xl transition-all text-amber-700 hover:text-amber-800 hover:bg-amber-50 font-bold flex items-center gap-1.5 border border-amber-200/60 bg-amber-50/40">
+            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <span id="nav-admin-title">لوحة الإدارة 🔒</span>
           </button>
         </nav>
 
-        <!-- Quick Section Filter / Status -->
-        <div class="flex items-center gap-2">
+        <!-- Quick Section Filter / Status & Student Account -->
+        <div class="flex items-center gap-3">
           <div class="hidden sm:flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold border border-slate-200">
             <span class="px-2 py-1 text-slate-600">بنك الأسئلة:</span>
             <span id="header-total-q" class="bg-white px-2 py-1 rounded-lg text-sky-600 shadow-xs">70 سؤالاً</span>
+          </div>
+
+          <!-- Student Account Widget -->
+          <div id="auth-header-widget">
+            <!-- Rendered by JS -->
           </div>
         </div>
       </div>
@@ -174,7 +179,10 @@
       <button onclick="switchTab('custom-test')" class="p-1 text-slate-700">اختبار ذاتي</button>
       <button onclick="switchTab('simulator')" class="p-1 text-slate-700">المحاكي</button>
       <button onclick="switchTab('mistakes')" class="p-1 text-slate-700">الأخطاء</button>
-      <button onclick="switchTab('admin-files')" class="p-1 text-slate-700">الإدارة</button>
+      <button onclick="handleAdminNavClick()" class="p-1 text-amber-700 font-bold flex items-center gap-0.5">
+        <span>الإدارة</span>
+        <span class="text-xs">🔒</span>
+      </button>
     </div>
   </header>
 
@@ -516,128 +524,396 @@
 
     </section>
 
-    <!-- ==================== TAB 6: ADMIN & FILE MANAGEMENT ==================== -->
+    <!-- ==================== TAB 6: ADMIN CONTROL PANEL ==================== -->
     <section id="tab-admin-files" class="tab-pane hidden space-y-8">
       
-      <!-- Admin Header -->
-      <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">لوحة الإشراف والمحتوى</span>
-          <h2 class="text-2xl font-black text-slate-900 mt-1">إدارة الملفات والأسئلة والشروحات الفصحى</h2>
-          <p class="text-xs text-slate-500 mt-0.5">رفع وتحديث بنك الأسئلة، وتوليد الشروحات اللغوية والرياضية التلقائية.</p>
+      <!-- Admin Top Header -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 md:p-8 rounded-3xl shadow-xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div class="space-y-2">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30 text-xs font-bold">
+            <span>👑 لوحة تحكم مدير المنصة</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="admin-user-badge">المسؤول: admin</span>
+          </div>
+          <h2 class="text-2xl md:text-3xl font-black text-white">إدارة بنك الأسئلة والمحتوى والطلاب</h2>
+          <p class="text-xs md:text-sm text-slate-300">تحكم كامل في إضافة الأسئلة وتعديلها، استيراد وتصدير بنك الأسئلة، ومتابعة أداء الطلاب.</p>
         </div>
-        <div class="flex items-center gap-2">
-          <button onclick="exportQuestionsJSON()" class="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs shadow-xs transition-all flex items-center gap-1.5">
-            <span>💾 تصدير وحفظ questions.json</span>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <button onclick="openAddQuestionModal()" class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+            <span>إضافة مسألة جديدة</span>
           </button>
-          <button onclick="openAddQuestionModal()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5">
-            <span>+ إضافة سؤال جديد يدوياً</span>
+
+          <button onclick="exportQuestionsJSON()" class="px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs transition-all flex items-center gap-2">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>تصدير questions.json</span>
+          </button>
+
+          <button onclick="openAdminPasswordModal()" class="px-4 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs transition-all flex items-center gap-2">
+            <span>🔑 تغيير كلمة السر</span>
+          </button>
+
+          <button onclick="adminLogout()" class="px-4 py-3 rounded-2xl bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 border border-rose-500/30 font-bold text-xs transition-all flex items-center gap-1.5">
+            <span>🚪 تسجيل خروج</span>
           </button>
         </div>
       </div>
 
-      <!-- File Uploader & Parser Tool -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        <!-- Left: Upload & Bulk Parsing Card -->
-        <div class="lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-5">
-          <h3 class="font-extrabold text-slate-900 text-base flex items-center gap-2">
-            <span>📤 رفع وقراءة ملفات الأسئلة</span>
-          </h3>
-          <p class="text-xs text-slate-500 leading-relaxed">
-            ارفع ملف بصيغة <code class="bg-slate-100 px-1 py-0.5 rounded text-sky-700">JSON</code> أو ألصق نصوص المسائل ليقوم النظام بقراءتها، وتحديد الإجابات، وصياغة الشروحات النموذجية باللغة الفصحى تلقائياً.
-          </p>
-
-          <!-- Drag and Drop Box -->
-          <div class="border-2 border-dashed border-slate-300 hover:border-sky-500 rounded-2xl p-6 text-center transition-all bg-slate-50/50 cursor-pointer" onclick="document.getElementById('admin-file-input').click()">
-            <input type="file" id="admin-file-input" accept=".json,.txt" class="hidden" onchange="handleFileSelected(event)">
-            <div class="w-12 h-12 mx-auto rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl mb-2">
-              📄
-            </div>
-            <span class="block text-xs font-bold text-slate-700">انقر لاختيار ملف (JSON أو TXT)</span>
-            <span class="block text-[11px] text-slate-400 mt-0.5">يدعم استيراد الأسئلة فورياً</span>
+      <!-- Live Metric Counters -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-xs font-bold text-slate-500">إجمالي الأسئلة</span>
+          <div class="flex items-baseline gap-1 mt-2">
+            <span id="stat-total-q" class="text-2xl md:text-3xl font-black text-slate-900">70</span>
+            <span class="text-xs text-slate-400 font-bold">سؤالاً</span>
           </div>
-
-          <!-- Quick Text / JSON Paste Area -->
-          <div class="space-y-2">
-            <label class="block text-xs font-bold text-slate-700">أو ألصق كود الأسئلة JSON مباشرة:</label>
-            <textarea id="admin-paste-json" rows="5" class="w-full text-xs font-mono p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-sky-500 outline-none" placeholder='[ { "question": "...", "options": [...], "correct_index": 0 } ]'></textarea>
-            <button onclick="processPastedJSON()" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs shadow-sm transition-all">
-              معالجة وحفظ الأسئلة
-            </button>
-          </div>
-
-          <!-- Reference PDF Files -->
-          <div class="pt-4 border-t border-slate-100 space-y-2">
-            <h4 class="text-xs font-bold text-slate-800">📚 ملفات ومراجع المنصة المحفوظة:</h4>
-            <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
-              <div class="flex items-center gap-2">
-                <span>📑</span>
-                <span class="font-bold text-slate-700">exam126.pdf</span>
-              </div>
-              <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-md">مُعالج ومقروء</span>
-            </div>
-          </div>
+          <span class="text-[11px] text-emerald-600 font-bold mt-1">✓ جاهزة في البنك</span>
         </div>
 
-        <!-- Right: Current Question Bank Browser & Search -->
-        <div class="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-5">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 class="font-extrabold text-slate-900 text-base">استعراض بنك الأسئلة والشروحات</h3>
-              <p class="text-xs text-slate-500">فحص المسائل الحالية، تعديلها، وقراءة الشروحات النموذجية وقوانين الحل السريع.</p>
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-xs font-bold text-blue-600">القسم الكمي</span>
+          <div class="flex items-baseline gap-1 mt-2">
+            <span id="stat-quant-q" class="text-2xl md:text-3xl font-black text-blue-700">55</span>
+            <span class="text-xs text-slate-400 font-bold">سؤالاً</span>
+          </div>
+          <span class="text-[11px] text-blue-500 font-medium mt-1">حساب، جبر، هندسة، مقارنات</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-xs font-bold text-purple-600">القسم اللفظي</span>
+          <div class="flex items-baseline gap-1 mt-2">
+            <span id="stat-verb-q" class="text-2xl md:text-3xl font-black text-purple-700">15</span>
+            <span class="text-xs text-slate-400 font-bold">سؤالاً</span>
+          </div>
+          <span class="text-[11px] text-purple-500 font-medium mt-1">تناظر، سياقي، إكمال</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <span class="text-xs font-bold text-amber-600">الطلاب المسجلون</span>
+          <div class="flex items-baseline gap-1 mt-2">
+            <span id="stat-students-count" class="text-2xl md:text-3xl font-black text-amber-700">0</span>
+            <span class="text-xs text-slate-400 font-bold">طالب</span>
+          </div>
+          <span class="text-[11px] text-amber-600 font-medium mt-1">حسابات نشطة</span>
+        </div>
+
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between col-span-2 sm:col-span-1">
+          <span class="text-xs font-bold text-emerald-600">الاختبارات المنجزة</span>
+          <div class="flex items-baseline gap-1 mt-2">
+            <span id="stat-tests-completed" class="text-2xl md:text-3xl font-black text-emerald-700">0</span>
+            <span class="text-xs text-slate-400 font-bold">جلسة</span>
+          </div>
+          <span class="text-[11px] text-emerald-600 font-medium mt-1">محاكاة واختبارات ذاتية</span>
+        </div>
+      </div>
+
+      <!-- Admin Sub-Navigation -->
+      <div class="flex items-center gap-2 border-b border-slate-200 pb-3">
+        <button onclick="setAdminSubTab('questions')" id="btn-admin-sub-questions" class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2">
+          <span>📚 بنك الأسئلة والشروحات</span>
+        </button>
+        <button onclick="setAdminSubTab('students')" id="btn-admin-sub-students" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2">
+          <span>👥 سجل ومتابعة الطلاب</span>
+        </button>
+        <button onclick="setAdminSubTab('files')" id="btn-admin-sub-files" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2">
+          <span>📁 ملفات المراجع والنظام</span>
+        </button>
+      </div>
+
+      <!-- VIEW 1: QUESTIONS MANAGEMENT -->
+      <div id="admin-view-questions" class="space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Left: Upload & Bulk Parsing Card -->
+          <div class="lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-5">
+            <div class="flex items-center justify-between">
+              <h3 class="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                <span>📤 رفع وقراءة ملفات الأسئلة</span>
+              </h3>
+              <span class="text-[11px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">JSON / TXT</span>
             </div>
             
-            <div class="flex items-center gap-2">
-              <input type="text" id="admin-search" oninput="filterAdminQuestions()" placeholder="بحث في نص السؤال..." class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs outline-none focus:border-sky-500 w-48">
-              <select id="admin-filter-sec" onchange="filterAdminQuestions()" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 outline-none">
-                <option value="all">كل الأقسام</option>
-                <option value="quantitative">الكمي فقط</option>
-                <option value="verbal">اللفظي فقط</option>
-              </select>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              ارفع ملف بصيغة <code class="bg-slate-100 px-1 py-0.5 rounded text-sky-700 font-mono">JSON</code> أو ألصق نصوص المسائل ليقوم النظام بقراءتها، وتحديد الإجابات، وصياغة الشروحات النموذجية باللغة الفصحى تلقائياً.
+            </p>
+
+            <!-- Drag and Drop Box -->
+            <div class="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-2xl p-6 text-center transition-all bg-slate-50/50 cursor-pointer" onclick="document.getElementById('admin-file-input').click()">
+              <input type="file" id="admin-file-input" accept=".json,.txt" class="hidden" onchange="handleFileSelected(event)">
+              <div class="w-12 h-12 mx-auto rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl mb-2">
+                📄
+              </div>
+              <span class="block text-xs font-bold text-slate-700">انقر لاختيار ملف الأسئلة</span>
+              <span class="block text-[11px] text-slate-400 mt-0.5">يتم دمج الأسئلة مباشرة في البنك</span>
+            </div>
+
+            <!-- Quick Text / JSON Paste Area -->
+            <div class="space-y-2">
+              <label class="block text-xs font-bold text-slate-700">أو ألصق بيانات الأسئلة (JSON) مباشرة:</label>
+              <textarea id="admin-paste-json" rows="4" class="w-full text-xs font-mono p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 outline-none" placeholder='[ { "question": "...", "options": ["أ", "ب", "ج", "د"], "correct_index": 0 } ]'></textarea>
+              <button onclick="processPastedJSON()" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5">
+                <span>معالجة وحفظ الأسئلة في البنك</span>
+              </button>
             </div>
           </div>
 
-          <!-- Questions List -->
-          <div id="admin-questions-list" class="space-y-3 max-h-[600px] overflow-y-auto pr-1">
-            <!-- Loaded dynamically -->
+          <!-- Right: Current Question Bank Browser & Search -->
+          <div class="lg:col-span-2 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 class="font-extrabold text-slate-900 text-base">استعراض وتعديل بنك الأسئلة</h3>
+                <p class="text-xs text-slate-500">فحص المسائل الحالية، تعديلها، حذفها، أو معاينة طريقة ظهورها للطلاب.</p>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <input type="text" id="admin-search" oninput="filterAdminQuestions()" placeholder="بحث في نص السؤال أو الموضوع..." class="px-3.5 py-2 rounded-xl border border-slate-200 text-xs outline-none focus:border-indigo-500 w-52">
+                <select id="admin-filter-sec" onchange="filterAdminQuestions()" class="px-3 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 outline-none">
+                  <option value="all">كل الأقسام</option>
+                  <option value="quantitative">الكمي فقط</option>
+                  <option value="verbal">اللفظي فقط</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Questions List -->
+            <div id="admin-questions-list" class="space-y-3 max-h-[650px] overflow-y-auto pr-1">
+              <!-- Loaded dynamically -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 2: STUDENTS MANAGEMENT -->
+      <div id="admin-view-students" class="hidden bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <h3 class="font-black text-slate-900 text-lg">سجل حسابات الطلاب ومتابعة الأداء</h3>
+            <p class="text-xs text-slate-500 mt-0.5">قائمة الطلاب المسجلين بالمنصة ونتائج اختباراتهم ومعدلاتهم العامة.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="refreshStudentsAdminList()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold flex items-center gap-1.5">
+              <span>🔄 تحديث القائمة</span>
+            </button>
+            <button onclick="clearStudentsDataAdmin()" class="px-3.5 py-2 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-bold">
+              مسح سجل الطلاب
+            </button>
           </div>
         </div>
 
+        <div id="admin-students-container" class="overflow-x-auto">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- VIEW 3: SYSTEM FILES & REFS -->
+      <div id="admin-view-files" class="hidden bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+        <div>
+          <h3 class="font-black text-slate-900 text-lg">ملفات النظام والمراجع المخزنة</h3>
+          <p class="text-xs text-slate-500 mt-0.5">قواعد البيانات والمراجع المعتمدة داخل منصة قياس.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xl">📄</span>
+              <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">نشط</span>
+            </div>
+            <h4 class="font-bold text-slate-900 text-sm">exam126.pdf</h4>
+            <p class="text-xs text-slate-500">مرجع التجميعات الأساسي الممسوح ضوئياً ومعالج بالشروحات.</p>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xl">🗄️</span>
+              <span class="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded">SQLite</span>
+            </div>
+            <h4 class="font-bold text-slate-900 text-sm">qiyas.db</h4>
+            <p class="text-xs text-slate-500">قاعدة البيانات العلائقية الكاملة لبنك الأسئلة ومسارات التأسيس.</p>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xl">⚙️</span>
+              <span class="text-[10px] bg-purple-100 text-purple-800 font-bold px-2 py-0.5 rounded">JSON</span>
+            </div>
+            <h4 class="font-bold text-slate-900 text-sm">foundation_data.json</h4>
+            <p class="text-xs text-slate-500">بيانات مستويات التأسيس الأربعة للقسم الكمي واللفظي.</p>
+          </div>
+        </div>
       </div>
 
     </section>
 
   </main>
 
+  <!-- ================= ADMIN LOGIN MODAL ================= -->
+  <div id="admin-login-modal" class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-md hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl border border-slate-200 space-y-6 relative animate-fadeIn">
+      <button onclick="closeAdminLoginModal()" class="absolute top-6 left-6 text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+      
+      <div class="text-center space-y-2">
+        <div class="w-16 h-16 mx-auto rounded-3xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center text-3xl shadow-xs">
+          🔐
+        </div>
+        <h3 class="text-2xl font-black text-slate-900">لوحة تحكم مدير الموقع</h3>
+        <p class="text-xs text-slate-500">يرجى تسجيل الدخول باسم المستخدم وكلمة المرور للوصول لصلاحيات الإشراف</p>
+      </div>
+
+      <div id="admin-login-error" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold text-center"></div>
+
+      <form onsubmit="handleAdminLoginSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">اسم مستخدم المدير:</label>
+          <div class="relative">
+            <input type="text" id="admin-login-username" required placeholder="admin" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold focus:ring-2 focus:ring-amber-500 outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">كلمة السر:</label>
+          <div class="relative">
+            <input type="password" id="admin-login-password" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-semibold focus:ring-2 focus:ring-amber-500 outline-none">
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs">
+          <label class="flex items-center gap-2 cursor-pointer select-none text-slate-600 font-bold">
+            <input type="checkbox" id="admin-remember-me" checked class="rounded text-amber-600 focus:ring-amber-500">
+            <span>تذكر تسجيل الدخول</span>
+          </label>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-black text-sm shadow-md transition-all flex items-center justify-center gap-2">
+          <span>دخول إلى لوحة التحكم</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+      </form>
+
+      <!-- Quick Fast Login Demo Hint -->
+      <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-2 text-xs">
+        <div class="flex items-center justify-between font-bold text-amber-900">
+          <span>💡 بيانات الدخول الافتراضية للمدير:</span>
+          <button type="button" onclick="fillAdminDemoCredentials()" class="text-[11px] text-amber-700 hover:text-amber-900 underline font-black">
+            ⚡ تعبئة ودخول فوري
+          </button>
+        </div>
+        <div class="font-mono text-[11px] text-slate-700 bg-white/80 p-2 rounded-lg border border-amber-200/60 flex items-center justify-between">
+          <span>اسم المستخدم: <strong class="text-amber-800">admin</strong></span>
+          <span>كلمة السر: <strong class="text-amber-800">admin2026</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ADMIN CHANGE PASSWORD MODAL ================= -->
+  <div id="admin-password-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 shadow-2xl border border-slate-200 space-y-5 relative">
+      <button onclick="closeAdminPasswordModal()" class="absolute top-6 left-6 text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+      
+      <div class="space-y-1">
+        <h3 class="text-xl font-black text-slate-900 flex items-center gap-2">
+          <span>🔑 تغيير بيانات دخول مدير الموقع</span>
+        </h3>
+        <p class="text-xs text-slate-500">يمكنك تحديث اسم المستخدم وكلمة السر الخاصة بلوحة الإدارة.</p>
+      </div>
+
+      <div id="admin-pwd-error" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold text-center"></div>
+      <div id="admin-pwd-success" class="hidden p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold text-center"></div>
+
+      <form onsubmit="handleAdminChangePasswordSubmit(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">اسم المستخدم الجديد للمدير:</label>
+          <input type="text" id="admin-new-username" class="w-full p-3 rounded-xl border border-slate-200 text-sm font-semibold outline-none focus:border-amber-500" required>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">كلمة السر الحالية:</label>
+          <input type="password" id="admin-current-password" class="w-full p-3 rounded-xl border border-slate-200 text-sm outline-none focus:border-amber-500" required>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">كلمة السر الجديدة:</label>
+          <input type="password" id="admin-new-password" class="w-full p-3 rounded-xl border border-slate-200 text-sm outline-none focus:border-amber-500" required minlength="4">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">تأكيد كلمة السر الجديدة:</label>
+          <input type="password" id="admin-confirm-password" class="w-full p-3 rounded-xl border border-slate-200 text-sm outline-none focus:border-amber-500" required minlength="4">
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeAdminPasswordModal()" class="px-4 py-2.5 rounded-xl text-slate-500 font-bold text-xs">إلغاء</button>
+          <button type="submit" class="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md">حفظ التغييرات</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ================= ADD QUESTION MODAL ================= -->
   <div id="add-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto space-y-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl border border-slate-200 max-h-[92vh] overflow-y-auto space-y-5">
       <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-        <h3 class="font-bold text-lg text-slate-900">إضافة سؤال جديد مع التوليد الذكي للشرح</h3>
-        <button onclick="closeAddQuestionModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+        <div>
+          <span class="text-xs font-bold text-indigo-600">لوحة الإشراف والمحتوى</span>
+          <h3 class="font-black text-lg text-slate-900">إضافة مسألة جديدة لبنك الأسئلة</h3>
+        </div>
+        <button onclick="closeAddQuestionModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
       </div>
 
       <div class="space-y-4 text-xs">
+        
+        <!-- Question Format Selection -->
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+          <span class="font-bold text-slate-800">نوع المسألة:</span>
+          <div class="flex items-center gap-4">
+            <label class="flex items-center gap-1.5 font-bold text-slate-700 cursor-pointer">
+              <input type="radio" name="m-q-type" value="standard" checked onchange="toggleAddQuestionType()" class="text-indigo-600">
+              <span>مسألة عادية / تناظر</span>
+            </label>
+            <label class="flex items-center gap-1.5 font-bold text-indigo-700 cursor-pointer">
+              <input type="radio" name="m-q-type" value="comparison" onchange="toggleAddQuestionType()" class="text-indigo-600">
+              <span>سؤال مقارنة (قيمة أولى وقيمة ثانية) ⚖️</span>
+            </label>
+          </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block font-bold text-slate-700 mb-1">القسم:</label>
-            <select id="m-section" class="w-full p-2.5 rounded-xl border border-slate-200 font-bold">
+            <select id="m-section" onchange="onModalSectionChange()" class="w-full p-2.5 rounded-xl border border-slate-200 font-bold bg-white">
               <option value="quantitative">القسم الكمي</option>
               <option value="verbal">القسم اللفظي</option>
             </select>
           </div>
           <div>
             <label class="block font-bold text-slate-700 mb-1">الموضوع الفرعي:</label>
-            <input type="text" id="m-topic" class="w-full p-2.5 rounded-xl border border-slate-200" placeholder="مثال: حساب، هندسة، تناظر لفظي">
+            <input type="text" id="m-topic" class="w-full p-2.5 rounded-xl border border-slate-200" placeholder="مثال: حساب، هندسة، مقارنات، تناظر لفظي">
           </div>
         </div>
 
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">نص المسألة أو التناظر:</label>
-          <textarea id="m-question" rows="3" class="w-full p-3 rounded-xl border border-slate-200" placeholder="اكتب نص المسألة هنا..."></textarea>
+        <!-- Standard Question Input -->
+        <div id="m-standard-container">
+          <label class="block font-bold text-slate-700 mb-1">نص المسألة أو التناظر اللفظي:</label>
+          <textarea id="m-question" rows="3" class="w-full p-3 rounded-xl border border-slate-200 text-sm leading-relaxed" placeholder="اكتب نص المسألة هنا... (يدعم صيغ الرياضيات \frac{}{})"></textarea>
         </div>
 
+        <!-- Comparison Question Inputs -->
+        <div id="m-comparison-container" class="hidden space-y-3 p-4 rounded-2xl bg-indigo-50/50 border border-indigo-200">
+          <div>
+            <label class="block font-bold text-indigo-900 mb-1">مقدمة أو معطيات المقارنة (اختياري):</label>
+            <input type="text" id="m-comp-intro" class="w-full p-2.5 rounded-xl border border-indigo-200 bg-white" placeholder="مثال: إذا كانت س > ٠ ، قارن بين:">
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block font-bold text-blue-800 mb-1">القيمة الأولى (الطرف الأيمن):</label>
+              <input type="text" id="m-comp-val1" class="w-full p-2.5 rounded-xl border border-blue-300 bg-white font-bold" placeholder="مثال: - (\frac{1}{4})^3">
+            </div>
+            <div>
+              <label class="block font-bold text-purple-800 mb-1">القيمة الثانية (الطرف الأيسر):</label>
+              <input type="text" id="m-comp-val2" class="w-full p-2.5 rounded-xl border border-purple-300 bg-white font-bold" placeholder="مثال: - (\frac{1}{4})^2">
+            </div>
+          </div>
+          <span class="text-[11px] text-slate-500 block">يقوم النظام تلقائياً بفرز وتنسيق المقارنة في بطاقتين متجاورتين تمنع التداخل الرياضي تماماً.</span>
+        </div>
+
+        <!-- 4 Choices -->
         <div>
           <label class="block font-bold text-slate-700 mb-1">الخيارات الأربعة:</label>
           <div class="grid grid-cols-2 gap-2">
@@ -650,7 +926,7 @@
 
         <div>
           <label class="block font-bold text-slate-700 mb-1">الخيار الصحيح:</label>
-          <select id="m-correct" class="w-full p-2.5 rounded-xl border border-slate-200 font-bold">
+          <select id="m-correct" class="w-full p-2.5 rounded-xl border border-slate-200 font-bold bg-white">
             <option value="0">الخيار (أ)</option>
             <option value="1">الخيار (ب)</option>
             <option value="2">الخيار (ج)</option>
@@ -660,21 +936,243 @@
 
         <div>
           <div class="flex items-center justify-between mb-1">
-            <label class="font-bold text-slate-700">الشرح المفصل باللغة الفصحى:</label>
-            <button type="button" onclick="autoGenerateExplanationForModal()" class="text-sky-600 hover:text-sky-800 font-bold">✨ توليد الشرح تلقائياً</button>
+            <label class="font-bold text-slate-700">الشرح المفصل باللغة العربية الفصحى:</label>
+            <button type="button" onclick="autoGenerateExplanationForModal()" class="text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1">
+              <span>✨ صياغة الشرح تلقائياً</span>
+            </button>
           </div>
-          <textarea id="m-explanation" rows="3" class="w-full p-3 rounded-xl border border-slate-200" placeholder="يمكن تركه فارغاً ليقوم المحرك الذكي بصياغته تلقائياً بلغة عربية فصحى..."></textarea>
+          <textarea id="m-explanation" rows="3" class="w-full p-3 rounded-xl border border-slate-200 leading-relaxed" placeholder="يمكن تركه فارغاً ليقوم المحرك الذكي بصياغته تلقائياً باللغة الفصحى..."></textarea>
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">قانون أو استراتيجية الحل السريع (في أقل من 30 ثانية):</label>
+          <label class="block font-bold text-slate-700 mb-1">قانون أو استراتيجية الحل السريع (أقل من ٣٠ ثانية):</label>
           <input type="text" id="m-speed-rule" class="w-full p-2.5 rounded-xl border border-slate-200" placeholder="استراتيجية الحل السريع...">
         </div>
       </div>
 
+      <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+        <button type="button" onclick="previewCurrentModalQuestion()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs flex items-center gap-1.5">
+          <span>👁️ معاينة شكل السؤال</span>
+        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="closeAddQuestionModal()" class="px-4 py-2.5 rounded-xl text-slate-500 font-bold text-xs">إلغاء</button>
+          <button onclick="saveNewQuestionFromModal()" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md">حفظ المسألة في البنك</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= EDIT QUESTION MODAL ================= -->
+  <div id="edit-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl border border-slate-200 max-h-[92vh] overflow-y-auto space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div>
+          <span class="text-xs font-bold text-amber-600">تعديل بيانات المسألة</span>
+          <h3 class="font-black text-lg text-slate-900" id="edit-modal-title">تعديل المسألة رقم #</h3>
+        </div>
+        <button onclick="closeEditQuestionModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+      </div>
+
+      <input type="hidden" id="edit-q-id">
+
+      <div class="space-y-4 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">القسم:</label>
+            <select id="edit-section" class="w-full p-2.5 rounded-xl border border-slate-200 font-bold bg-white">
+              <option value="quantitative">القسم الكمي</option>
+              <option value="verbal">القسم اللفظي</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">الموضوع الفرعي:</label>
+            <input type="text" id="edit-topic" class="w-full p-2.5 rounded-xl border border-slate-200">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">نص المسألة:</label>
+          <textarea id="edit-question" rows="4" class="w-full p-3 rounded-xl border border-slate-200 text-sm leading-relaxed"></textarea>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">الخيارات الأربعة:</label>
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" id="edit-opt-0" class="p-2.5 rounded-xl border border-slate-200">
+            <input type="text" id="edit-opt-1" class="p-2.5 rounded-xl border border-slate-200">
+            <input type="text" id="edit-opt-2" class="p-2.5 rounded-xl border border-slate-200">
+            <input type="text" id="edit-opt-3" class="p-2.5 rounded-xl border border-slate-200">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">الخيار الصحيح:</label>
+          <select id="edit-correct" class="w-full p-2.5 rounded-xl border border-slate-200 font-bold bg-white">
+            <option value="0">الخيار (أ)</option>
+            <option value="1">الخيار (ب)</option>
+            <option value="2">الخيار (ج)</option>
+            <option value="3">الخيار (د)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">الشرح المفصل باللغة الفصحى:</label>
+          <textarea id="edit-explanation" rows="3" class="w-full p-3 rounded-xl border border-slate-200 leading-relaxed"></textarea>
+        </div>
+
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">قانون أو استراتيجية الحل السريع:</label>
+          <input type="text" id="edit-speed-rule" class="w-full p-2.5 rounded-xl border border-slate-200">
+        </div>
+      </div>
+
       <div class="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
-        <button onclick="closeAddQuestionModal()" class="px-4 py-2 rounded-xl text-slate-500 font-bold text-xs">إلغاء</button>
-        <button onclick="saveNewQuestionFromModal()" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md">حفظ السؤال في البنك</button>
+        <button onclick="closeEditQuestionModal()" class="px-4 py-2.5 rounded-xl text-slate-500 font-bold text-xs">إلغاء</button>
+        <button onclick="saveEditedQuestion()" class="px-6 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-md">حفظ التعديلات</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PREVIEW QUESTION MODAL ================= -->
+  <div id="preview-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl border border-slate-200 space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <span class="text-xs font-bold text-sky-600 bg-sky-50 px-3 py-1 rounded-full border border-sky-200">معاينة المسألة كما يراها الطالب</span>
+        <button onclick="closePreviewModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+      </div>
+
+      <div id="preview-question-content" class="space-y-4">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="pt-4 border-t border-slate-100 text-center">
+        <button onclick="closePreviewModal()" class="px-6 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs shadow-sm">إغلاق المعاينة</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STUDENT AUTH MODAL (تسجيل دخول وإنشاء حساب طالب) ================= -->
+  <div id="student-auth-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 shadow-2xl border border-slate-200 space-y-6 relative">
+      <button onclick="closeStudentAuthModal()" class="absolute top-6 left-6 text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+
+      <div class="text-center space-y-2">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-2xl border border-sky-200">
+          🎓
+        </div>
+        <h3 class="text-2xl font-black text-slate-900">بوابة الطالب الذكية</h3>
+        <p class="text-xs text-slate-500">سجل حسابك لحفظ نتائجك، تتبع درجاتك، ومراجعة دفتر أخطائك في أي وقت.</p>
+      </div>
+
+      <!-- Auth Tabs: Sign In / Sign Up -->
+      <div class="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold">
+        <button type="button" onclick="setStudentAuthTab('signin')" id="btn-st-tab-signin" class="flex-1 py-2 rounded-lg bg-white text-sky-700 shadow-xs transition-all">تسجيل الدخول</button>
+        <button type="button" onclick="setStudentAuthTab('signup')" id="btn-st-tab-signup" class="flex-1 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all">إنشاء حساب جديد</button>
+      </div>
+
+      <div id="student-auth-error" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold text-center"></div>
+
+      <!-- Sign In Form -->
+      <form id="student-signin-form" onsubmit="handleStudentSignIn(event)" class="space-y-4 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">اسم المستخدم أو رقم الهوية:</label>
+          <input type="text" id="st-login-username" required class="w-full p-3 rounded-xl border border-slate-200 text-sm font-semibold outline-none focus:border-sky-500">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">كلمة المرور:</label>
+          <input type="password" id="st-login-password" required class="w-full p-3 rounded-xl border border-slate-200 text-sm outline-none focus:border-sky-500">
+        </div>
+        <button type="submit" class="w-full py-3.5 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-black text-sm shadow-md transition-all">
+          دخول إلى حسابي
+        </button>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form id="student-signup-form" onsubmit="handleStudentSignUp(event)" class="hidden space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">اسم الطالب ثلاثياً:</label>
+          <input type="text" id="st-reg-name" required placeholder="مثال: أحمد عبد الله الغامدي" class="w-full p-2.5 rounded-xl border border-slate-200 text-sm font-semibold outline-none focus:border-sky-500">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">اسم المستخدم (للدخول به لاحقاً):</label>
+          <input type="text" id="st-reg-username" required placeholder="مثال: ahmed2026" class="w-full p-2.5 rounded-xl border border-slate-200 text-sm font-semibold outline-none focus:border-sky-500">
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">المرحلة الدراسية / المسار:</label>
+          <select id="st-reg-grade" class="w-full p-2.5 rounded-xl border border-slate-200 font-bold bg-white">
+            <option value="ثاني ثانوي - علمي">ثاني ثانوي - مسار علمي</option>
+            <option value="ثالث ثانوي - علمي">ثالث ثانوي - مسار علمي</option>
+            <option value="ثاني ثانوي - أدبي/عام">ثاني ثانوي - مسار عام/إنساني</option>
+            <option value="ثالث ثانوي - أدبي/عام">ثالث ثانوي - مسار عام/إنساني</option>
+            <option value="خريج">خريج ثانوي</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-bold text-slate-700 mb-1">كلمة المرور:</label>
+          <input type="password" id="st-reg-password" required minlength="4" placeholder="••••••••" class="w-full p-2.5 rounded-xl border border-slate-200 text-sm outline-none focus:border-sky-500">
+        </div>
+        <button type="submit" class="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-md transition-all">
+          إنشاء الحساب وبدء التدريب
+        </button>
+      </form>
+
+      <!-- Fast Demo Student Button -->
+      <div class="pt-2 border-t border-slate-100 text-center">
+        <button type="button" onclick="loginDemoStudent()" class="w-full py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
+          <span>⚡ تجربة سريعة بحساب طالب جاهز (طالب القياس)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= STUDENT PROFILE MODAL (ملف الطالب وسجل الاختبارات) ================= -->
+  <div id="student-profile-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto space-y-6 relative">
+      <button onclick="closeStudentProfileModal()" class="absolute top-6 left-6 text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+
+      <div class="flex items-center gap-4 border-b border-slate-100 pb-4">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-500 to-indigo-600 text-white flex items-center justify-center font-black text-2xl shadow-md">
+          <span id="st-profile-avatar">ط</span>
+        </div>
+        <div>
+          <h3 class="text-xl font-black text-slate-900" id="st-profile-name">اسم الطالب</h3>
+          <p class="text-xs text-slate-500" id="st-profile-sub">طالب القياس • مسار علمي</p>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-3 gap-3 text-center">
+        <div class="p-4 rounded-2xl bg-sky-50 border border-sky-100">
+          <span class="block text-2xl font-black text-sky-700" id="st-total-tests">0</span>
+          <span class="text-[11px] font-bold text-slate-500">الاختبارات المنجزة</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
+          <span class="block text-2xl font-black text-emerald-700" id="st-avg-score">0%</span>
+          <span class="text-[11px] font-bold text-slate-500">متوسط الدرجات</span>
+        </div>
+        <div class="p-4 rounded-2xl bg-purple-50 border border-purple-100">
+          <span class="block text-2xl font-black text-purple-700" id="st-best-score">0%</span>
+          <span class="text-[11px] font-bold text-slate-500">أعلى درجة محققة</span>
+        </div>
+      </div>
+
+      <!-- Tests History -->
+      <div class="space-y-3">
+        <h4 class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+          <span>📜 سجل الاختبارات والمحاكيات السابقة:</span>
+        </h4>
+        <div id="st-history-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+        <button onclick="studentLogout()" class="px-4 py-2 rounded-xl text-rose-600 hover:bg-rose-50 font-bold text-xs transition-all">
+          تسجيل الخروج من الحساب
+        </button>
+        <button onclick="closeStudentProfileModal()" class="px-6 py-2.5 rounded-xl bg-slate-900 text-white font-bold text-xs shadow-sm">
+          إغلاق
+        </button>
       </div>
     </div>
   </div>
@@ -739,6 +1237,8 @@
       updateMistakesBadge();
       populateTopicCheckboxes();
       renderFoundation();
+      renderAuthWidget();
+      updateAdminStatusUI();
     }
 
     async function loadQuestions() {
@@ -746,14 +1246,19 @@
         const res = await fetch('questions.json?t=' + Date.now());
         allQuestions = await res.json();
         
-        // Merge custom questions added by admin via localStorage
-        const customQ = JSON.parse(localStorage.getItem('qiyas_custom_questions') || '[]');
-        if (customQ.length > 0) {
-          customQ.forEach(cq => {
-            if (!allQuestions.some(q => q.id === cq.id)) {
-              allQuestions.push(cq);
-            }
-          });
+        // Merge custom questions or edits saved in localStorage
+        const savedOverride = JSON.parse(localStorage.getItem('qiyas_questions_override') || 'null');
+        if (savedOverride && Array.isArray(savedOverride) && savedOverride.length > 0) {
+          allQuestions = savedOverride;
+        } else {
+          const customQ = JSON.parse(localStorage.getItem('qiyas_custom_questions') || '[]');
+          if (customQ.length > 0) {
+            customQ.forEach(cq => {
+              if (!allQuestions.some(q => q.id === cq.id)) {
+                allQuestions.push(cq);
+              }
+            });
+          }
         }
 
         document.getElementById('header-total-q').innerText = toAr(allQuestions.length) + ' سؤالاً';
@@ -773,6 +1278,11 @@
 
     // Tab Navigation
     function switchTab(tabId) {
+      if (tabId === 'admin-files' && !isAdminLoggedIn()) {
+        openAdminLoginModal();
+        return;
+      }
+
       currentTab = tabId;
       document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
       document.querySelectorAll('.nav-tab-btn').forEach(btn => {
@@ -793,7 +1303,10 @@
 
       if (tabId === 'foundation') renderFoundation();
       if (tabId === 'mistakes') renderMistakesList();
-      if (tabId === 'admin-files') renderAdminQuestionsList();
+      if (tabId === 'admin-files') {
+        renderAdminDashboardStats();
+        renderAdminQuestionsList();
+      }
       if (tabId === 'simulator') renderSimulatorSetup();
     }
 
@@ -1303,6 +1816,16 @@
       const total = activeTest.questions.length;
       const scorePct = Math.round((correctCount / total) * 100);
 
+      recordTestResult({
+        title: activeTest.mode === 'exam' ? 'اختبار تجريبي مؤقت' : 'تدريب مخصص',
+        date: new Date().toLocaleDateString('ar-SA') + ' ' + new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
+        scorePct: scorePct,
+        correct: correctCount,
+        total: total,
+        quantScore: quantTotal > 0 ? Math.round((quantCorrect/quantTotal)*100) : null,
+        verbScore: verbTotal > 0 ? Math.round((verbCorrect/verbTotal)*100) : null
+      });
+
       const container = document.getElementById('custom-test-active');
       container.innerHTML = `
         <div class="max-w-2xl mx-auto bg-white rounded-3xl p-8 border border-slate-200 shadow-lg text-center space-y-6">
@@ -1620,6 +2143,16 @@
 
       const scorePct = Math.round((correctCount / 25) * 100);
 
+      recordTestResult({
+        title: 'محاكي قياس المحوسب (٢٥ سؤال)',
+        date: new Date().toLocaleDateString('ar-SA') + ' ' + new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
+        scorePct: scorePct,
+        correct: correctCount,
+        total: 25,
+        quantScore: null,
+        verbScore: null
+      });
+
       const container = document.getElementById('simulator-container');
       container.innerHTML = `
         <div class="max-w-3xl mx-auto bg-white rounded-3xl p-8 border border-slate-200 shadow-xl space-y-8">
@@ -1783,7 +2316,504 @@
       launchTest([...mistakes], 'practice');
     }
 
-    // ================= ADMIN & FILE MANAGEMENT =================
+    // ================= ADMIN & STUDENT ACCOUNTS SYSTEM =================
+
+    // 1. ADMIN CREDENTIALS & SESSIONS
+    function getAdminCredentials() {
+      const saved = localStorage.getItem('qiyas_admin_credentials');
+      if (saved) {
+        try { return JSON.parse(saved); } catch (e) {}
+      }
+      return { username: 'admin', password: 'admin2026' };
+    }
+
+    function isAdminLoggedIn() {
+      return sessionStorage.getItem('qiyas_admin_logged_in') === 'true' || localStorage.getItem('qiyas_admin_logged_in') === 'true';
+    }
+
+    function handleAdminNavClick() {
+      if (isAdminLoggedIn()) {
+        switchTab('admin-files');
+      } else {
+        openAdminLoginModal();
+      }
+    }
+
+    function openAdminLoginModal() {
+      const modal = document.getElementById('admin-login-modal');
+      const err = document.getElementById('admin-login-error');
+      if (err) err.classList.add('hidden');
+      if (modal) modal.classList.remove('hidden');
+      setTimeout(() => {
+        const input = document.getElementById('admin-login-username');
+        if (input) input.focus();
+      }, 100);
+    }
+
+    function closeAdminLoginModal() {
+      const modal = document.getElementById('admin-login-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function fillAdminDemoCredentials() {
+      const creds = getAdminCredentials();
+      document.getElementById('admin-login-username').value = creds.username;
+      document.getElementById('admin-login-password').value = creds.password;
+      document.getElementById('admin-login-modal').querySelector('form').requestSubmit();
+    }
+
+    function handleAdminLoginSubmit(e) {
+      e.preventDefault();
+      const u = document.getElementById('admin-login-username').value.trim();
+      const p = document.getElementById('admin-login-password').value.trim();
+      const remember = document.getElementById('admin-remember-me').checked;
+      const creds = getAdminCredentials();
+
+      if (u === creds.username && p === creds.password) {
+        if (remember) {
+          localStorage.setItem('qiyas_admin_logged_in', 'true');
+        } else {
+          sessionStorage.setItem('qiyas_admin_logged_in', 'true');
+        }
+        closeAdminLoginModal();
+        updateAdminStatusUI();
+        switchTab('admin-files');
+        alert("مرحباً بك يا مدير الموقع! تم تسجيل الدخول بنجاح.");
+      } else {
+        const err = document.getElementById('admin-login-error');
+        if (err) {
+          err.innerText = "اسم المستخدم أو كلمة المرور غير صحيحة. يرجى المحاولة مجدداً.";
+          err.classList.remove('hidden');
+        }
+      }
+    }
+
+    function adminLogout() {
+      if (confirm("هل ترغب في تسجيل الخروج من لوحة الإدارة؟")) {
+        sessionStorage.removeItem('qiyas_admin_logged_in');
+        localStorage.removeItem('qiyas_admin_logged_in');
+        updateAdminStatusUI();
+        switchTab('home');
+      }
+    }
+
+    function openAdminPasswordModal() {
+      const modal = document.getElementById('admin-password-modal');
+      const creds = getAdminCredentials();
+      document.getElementById('admin-new-username').value = creds.username;
+      document.getElementById('admin-current-password').value = '';
+      document.getElementById('admin-new-password').value = '';
+      document.getElementById('admin-confirm-password').value = '';
+      document.getElementById('admin-pwd-error').classList.add('hidden');
+      document.getElementById('admin-pwd-success').classList.add('hidden');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeAdminPasswordModal() {
+      const modal = document.getElementById('admin-password-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function handleAdminChangePasswordSubmit(e) {
+      e.preventDefault();
+      const newU = document.getElementById('admin-new-username').value.trim();
+      const curP = document.getElementById('admin-current-password').value.trim();
+      const newP = document.getElementById('admin-new-password').value.trim();
+      const confP = document.getElementById('admin-confirm-password').value.trim();
+      const creds = getAdminCredentials();
+      const err = document.getElementById('admin-pwd-error');
+      const succ = document.getElementById('admin-pwd-success');
+
+      err.classList.add('hidden');
+      succ.classList.add('hidden');
+
+      if (curP !== creds.password) {
+        err.innerText = "كلمة المرور الحالية غير صحيحة.";
+        err.classList.remove('hidden');
+        return;
+      }
+      if (newP !== confP) {
+        err.innerText = "كلمة المرور الجديدة وتأكيدها غير متطابقين.";
+        err.classList.remove('hidden');
+        return;
+      }
+      if (newP.length < 4) {
+        err.innerText = "يجب ألا تقل كلمة المرور عن ٤ خانات.";
+        err.classList.remove('hidden');
+        return;
+      }
+
+      localStorage.setItem('qiyas_admin_credentials', JSON.stringify({ username: newU, password: newP }));
+      succ.innerText = "تم تحديث بيانات المدير بنجاح!";
+      succ.classList.remove('hidden');
+      updateAdminStatusUI();
+      setTimeout(() => {
+        closeAdminPasswordModal();
+      }, 1200);
+    }
+
+    function updateAdminStatusUI() {
+      const logged = isAdminLoggedIn();
+      const creds = getAdminCredentials();
+      const navBtn = document.getElementById('nav-admin-title');
+      const badge = document.getElementById('admin-user-badge');
+
+      if (navBtn) {
+        navBtn.innerText = logged ? "لوحة الإدارة (متصل) 👑" : "لوحة الإدارة 🔒";
+      }
+      if (badge) {
+        badge.innerText = `المسؤول: ${creds.username}`;
+      }
+    }
+
+    // 2. ADMIN DASHBOARD SUBTABS & STATS
+    function setAdminSubTab(sub) {
+      document.getElementById('admin-view-questions').classList.add('hidden');
+      document.getElementById('admin-view-students').classList.add('hidden');
+      document.getElementById('admin-view-files').classList.add('hidden');
+
+      const bQ = document.getElementById('btn-admin-sub-questions');
+      const bS = document.getElementById('btn-admin-sub-students');
+      const bF = document.getElementById('btn-admin-sub-files');
+
+      [bQ, bS, bF].forEach(b => {
+        if (b) b.className = "px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2";
+      });
+
+      if (sub === 'questions') {
+        document.getElementById('admin-view-questions').classList.remove('hidden');
+        if (bQ) bQ.className = "px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2";
+        renderAdminQuestionsList();
+      } else if (sub === 'students') {
+        document.getElementById('admin-view-students').classList.remove('hidden');
+        if (bS) bS.className = "px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2";
+        renderAdminStudents();
+      } else if (sub === 'files') {
+        document.getElementById('admin-view-files').classList.remove('hidden');
+        if (bF) bF.className = "px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2";
+      }
+    }
+
+    function renderAdminDashboardStats() {
+      const totalQ = allQuestions.length;
+      const quantQ = allQuestions.filter(q => q.section === 'quantitative').length;
+      const verbQ = allQuestions.filter(q => q.section === 'verbal').length;
+      const students = getStudentsList();
+      let totalTests = 0;
+      students.forEach(s => {
+        if (s.history && Array.isArray(s.history)) totalTests += s.history.length;
+      });
+
+      const elTotal = document.getElementById('stat-total-q');
+      const elQuant = document.getElementById('stat-quant-q');
+      const elVerb = document.getElementById('stat-verb-q');
+      const elStudents = document.getElementById('stat-students-count');
+      const elTests = document.getElementById('stat-tests-completed');
+
+      if (elTotal) elTotal.innerText = toAr(totalQ);
+      if (elQuant) elQuant.innerText = toAr(quantQ);
+      if (elVerb) elVerb.innerText = toAr(verbQ);
+      if (elStudents) elStudents.innerText = toAr(students.length);
+      if (elTests) elTests.innerText = toAr(totalTests);
+    }
+
+    function renderAdminStudents() {
+      const container = document.getElementById('admin-students-container');
+      if (!container) return;
+      const students = getStudentsList();
+
+      if (students.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 text-center text-slate-400 text-xs bg-slate-50 rounded-2xl border border-slate-200">
+            لا يوجد طلاب مسجلون حتى الآن في المنصة. يمكنك تسجيل حساب طالب من الزر في الأعلى لتجربة النظام.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <table class="w-full text-right text-xs">
+          <thead>
+            <tr class="border-b border-slate-200 text-slate-500 font-bold">
+              <th class="py-3 px-3">#</th>
+              <th class="py-3 px-3">اسم الطالب</th>
+              <th class="py-3 px-3">اسم المستخدم</th>
+              <th class="py-3 px-3">المرحلة</th>
+              <th class="py-3 px-3 text-center">الاختبارات المنجزة</th>
+              <th class="py-3 px-3 text-center">متوسط الدرجة</th>
+              <th class="py-3 px-3 text-center">أعلى درجة</th>
+              <th class="py-3 px-3">تاريخ التسجيل</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            ${students.map((s, idx) => {
+              const tests = s.history || [];
+              const count = tests.length;
+              const avg = count > 0 ? Math.round(tests.reduce((acc, t) => acc + (t.scorePct || 0), 0) / count) : 0;
+              const best = count > 0 ? Math.max(...tests.map(t => t.scorePct || 0)) : 0;
+
+              return `
+                <tr class="hover:bg-slate-50/80 transition-all font-medium text-slate-800">
+                  <td class="py-3 px-3 font-bold text-slate-400">${idx + 1}</td>
+                  <td class="py-3 px-3 font-bold text-slate-900 flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center font-black text-xs">${(s.name || 'ط')[0]}</span>
+                    <span>${s.name}</span>
+                  </td>
+                  <td class="py-3 px-3 font-mono text-slate-600">${s.username}</td>
+                  <td class="py-3 px-3 text-slate-600">${s.grade || 'علمي'}</td>
+                  <td class="py-3 px-3 text-center font-bold text-sky-600">${toAr(count)}</td>
+                  <td class="py-3 px-3 text-center font-black ${avg >= 80 ? 'text-emerald-600' : 'text-slate-700'}">${avg}%</td>
+                  <td class="py-3 px-3 text-center font-black text-purple-600">${best}%</td>
+                  <td class="py-3 px-3 text-slate-400">${s.createdAt || 'اليوم'}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function refreshStudentsAdminList() {
+      renderAdminStudents();
+      renderAdminDashboardStats();
+    }
+
+    function clearStudentsDataAdmin() {
+      if (confirm("هل أنت متأكد من مسح جميع سجلات الطلاب والاختبارات؟")) {
+        localStorage.removeItem('qiyas_students_db');
+        localStorage.removeItem('qiyas_current_student');
+        renderAdminStudents();
+        renderAdminDashboardStats();
+        renderAuthWidget();
+      }
+    }
+
+    // 3. STUDENT AUTH & PROFILE ENGINE
+    function getStudentsList() {
+      try {
+        return JSON.parse(localStorage.getItem('qiyas_students_db') || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function getCurrentStudent() {
+      try {
+        return JSON.parse(localStorage.getItem('qiyas_current_student') || 'null');
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function renderAuthWidget() {
+      const container = document.getElementById('auth-header-widget');
+      if (!container) return;
+      const st = getCurrentStudent();
+
+      if (st) {
+        container.innerHTML = `
+          <button onclick="openStudentProfileModal()" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 transition-all text-xs font-bold shadow-xs">
+            <span class="w-6 h-6 rounded-lg bg-sky-600 text-white flex items-center justify-center font-black text-[11px]">${(st.name || 'ط')[0]}</span>
+            <span class="hidden sm:inline">${st.name.split(' ')[0]}</span>
+            <span class="text-[10px] text-sky-600 bg-white px-1.5 py-0.5 rounded-md border border-sky-100 font-bold">ملفي</span>
+          </button>
+        `;
+      } else {
+        container.innerHTML = `
+          <button onclick="openStudentAuthModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 transition-all text-xs font-bold shadow-xs">
+            <span>👤</span>
+            <span>حساب طالب</span>
+          </button>
+        `;
+      }
+    }
+
+    function openStudentAuthModal() {
+      const m = document.getElementById('student-auth-modal');
+      const err = document.getElementById('student-auth-error');
+      if (err) err.classList.add('hidden');
+      if (m) m.classList.remove('hidden');
+    }
+
+    function closeStudentAuthModal() {
+      const m = document.getElementById('student-auth-modal');
+      if (m) m.classList.add('hidden');
+    }
+
+    function setStudentAuthTab(tab) {
+      const btnIn = document.getElementById('btn-st-tab-signin');
+      const btnUp = document.getElementById('btn-st-tab-signup');
+      const formIn = document.getElementById('student-signin-form');
+      const formUp = document.getElementById('student-signup-form');
+      const err = document.getElementById('student-auth-error');
+      if (err) err.classList.add('hidden');
+
+      if (tab === 'signin') {
+        btnIn.className = "flex-1 py-2 rounded-lg bg-white text-sky-700 shadow-xs transition-all";
+        btnUp.className = "flex-1 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all";
+        formIn.classList.remove('hidden');
+        formUp.classList.add('hidden');
+      } else {
+        btnUp.className = "flex-1 py-2 rounded-lg bg-white text-sky-700 shadow-xs transition-all";
+        btnIn.className = "flex-1 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all";
+        formUp.classList.remove('hidden');
+        formIn.classList.add('hidden');
+      }
+    }
+
+    function handleStudentSignUp(e) {
+      e.preventDefault();
+      const name = document.getElementById('st-reg-name').value.trim();
+      const username = document.getElementById('st-reg-username').value.trim().toLowerCase();
+      const grade = document.getElementById('st-reg-grade').value;
+      const password = document.getElementById('st-reg-password').value.trim();
+      const err = document.getElementById('student-auth-error');
+
+      const students = getStudentsList();
+      if (students.some(s => s.username === username)) {
+        err.innerText = "اسم المستخدم هذا مسجل بالفعل لطالب آخر. يرجى اختيار اسم مستخدم مختلف.";
+        err.classList.remove('hidden');
+        return;
+      }
+
+      const newStudent = {
+        id: Date.now(),
+        name: name,
+        username: username,
+        grade: grade,
+        password: password,
+        createdAt: new Date().toLocaleDateString('ar-SA'),
+        history: []
+      };
+
+      students.push(newStudent);
+      localStorage.setItem('qiyas_students_db', JSON.stringify(students));
+      localStorage.setItem('qiyas_current_student', JSON.stringify(newStudent));
+
+      renderAuthWidget();
+      renderAdminDashboardStats();
+      closeStudentAuthModal();
+      alert(`أهلاً بك يا ${name}! تم إنشاء حسابك بنجاح.`);
+    }
+
+    function handleStudentSignIn(e) {
+      e.preventDefault();
+      const username = document.getElementById('st-login-username').value.trim().toLowerCase();
+      const password = document.getElementById('st-login-password').value.trim();
+      const err = document.getElementById('student-auth-error');
+
+      const students = getStudentsList();
+      const st = students.find(s => s.username === username && s.password === password);
+
+      if (st) {
+        localStorage.setItem('qiyas_current_student', JSON.stringify(st));
+        renderAuthWidget();
+        closeStudentAuthModal();
+        alert(`مرحباً بعودتك يا ${st.name}!`);
+      } else {
+        err.innerText = "بيانات الدخول غير صحيحة. يرجى التأكد من اسم المستخدم وكلمة المرور.";
+        err.classList.remove('hidden');
+      }
+    }
+
+    function loginDemoStudent() {
+      const students = getStudentsList();
+      let demo = students.find(s => s.username === 'demo_student');
+
+      if (!demo) {
+        demo = {
+          id: Date.now(),
+          name: 'طالب القياس التجريبي',
+          username: 'demo_student',
+          grade: 'ثالث ثانوي - مسار علمي',
+          password: '123',
+          createdAt: new Date().toLocaleDateString('ar-SA'),
+          history: [
+            { title: 'محاكي قياس المحوسب (٢٥ سؤال)', date: new Date().toLocaleDateString('ar-SA'), scorePct: 92, correct: 23, total: 25 },
+            { title: 'تدريب مخصص - القسم الكمي', date: new Date().toLocaleDateString('ar-SA'), scorePct: 88, correct: 9, total: 10 }
+          ]
+        };
+        students.push(demo);
+        localStorage.setItem('qiyas_students_db', JSON.stringify(students));
+      }
+
+      localStorage.setItem('qiyas_current_student', JSON.stringify(demo));
+      renderAuthWidget();
+      renderAdminDashboardStats();
+      closeStudentAuthModal();
+      openStudentProfileModal();
+    }
+
+    function openStudentProfileModal() {
+      const st = getCurrentStudent();
+      if (!st) {
+        openStudentAuthModal();
+        return;
+      }
+
+      document.getElementById('st-profile-avatar').innerText = (st.name || 'ط')[0];
+      document.getElementById('st-profile-name').innerText = st.name;
+      document.getElementById('st-profile-sub').innerText = `${st.username} • ${st.grade || 'علمي'}`;
+
+      const history = st.history || [];
+      const count = history.length;
+      const avg = count > 0 ? Math.round(history.reduce((acc, h) => acc + (h.scorePct || 0), 0) / count) : 0;
+      const best = count > 0 ? Math.max(...history.map(h => h.scorePct || 0)) : 0;
+
+      document.getElementById('st-total-tests').innerText = toAr(count);
+      document.getElementById('st-avg-score').innerText = `${avg}%`;
+      document.getElementById('st-best-score').innerText = `${best}%`;
+
+      const listContainer = document.getElementById('st-history-list');
+      if (history.length === 0) {
+        listContainer.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs bg-slate-50 rounded-2xl">لم تقم بحل أي اختبار بعد. ابدأ الآن بحل اختبار ذاتي أو محاكي!</div>`;
+      } else {
+        listContainer.innerHTML = history.slice().reverse().map(h => `
+          <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
+            <div>
+              <span class="font-bold text-slate-900 block">${h.title}</span>
+              <span class="text-slate-400 text-[11px]">${h.date}</span>
+            </div>
+            <div class="text-left">
+              <span class="font-black text-base ${h.scorePct >= 80 ? 'text-emerald-600' : 'text-slate-800'}">${h.scorePct}%</span>
+              <span class="text-slate-400 text-[11px] block">(${toAr(h.correct)} من ${toAr(h.total)})</span>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('student-profile-modal').classList.remove('hidden');
+    }
+
+    function closeStudentProfileModal() {
+      document.getElementById('student-profile-modal').classList.add('hidden');
+    }
+
+    function studentLogout() {
+      localStorage.removeItem('qiyas_current_student');
+      renderAuthWidget();
+      closeStudentProfileModal();
+    }
+
+    function recordTestResult(result) {
+      let st = getCurrentStudent();
+      const students = getStudentsList();
+
+      if (st) {
+        if (!st.history) st.history = [];
+        st.history.push(result);
+        localStorage.setItem('qiyas_current_student', JSON.stringify(st));
+
+        const idx = students.findIndex(s => s.username === st.username);
+        if (idx !== -1) {
+          students[idx] = st;
+          localStorage.setItem('qiyas_students_db', JSON.stringify(students));
+        }
+      }
+      renderAdminDashboardStats();
+    }
+
+    // 4. QUESTION MANAGEMENT (ADMIN CRUD)
     function renderAdminQuestionsList() {
       const container = document.getElementById('admin-questions-list');
       if (!container) return;
@@ -1793,7 +2823,7 @@
 
       let list = allQuestions.filter(q => {
         if (filterSec !== 'all' && q.section !== filterSec) return false;
-        if (search && !q.question.toLowerCase().includes(search)) return false;
+        if (search && !q.question.toLowerCase().includes(search) && !(q.topic || '').toLowerCase().includes(search)) return false;
         return true;
       });
 
@@ -1803,8 +2833,8 @@
       }
 
       const letters = ['أ', 'ب', 'ج', 'د'];
-      container.innerHTML = list.map((q, idx) => `
-        <div class="p-4 rounded-2xl border border-slate-200 hover:border-slate-300 bg-slate-50/50 hover:bg-white transition-all space-y-2 text-xs">
+      container.innerHTML = list.map(q => `
+        <div class="p-4 rounded-2xl border border-slate-200 hover:border-slate-300 bg-slate-50/50 hover:bg-white transition-all space-y-3 text-xs">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2 font-bold">
               <span class="w-6 h-6 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center font-black text-[11px]">${q.id}</span>
@@ -1812,22 +2842,42 @@
               <span class="text-slate-400">•</span>
               <span class="text-slate-600">${q.topic}</span>
             </div>
-            <span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded">الصحيح: (${letters[q.correct_index]})</span>
+            
+            <div class="flex items-center gap-1.5">
+              <span class="text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">الصحيح: (${letters[q.correct_index]})</span>
+              <button onclick="previewQuestion(${q.id})" class="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 font-bold" title="معاينة شكل المسألة للطالب">
+                👁️
+              </button>
+              <button onclick="openEditQuestionModal(${q.id})" class="p-1.5 rounded-lg border border-slate-200 hover:bg-amber-50 hover:text-amber-700 text-slate-600 font-bold" title="تعديل المسألة">
+                ✏️
+              </button>
+              <button onclick="deleteQuestion(${q.id})" class="p-1.5 rounded-lg border border-slate-200 hover:bg-rose-50 hover:text-rose-700 text-slate-600 font-bold" title="حذف المسألة">
+                🗑️
+              </button>
+            </div>
           </div>
 
-          <p class="font-bold text-slate-900 text-sm">${q.question}</p>
+          <div class="text-slate-900 font-medium">${renderQuestionDisplay(q)}</div>
 
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-slate-600">
-            ${q.options.map((opt, oIdx) => `
+            ${(q.options || []).map((opt, oIdx) => `
               <div class="p-1.5 rounded-lg border ${oIdx === q.correct_index ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-bold' : 'bg-white border-slate-200'}">
                 ${letters[oIdx]}: ${opt}
               </div>
             `).join('')}
           </div>
 
-          <div class="p-2.5 rounded-xl bg-white border border-slate-200/80 text-slate-700 text-[11px] leading-relaxed">
-            <span class="font-bold text-indigo-700">الشرح الفصيح:</span> ${q.explanation}
-          </div>
+          ${q.explanation ? `
+            <div class="p-2.5 rounded-xl bg-white border border-slate-200/80 text-slate-700 text-[11px] leading-relaxed">
+              <span class="font-bold text-indigo-700">الشرح الفصيح:</span> ${q.explanation}
+            </div>
+          ` : ''}
+
+          ${q.speed_rule ? `
+            <div class="text-[10px] text-amber-800 bg-amber-50 p-1.5 rounded-lg border border-amber-200/60 font-bold">
+              ⚡ قانون الحل السريع: ${q.speed_rule}
+            </div>
+          ` : ''}
         </div>
       `).join('');
 
@@ -1838,6 +2888,278 @@
 
     function filterAdminQuestions() {
       renderAdminQuestionsList();
+    }
+
+    function toggleAddQuestionType() {
+      const type = document.querySelector('input[name="m-q-type"]:checked').value;
+      const std = document.getElementById('m-standard-container');
+      const comp = document.getElementById('m-comparison-container');
+      const opts = [
+        document.getElementById('m-opt-0'),
+        document.getElementById('m-opt-1'),
+        document.getElementById('m-opt-2'),
+        document.getElementById('m-opt-3')
+      ];
+
+      if (type === 'comparison') {
+        std.classList.add('hidden');
+        comp.classList.remove('hidden');
+        document.getElementById('m-section').value = 'quantitative';
+        document.getElementById('m-topic').value = 'مقارنات';
+        opts[0].value = 'القيمة الأولى أكبر';
+        opts[1].value = 'القيمة الثانية أكبر';
+        opts[2].value = 'القيمتان متساويتان';
+        opts[3].value = 'المعطيات غير كافية';
+      } else {
+        std.classList.remove('hidden');
+        comp.classList.add('hidden');
+        opts[0].value = '';
+        opts[1].value = '';
+        opts[2].value = '';
+        opts[3].value = '';
+      }
+    }
+
+    function onModalSectionChange() {
+      const sec = document.getElementById('m-section').value;
+      const topicInput = document.getElementById('m-topic');
+      if (sec === 'quantitative' && !topicInput.value) {
+        topicInput.value = 'حساب';
+      } else if (sec === 'verbal' && !topicInput.value) {
+        topicInput.value = 'تناظر لفظي';
+      }
+    }
+
+    function openAddQuestionModal() {
+      document.getElementById('m-question').value = '';
+      document.getElementById('m-comp-intro').value = '';
+      document.getElementById('m-comp-val1').value = '';
+      document.getElementById('m-comp-val2').value = '';
+      document.getElementById('m-explanation').value = '';
+      document.getElementById('m-speed-rule').value = '';
+      document.getElementById('add-modal').classList.remove('hidden');
+    }
+
+    function closeAddQuestionModal() {
+      document.getElementById('add-modal').classList.add('hidden');
+    }
+
+    function previewCurrentModalQuestion() {
+      const type = document.querySelector('input[name="m-q-type"]:checked').value;
+      let qText = '';
+      if (type === 'comparison') {
+        const intro = document.getElementById('m-comp-intro').value.trim() || 'قارن بين:';
+        const val1 = document.getElementById('m-comp-val1').value.trim() || 'القيمة الأولى';
+        const val2 = document.getElementById('m-comp-val2').value.trim() || 'القيمة الثانية';
+        qText = `${intro}\nالقيمة الأولى: ${val1}\nالقيمة الثانية: ${val2}`;
+      } else {
+        qText = document.getElementById('m-question').value.trim() || 'نص المسألة التجريبي';
+      }
+
+      const tempQ = {
+        id: 'معاينة',
+        section: document.getElementById('m-section').value,
+        topic: document.getElementById('m-topic').value || 'عام',
+        question: qText,
+        options: [
+          document.getElementById('m-opt-0').value || 'أ',
+          document.getElementById('m-opt-1').value || 'ب',
+          document.getElementById('m-opt-2').value || 'ج',
+          document.getElementById('m-opt-3').value || 'د'
+        ],
+        correct_index: parseInt(document.getElementById('m-correct').value),
+        explanation: document.getElementById('m-explanation').value,
+        speed_rule: document.getElementById('m-speed-rule').value
+      };
+
+      const content = document.getElementById('preview-question-content');
+      content.innerHTML = `
+        <div class="space-y-4">
+          <div class="text-xs font-bold text-slate-500">${tempQ.section === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي'} • ${tempQ.topic}</div>
+          <div>${renderQuestionDisplay(tempQ)}</div>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            ${tempQ.options.map((opt, idx) => `
+              <div class="p-3 rounded-xl border ${idx === tempQ.correct_index ? 'bg-emerald-50 border-emerald-400 text-emerald-800 font-bold' : 'bg-slate-50 border-slate-200'}">
+                (${['أ', 'ب', 'ج', 'د'][idx]}) ${opt}
+              </div>
+            `).join('')}
+          </div>
+          ${tempQ.explanation ? `<div class="p-3 rounded-xl bg-indigo-50 text-xs text-indigo-900 border border-indigo-200 font-medium">💡 <b>الشرح:</b> ${tempQ.explanation}</div>` : ''}
+        </div>
+      `;
+
+      document.getElementById('preview-modal').classList.remove('hidden');
+      if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise([content]);
+      }
+    }
+
+    function saveNewQuestionFromModal() {
+      const type = document.querySelector('input[name="m-q-type"]:checked').value;
+      let qText = '';
+      if (type === 'comparison') {
+        const intro = document.getElementById('m-comp-intro').value.trim() || 'قارن بين:';
+        const val1 = document.getElementById('m-comp-val1').value.trim();
+        const val2 = document.getElementById('m-comp-val2').value.trim();
+        if (!val1 || !val2) {
+          alert("يرجى ملء القيمة الأولى والقيمة الثانية للمقارنة.");
+          return;
+        }
+        qText = `${intro}\nالقيمة الأولى: ${val1}\nالقيمة الثانية: ${val2}`;
+      } else {
+        qText = document.getElementById('m-question').value.trim();
+        if (!qText) {
+          alert("يرجى كتابة نص المسألة.");
+          return;
+        }
+      }
+
+      const section = document.getElementById('m-section').value;
+      const topic = document.getElementById('m-topic').value.trim() || (type === 'comparison' ? 'مقارنات' : 'عام');
+      const correctIdx = parseInt(document.getElementById('m-correct').value);
+      const options = [
+        document.getElementById('m-opt-0').value.trim() || 'أ',
+        document.getElementById('m-opt-1').value.trim() || 'ب',
+        document.getElementById('m-opt-2').value.trim() || 'ج',
+        document.getElementById('m-opt-3').value.trim() || 'د'
+      ];
+
+      const newQ = {
+        id: allQuestions.length > 0 ? Math.max(...allQuestions.map(q => q.id || 0)) + 1 : 1,
+        section: section,
+        section_ar: section === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي',
+        topic: topic,
+        question: qText,
+        options: options,
+        correct_index: correctIdx,
+        explanation: document.getElementById('m-explanation').value.trim(),
+        speed_rule: document.getElementById('m-speed-rule').value.trim()
+      };
+
+      if (!newQ.explanation || newQ.explanation.length < 5) {
+        newQ.explanation = generateSmartArabicExplanation(newQ);
+      }
+      if (!newQ.speed_rule) {
+        newQ.speed_rule = generateSmartSpeedRule(newQ);
+      }
+
+      allQuestions.push(newQ);
+      saveQuestionsOverride();
+
+      document.getElementById('header-total-q').innerText = toAr(allQuestions.length) + ' سؤالاً';
+      alert("تم بنجاح حفظ المسألة وإضافتها إلى بنك الأسئلة!");
+      closeAddQuestionModal();
+      renderAdminQuestionsList();
+      renderAdminDashboardStats();
+      populateTopicCheckboxes();
+    }
+
+    function openEditQuestionModal(id) {
+      const q = allQuestions.find(item => item.id === id);
+      if (!q) return;
+
+      document.getElementById('edit-q-id').value = q.id;
+      document.getElementById('edit-modal-title').innerText = `تعديل المسألة رقم #${q.id}`;
+      document.getElementById('edit-section').value = q.section;
+      document.getElementById('edit-topic').value = q.topic;
+      document.getElementById('edit-question').value = q.question;
+      document.getElementById('edit-opt-0').value = (q.options && q.options[0]) || '';
+      document.getElementById('edit-opt-1').value = (q.options && q.options[1]) || '';
+      document.getElementById('edit-opt-2').value = (q.options && q.options[2]) || '';
+      document.getElementById('edit-opt-3').value = (q.options && q.options[3]) || '';
+      document.getElementById('edit-correct').value = q.correct_index || 0;
+      document.getElementById('edit-explanation').value = q.explanation || '';
+      document.getElementById('edit-speed-rule').value = q.speed_rule || '';
+
+      document.getElementById('edit-modal').classList.remove('hidden');
+    }
+
+    function closeEditQuestionModal() {
+      document.getElementById('edit-modal').classList.add('hidden');
+    }
+
+    function saveEditedQuestion() {
+      const id = parseInt(document.getElementById('edit-q-id').value);
+      const idx = allQuestions.findIndex(q => q.id === id);
+      if (idx === -1) return;
+
+      const section = document.getElementById('edit-section').value;
+      allQuestions[idx].section = section;
+      allQuestions[idx].section_ar = section === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي';
+      allQuestions[idx].topic = document.getElementById('edit-topic').value.trim();
+      allQuestions[idx].question = document.getElementById('edit-question').value.trim();
+      allQuestions[idx].options = [
+        document.getElementById('edit-opt-0').value.trim(),
+        document.getElementById('edit-opt-1').value.trim(),
+        document.getElementById('edit-opt-2').value.trim(),
+        document.getElementById('edit-opt-3').value.trim()
+      ];
+      allQuestions[idx].correct_index = parseInt(document.getElementById('edit-correct').value);
+      allQuestions[idx].explanation = document.getElementById('edit-explanation').value.trim();
+      allQuestions[idx].speed_rule = document.getElementById('edit-speed-rule').value.trim();
+
+      saveQuestionsOverride();
+      closeEditQuestionModal();
+      renderAdminQuestionsList();
+      renderAdminDashboardStats();
+      populateTopicCheckboxes();
+      alert("تم حفظ التعديلات بنجاح!");
+    }
+
+    function deleteQuestion(id) {
+      if (confirm(`هل أنت متأكد من رغبتك في حذف المسألة رقم #${id} نهائياً؟`)) {
+        allQuestions = allQuestions.filter(q => q.id !== id);
+        saveQuestionsOverride();
+        document.getElementById('header-total-q').innerText = toAr(allQuestions.length) + ' سؤالاً';
+        renderAdminQuestionsList();
+        renderAdminDashboardStats();
+        populateTopicCheckboxes();
+      }
+    }
+
+    function previewQuestion(id) {
+      const q = allQuestions.find(item => item.id === id);
+      if (!q) return;
+
+      const content = document.getElementById('preview-question-content');
+      content.innerHTML = `
+        <div class="space-y-4">
+          <div class="text-xs font-bold text-slate-500">${q.section === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي'} • ${q.topic}</div>
+          <div>${renderQuestionDisplay(q)}</div>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            ${(q.options || []).map((opt, idx) => `
+              <div class="p-3 rounded-xl border ${idx === q.correct_index ? 'bg-emerald-50 border-emerald-400 text-emerald-800 font-bold' : 'bg-slate-50 border-slate-200'}">
+                (${['أ', 'ب', 'ج', 'د'][idx]}) ${opt}
+              </div>
+            `).join('')}
+          </div>
+          ${q.explanation ? `<div class="p-3 rounded-xl bg-indigo-50 text-xs text-indigo-900 border border-indigo-200 font-medium">💡 <b>الشرح المعتمد:</b> ${q.explanation}</div>` : ''}
+          ${q.speed_rule ? `<div class="p-2 rounded-lg bg-amber-50 text-[11px] text-amber-800 border border-amber-200 font-bold">⚡ قانون الحل السريع: ${q.speed_rule}</div>` : ''}
+        </div>
+      `;
+
+      document.getElementById('preview-modal').classList.remove('hidden');
+      if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise([content]);
+      }
+    }
+
+    function closePreviewModal() {
+      document.getElementById('preview-modal').classList.add('hidden');
+    }
+
+    function saveQuestionsOverride() {
+      localStorage.setItem('qiyas_questions_override', JSON.stringify(allQuestions));
+    }
+
+    function exportQuestionsJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allQuestions, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "questions.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
     }
 
     function handleFileSelected(event) {
@@ -1870,6 +3192,33 @@
       } catch (e) {
         alert("تنسيق JSON غير صحيح. تأكد من إغلاق الأقواس والفواصل.");
       }
+    }
+
+    async function uploadBulkQuestions(items) {
+      let maxId = allQuestions.length > 0 ? Math.max(...allQuestions.map(q => q.id || 0)) : 0;
+      items.forEach((item) => {
+        maxId++;
+        item.id = maxId;
+        if (!item.explanation || item.explanation.length < 5) {
+          item.explanation = generateSmartArabicExplanation(item);
+        }
+        if (!item.speed_rule) {
+          item.speed_rule = generateSmartSpeedRule(item);
+        }
+        if (!item.section_ar) {
+          item.section_ar = item.section === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي';
+        }
+      });
+
+      allQuestions.push(...items);
+      saveQuestionsOverride();
+
+      document.getElementById('header-total-q').innerText = toAr(allQuestions.length) + ' سؤالاً';
+      alert(`تم بنجاح إضافة ${items.length} سؤالاً وصياغة شروحاتها النموذجية باللغة الفصحى!`);
+      renderAdminQuestionsList();
+      renderAdminDashboardStats();
+      populateTopicCheckboxes();
+      document.getElementById('admin-paste-json').value = '';
     }
 
     // Smart Client-Side Explanation Engine (اللغة العربية الفصحى)
@@ -1909,44 +3258,17 @@
       }
     }
 
-    async function uploadBulkQuestions(items) {
-      items.forEach((item, idx) => {
-        item.id = allQuestions.length + idx + 1;
-        if (!item.explanation || item.explanation.length < 5) {
-          item.explanation = generateSmartArabicExplanation(item);
-        }
-        if (!item.speed_rule) {
-          item.speed_rule = generateSmartSpeedRule(item);
-        }
-        if (!item.section_ar) {
-          item.section_ar = item.section === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي';
-        }
-      });
-
-      allQuestions.push(...items);
-
-      // Save to localStorage
-      const customQ = JSON.parse(localStorage.getItem('qiyas_custom_questions') || '[]');
-      customQ.push(...items);
-      localStorage.setItem('qiyas_custom_questions', JSON.stringify(customQ));
-
-      document.getElementById('header-total-q').innerText = toAr(allQuestions.length) + ' سؤالاً';
-      alert(`تم بنجاح إضافة ${items.length} سؤالاً وصياغة شروحاتها النموذجية باللغة الفصحى!`);
-      renderAdminQuestionsList();
-      populateTopicCheckboxes();
-      document.getElementById('admin-paste-json').value = '';
-    }
-
-    // Modal
-    function openAddQuestionModal() {
-      document.getElementById('add-modal').classList.remove('hidden');
-    }
-    function closeAddQuestionModal() {
-      document.getElementById('add-modal').classList.add('hidden');
-    }
-
     function autoGenerateExplanationForModal() {
-      const qText = document.getElementById('m-question').value;
+      const type = document.querySelector('input[name="m-q-type"]:checked').value;
+      let qText = '';
+      if (type === 'comparison') {
+        const val1 = document.getElementById('m-comp-val1').value.trim();
+        const val2 = document.getElementById('m-comp-val2').value.trim();
+        qText = `قارن بين:\nالقيمة الأولى: ${val1}\nالقيمة الثانية: ${val2}`;
+      } else {
+        qText = document.getElementById('m-question').value;
+      }
+
       const topic = document.getElementById('m-topic').value;
       const section = document.getElementById('m-section').value;
       const correctIdx = parseInt(document.getElementById('m-correct').value);
@@ -1962,65 +3284,6 @@
       document.getElementById('m-speed-rule').value = generateSmartSpeedRule(tempQ);
     }
 
-    function saveNewQuestionFromModal() {
-      const qText = document.getElementById('m-question').value.trim();
-      if (!qText) {
-        alert("يرجى كتابة نص السؤال.");
-        return;
-      }
-      const section = document.getElementById('m-section').value;
-      const topic = document.getElementById('m-topic').value.trim() || 'عام';
-      const correctIdx = parseInt(document.getElementById('m-correct').value);
-      const options = [
-        document.getElementById('m-opt-0').value.trim() || 'أ',
-        document.getElementById('m-opt-1').value.trim() || 'ب',
-        document.getElementById('m-opt-2').value.trim() || 'ج',
-        document.getElementById('m-opt-3').value.trim() || 'د'
-      ];
-
-      const newQ = {
-        id: allQuestions.length + 1,
-        section: section,
-        section_ar: section === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي',
-        topic: topic,
-        question: qText,
-        options: options,
-        correct_index: correctIdx,
-        explanation: document.getElementById('m-explanation').value.trim(),
-        speed_rule: document.getElementById('m-speed-rule').value.trim()
-      };
-
-      if (!newQ.explanation || newQ.explanation.length < 5) {
-        newQ.explanation = generateSmartArabicExplanation(newQ);
-      }
-      if (!newQ.speed_rule) {
-        newQ.speed_rule = generateSmartSpeedRule(newQ);
-      }
-
-      allQuestions.push(newQ);
-
-      // Save custom in localStorage
-      const customQ = JSON.parse(localStorage.getItem('qiyas_custom_questions') || '[]');
-      customQ.push(newQ);
-      localStorage.setItem('qiyas_custom_questions', JSON.stringify(customQ));
-
-      document.getElementById('header-total-q').innerText = toAr(allQuestions.length) + ' سؤالاً';
-      alert("تم حفظ المسألة وصياغة الشرح الفصيح بنجاح!");
-      closeAddQuestionModal();
-      renderAdminQuestionsList();
-      populateTopicCheckboxes();
-    }
-
-    function exportQuestionsJSON() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allQuestions, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "questions.json");
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-    }
-
     // Scratchpad
     function openScratchpad() {
       document.getElementById('scratchpad-modal').classList.remove('hidden');
@@ -2029,7 +3292,7 @@
       document.getElementById('scratchpad-modal').classList.add('hidden');
     }
 
-    // Start
+    // Start App
     initApp();
   </script>
 </body>
