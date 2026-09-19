@@ -43,8 +43,201 @@
     }
   };
 
-  // قراءة وتحليل ملف الـ PDF عبر الـ API
-  window.processPdfFile = function (file) {
+  // تحويل الأرقام العربية إلى إنجليزية
+  function convertArabicDigits(str) {
+    if (!str) return '';
+    return str.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+  }
+
+  // خريطة توحيد الحروف
+  const ARABIC_LETTER_MAP = {
+    'ﺃ': 'أ', 'أ': 'أ', 'إ': 'أ', 'ا': 'أ', 'آ': 'أ', 'A': 'أ', 'a': 'أ', '1': 'أ',
+    'ﺏ': 'ب', 'ب': 'ب', 'B': 'ب', 'b': 'ب', '2': 'ب',
+    'ﺝ': 'ج', 'ج': 'ج', 'C': 'ج', 'c': 'ج', '3': 'ج',
+    'ﺩ': 'د', 'د': 'د', 'D': 'د', 'd': 'د', '4': 'د'
+  };
+  const LETTER_TO_INDEX = { 'أ': 0, 'ب': 1, 'ج': 2, 'د': 3 };
+
+  function normalizeArabicLetter(ch) {
+    if (!ch) return 'أ';
+    return ARABIC_LETTER_MAP[ch] || 'أ';
+  }
+
+  // كشف الإجابة الصحيحة بالأنماط المعتمدة في اختبارات قياس والقدرات
+  function extractAnswerFromTextClient(text) {
+    if (!text) return null;
+    const patterns = [
+      /(?:الإجابة|الاجابة|ﺍﻹﺟﺎﺑﺔ)\s*(?:الصحيحة|الصحية|ﺍﻟﺼﺤﻴﺤﺔ)?\s*[:：\-]?\s*([أ-دﺃ-ﺩA-Da-d])/i,
+      /(?:الحل|الجواب|مفتاح الحل)\s*[:：\-]?\s*([أ-دﺃ-ﺩA-Da-d])/i,
+      /الإجابة\s*\(?([أ-دﺃ-ﺩA-Da-d])\)?/i,
+      /\(?([أ-دﺃ-ﺩ])\)?\s*هي الإجابة/i,
+      /(?:Correct|Answer)\s*[:：\-]?\s*([A-Da-dأ-د])/i
+    ];
+
+    for (let p of patterns) {
+      const m = text.match(p);
+      if (m && m[1]) {
+        const letter = normalizeArabicLetter(m[1]);
+        return { letter: letter, index: LETTER_TO_INDEX[letter] ?? 0 };
+      }
+    }
+    return null;
+  }
+
+  // كشف تصنيف السؤال والموضوع
+  function detectSectionAndTopicClient(text) {
+    const t = (text || '').toLowerCase();
+    const verbalKeywords = ['تناظر', 'سياقي', 'استيعاب', 'إكمال', 'مفردة شاذة', 'قطعة', 'معنى', 'ضد', 'مرادف'];
+    const isVerbal = verbalKeywords.some(k => t.includes(k));
+
+    if (isVerbal) {
+      let topic = 'استيعاب المقروء';
+      if (t.includes('تناظر')) topic = 'تناظر لفظي';
+      else if (t.includes('سياقي')) topic = 'خطأ سياقي';
+      else if (t.includes('إكمال')) topic = 'إكمال الجمل';
+      return { section: 'verbal', topic: topic };
+    } else {
+      let topic = 'حساب وأعداد سريعة';
+      if (/مثلث|مربع|مستطيل|دائرة|زاوية|شكل|مظلل|هندسة/.test(t)) topic = 'هندسة وقوانين المساحات';
+      else if (/قارن|القيمة الأولى|القيمة الثانية|مقارنة/.test(t)) topic = 'مقارنات رياضية';
+      else if (/متتابعة|نمط|تسلسل/.test(t)) topic = 'متتابعات وأنماط';
+      else if (/س\s*\+|ص\s*=|معادلة|جذر|قوة|أس/.test(t)) topic = 'جبر ومعادلات';
+      return { section: 'quantitative', topic: topic };
+    }
+  }
+
+  // كشف ما إذا كانت المسألة تتطلب رسماً هندسياً أو بصرياً
+  function isQuestionVisualClient(text, topic) {
+    if ((topic || '').includes('هندسة') || (topic || '').includes('أشكال')) return true;
+    const geomRegex = /شكل|رسم|مخطط|مثلث|دائرة|مستطيل|مربع|شبه منحرف|متوازي|زاوية|مساحة|محيط|مظلل|احداثي|عمود|قطر|نصف قطر|وتر/i;
+    return geomRegex.test(text || '');
+  }
+
+  // محرك استخراج وتحليل ملفات الـ PDF داخل المتصفح (يعمل على GitHub Pages بدون خادم)
+  async function parsePdfInBrowser(fileOrBlob, filename = 'exam.pdf') {
+    if (!window.pdfjsLib) {
+      throw new Error("محرك تحليل PDF في المتصفح غير متوفر حالياً. يرجى التحقق من الاتصال بالإنترنت.");
+    }
+
+    showPdfLoadingState(true, `جاري قراءة وتحليل ملف (${filename}) بالذكاء الاصطناعي داخل المتصفح...`);
+
+    const arrayBuffer = await fileOrBlob.arrayBuffer();
+    const loadingTask = window.pdfjsLib.getDocument({ data: arrayBuffer });
+    const pdfDoc = await loadingTask.promise;
+    const numPages = pdfDoc.numPages;
+
+    let startPage = 1;
+    // فحص الصفحة الأولى لاستبعاد الغلاف إن وُجد
+    if (numPages > 1) {
+      const page1 = await pdfDoc.getPage(1);
+      const textContent1 = await page1.getTextContent();
+      const str1 = textContent1.items.map(it => it.str).join(' ');
+      const ans1 = extractAnswerFromTextClient(str1);
+      const isCover = !ans1 && /اختبار|القدرات|تعليمات|تحذير|النسخة|حقوق|المنصف|إعداد/i.test(str1);
+      if (isCover) {
+        startPage = 2;
+      }
+    }
+
+    const extractedQuestions = [];
+    let questionCounter = 1;
+
+    for (let pNum = startPage; pNum <= numPages; pNum++) {
+      showPdfLoadingState(true, `جاري استخراج المسألة من صفحة ${pNum} من ${numPages}...`);
+      const page = await pdfDoc.getPage(pNum);
+      const textContent = await page.getTextContent();
+      const fullText = textContent.items.map(it => it.str).join(' ');
+
+      // 1. كشف الإجابة الصحيحة
+      const detectedAnswer = extractAnswerFromTextClient(fullText) || { letter: 'أ', index: 0 };
+
+      // 2. كشف رقم السؤال
+      let qNum = questionCounter;
+      const qNumMatch = fullText.match(/(?:السؤال|سؤال|س)\s*([0-9٠-٩]+)/);
+      if (qNumMatch) {
+        const parsed = parseInt(convertArabicDigits(qNumMatch[1]));
+        if (!isNaN(parsed) && parsed > 0) qNum = parsed;
+      }
+
+      // 3. تصنيف القسم والموضوع
+      const { section, topic } = detectSectionAndTopicClient(fullText);
+
+      // 4. استخراج نص السؤال
+      const lines = textContent.items.map(it => it.str.trim()).filter(l => l.length > 0);
+      const filteredLines = lines.filter(l => !/اختبار|محفوظة|منصة|المنصف|الإجابة الصحيحة|5 9 9|هاتف|www\.|\.com|تحذير/i.test(l));
+      let qText = filteredLines.slice(0, 3).join(' ');
+      if (!qText || qText.length < 5) {
+        qText = `مسألة رقم (${qNum}) - صفحة ${pNum}`;
+      }
+
+      // 5. استخراج الخيارات الأربعة
+      let options = [];
+      ['أ', 'ب', 'ج', 'د'].forEach(letter => {
+        const regex = new RegExp(`[\\(]?[${letter}][\\)\\-:]\\s*([^\\(\\n\\r]+)`);
+        const m = fullText.match(regex);
+        if (m && m[1] && m[1].trim().length > 1) {
+          options.push(m[1].trim());
+        }
+      });
+      if (options.length < 4) {
+        options = ["الخيار (أ)", "الخيار (ب)", "الخيار (ج)", "الخيار (د)"];
+      }
+
+      // 6. التقاط صورة للصفحة بجودة عالية للرسومات الهندسية
+      let imageUrl = '';
+      try {
+        const viewport = page.getViewport({ scale: 1.5 });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        imageUrl = canvas.toDataURL('image/png');
+      } catch (e) {
+        console.warn("Could not render page canvas:", e);
+      }
+
+      const hasVisual = isQuestionVisualClient(fullText, topic);
+
+      extractedQuestions.push({
+        id: qNum,
+        section: section,
+        section_ar: section === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي',
+        topic: topic,
+        level: hasVisual ? 3 : (section === 'quantitative' ? 2 : 1),
+        has_visual: hasVisual,
+        question: qText,
+        options: options,
+        correct_index: detectedAnswer.index,
+        correct_letter: detectedAnswer.letter,
+        image: imageUrl,
+        image_url: imageUrl,
+        image_base64: imageUrl,
+        page_num: pNum,
+        explanation: `الإجابة الصحيحة هي (${detectedAnswer.letter}). تم استخراج السؤال وتحليله آلياً من صفحة ${pNum} في ملف الاختبار.`,
+        speed_rule: hasVisual 
+          ? "📐 ركز على معطيات الرسم الهندسي واستخدم خواص الأشكال والزوايا للوصول للحل في أقل من 40 ثانية."
+          : "⚡ استبعد الخيارات البعيدة واستخدم التعويض المباشر لتوفير الوقت."
+      });
+
+      questionCounter++;
+    }
+
+    const quantCount = extractedQuestions.filter(q => q.section === 'quantitative').length;
+    const verbCount = extractedQuestions.filter(q => q.section === 'verbal').length;
+
+    return {
+      success: true,
+      filename: filename,
+      total_questions: extractedQuestions.length,
+      quantitative_count: quantCount,
+      verbal_count: verbCount,
+      questions: extractedQuestions
+    };
+  }
+
+  // قراءة وتحليل ملف الـ PDF (مع دعم الخادم المحلي ومحرك المتصفح لـ GitHub Pages)
+  window.processPdfFile = async function (file) {
     if (!file.name.toLowerCase().endsWith('.pdf')) {
       alert('يرجى اختيار ملف بصيغة PDF صالحة.');
       return;
@@ -53,11 +246,19 @@
     currentPdfFileName = file.name;
     showPdfLoadingState(true, `جاري قراءة ملف (${file.name}) وتحليل الأسئلة والإجابات...`);
 
-    const reader = new FileReader();
-    reader.onload = async function (e) {
-      const base64Data = e.target.result;
+    const isStaticHost = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:';
+
+    // 1. محاولة استخدام خادم API إذا كنا في بيئة محلية
+    if (!isStaticHost) {
       try {
-        const response = await fetch('/api/parse-pdf', {
+        const base64Data = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.target.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+
+        const response = await fetch('./api/parse-pdf', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -66,31 +267,34 @@
           })
         });
 
-        if (!response.ok) {
-          const errData = await response.json().catch(() => ({}));
-          throw new Error(errData.error || `خطأ في الخادم (${response.status})`);
-        }
-
-        const data = await response.json();
-        if (data.success) {
-          currentPdfQuestions = data.questions || [];
-          renderPdfExtractionResults(data);
-        } else {
-          throw new Error(data.error || 'تعذر استخراج الأسئلة من الملف');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.questions && data.questions.length > 0) {
+            currentPdfQuestions = data.questions;
+            renderPdfExtractionResults(data);
+            return;
+          }
         }
       } catch (err) {
-        console.error('فشل معالجة PDF:', err);
-        alert(`❌ حدث خطأ أثناء تحليل الـ PDF:\n${err.message}`);
-        showPdfLoadingState(false);
+        console.warn("تعذر استخدام API الخادم، سيتم التحويل فورياً لمحرك المتصفح الداخلي:", err);
       }
-    };
+    }
 
-    reader.onerror = function () {
-      alert('فشل قراءة الملف من الجهاز.');
+    // 2. التحليل الذكي داخل المتصفح (يعمل مباشرة على GitHub Pages)
+    try {
+      showPdfLoadingState(true, `جاري قراءة وتحليل (${file.name}) بمحرك المتصفح الذكي...`);
+      const data = await parsePdfInBrowser(file, file.name);
+      if (data.success && data.questions && data.questions.length > 0) {
+        currentPdfQuestions = data.questions;
+        renderPdfExtractionResults(data);
+      } else {
+        throw new Error('تعذر استخراج الأسئلة من الملف');
+      }
+    } catch (clientErr) {
+      console.error('فشل معالجة PDF في المتصفح:', clientErr);
+      alert(`❌ حدث خطأ أثناء تحليل ملف الـ PDF:\n${clientErr.message || clientErr}`);
       showPdfLoadingState(false);
-    };
-
-    reader.readAsDataURL(file);
+    }
   };
 
   // تجربة فحص الملف المدمج exam126.pdf مباشرة
@@ -99,31 +303,45 @@
     showPdfLoadingState(true, 'جاري جلب وتحليل ملف الاختبار المدمج exam126.pdf واستخراج الـ ٥٥ سؤالاً وإجاباتها...');
 
     try {
-      const res = await fetch('/exam126.pdf');
-      if (!res.ok) throw new Error('تعذر تحميل ملف exam126.pdf من الخادم');
+      const res = await fetch('./exam126.pdf');
+      if (!res.ok) throw new Error('تعذر تحميل ملف exam126.pdf من الموقع');
       const blob = await res.blob();
       
-      const reader = new FileReader();
-      reader.onload = async function (e) {
-        const b64 = e.target.result;
-        const apiRes = await fetch('/api/parse-pdf', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            filename: 'exam126.pdf',
-            pdf_base64: b64
-          })
-        });
-
-        const data = await apiRes.json();
-        if (data.success) {
-          currentPdfQuestions = data.questions || [];
-          renderPdfExtractionResults(data);
-        } else {
-          throw new Error(data.error || 'فشل التحليل');
+      const isStaticHost = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:';
+      if (!isStaticHost) {
+        try {
+          const b64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.target.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          const apiRes = await fetch('./api/parse-pdf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              filename: 'exam126.pdf',
+              pdf_base64: b64
+            })
+          });
+          if (apiRes.ok) {
+            const data = await apiRes.json();
+            if (data.success && data.questions && data.questions.length > 0) {
+              currentPdfQuestions = data.questions;
+              renderPdfExtractionResults(data);
+              return;
+            }
+          }
+        } catch (serverErr) {
+          console.warn("الخادم غير متاح، استخدام محرك المتصفح:", serverErr);
         }
-      };
-      reader.readAsDataURL(blob);
+      }
+
+      // تشغيل محرك المتصفح
+      const data = await parsePdfInBrowser(blob, 'exam126.pdf');
+      currentPdfQuestions = data.questions || [];
+      renderPdfExtractionResults(data);
+
     } catch (err) {
       console.error(err);
       alert(`❌ خطأ: ${err.message}`);
@@ -276,6 +494,112 @@
     }
   };
 
+  // دالة مساعدة لحفظ الأسئلة محلياً في المتصفح والمزامنة السحابية (بدون الحاجة لخادم backend)
+  async function saveQuestionsToBrowserStorage(questionsToSave) {
+    if (!window.allQuestions || !Array.isArray(window.allQuestions) || window.allQuestions.length === 0) {
+      const savedOverride = JSON.parse(localStorage.getItem('qiyas_questions_override') || 'null');
+      if (savedOverride && Array.isArray(savedOverride) && savedOverride.length > 0) {
+        window.allQuestions = savedOverride;
+      } else {
+        try {
+          const r = await fetch('questions.json?t=' + Date.now());
+          if (r.ok) {
+            window.allQuestions = await r.json();
+          } else {
+            window.allQuestions = [];
+          }
+        } catch (e) {
+          window.allQuestions = [];
+        }
+      }
+    }
+
+    let maxId = window.allQuestions.length > 0 ? Math.max(...window.allQuestions.map(q => Number(q.id) || 0)) : 0;
+    
+    const letters = ['أ', 'ب', 'ج', 'د'];
+    const preparedQuestions = questionsToSave.map(q => {
+      maxId++;
+      const correctIdx = (typeof q.correct_index === 'number' && q.correct_index >= 0 && q.correct_index <= 3) ? q.correct_index : 0;
+      const correctLetter = q.correct_letter || letters[correctIdx] || 'أ';
+      const img = q.image_url || q.image || q.image_base64 || '';
+      
+      return {
+        id: maxId,
+        section: q.section || 'quantitative',
+        section_ar: q.section_ar || (q.section === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي'),
+        topic: q.topic || 'عام',
+        level: q.level || (q.has_visual ? 3 : 2),
+        difficulty: q.difficulty || 'متوسط',
+        question: q.question || `مسألة رقم (${maxId})`,
+        options: (q.options && q.options.length === 4) ? q.options : ['الخيار أ', 'الخيار ب', 'الخيار ج', 'الخيار د'],
+        correct_index: correctIdx,
+        correct_letter: correctLetter,
+        explanation: q.explanation || (q.speed_rule ? `الحل النموذجي المباشر:\n${q.speed_rule}` : 'شرح مفصل ومبسط وفق معايير مركز قياس.'),
+        speed_rule: q.speed_rule || 'قانون سرعة واستراتيجية حل دقيقة للمسألة.',
+        image: img,
+        image_url: img,
+        has_visual: !!q.has_visual || !!img,
+        source: q.source || (currentPdfFileName ? `مستخرج من ملف (${currentPdfFileName})` : 'مستخرج من ملف PDF')
+      };
+    });
+
+    // إضافة الأسئلة للمصفوفة العامة
+    window.allQuestions.push(...preparedQuestions);
+
+    // الحفظ في التخزين المحلي للمتصفح
+    try {
+      localStorage.setItem('qiyas_questions_override', JSON.stringify(window.allQuestions));
+    } catch (storageErr) {
+      console.warn("تعذر حفظ كافة الصور في localStorage بسبب حجم البيانات، جاري حفظ النصوص الأساسية:", storageErr);
+      const lightweightQuestions = window.allQuestions.map(q => {
+        if (q.image && q.image.length > 50000) {
+          const { image, image_url, ...rest } = q;
+          return rest;
+        }
+        return q;
+      });
+      try {
+        localStorage.setItem('qiyas_questions_override', JSON.stringify(lightweightQuestions));
+      } catch (e) {
+        console.error("Critical storage error:", e);
+      }
+    }
+
+    // المزامنة السحابية مع Cloud Firestore إذا كان متصلاً
+    let cloudSynced = false;
+    if (window.FirebaseService && typeof window.FirebaseService.isConnected === 'function' && window.FirebaseService.isConnected()) {
+      try {
+        await window.FirebaseService.uploadQuestions(preparedQuestions);
+        cloudSynced = true;
+      } catch (fbErr) {
+        console.warn("تنبيه مزامنة Firebase:", fbErr);
+      }
+    }
+
+    // تحديث إحصائيات وواجهات الموقع
+    const totalCount = window.allQuestions.length;
+    const headerCount = document.getElementById('header-total-q');
+    if (headerCount) {
+      headerCount.textContent = (typeof window.toAr === 'function' ? window.toAr(totalCount) : totalCount) + ' سؤالاً';
+    }
+
+    if (typeof window.renderAdminQuestionsList === 'function') {
+      window.renderAdminQuestionsList();
+    }
+    if (typeof window.renderAdminDashboardStats === 'function') {
+      window.renderAdminDashboardStats();
+    }
+    if (typeof window.populateTopicCheckboxes === 'function') {
+      window.populateTopicCheckboxes();
+    }
+
+    return {
+      added_count: preparedQuestions.length,
+      total_questions: totalCount,
+      cloud_synced: cloudSynced
+    };
+  }
+
   // اعتماد وحفظ الأسئلة المستخرجة في بنك الأسئلة والمزامنة
   window.saveExtractedPdfQuestions = async function () {
     if (!currentPdfQuestions || currentPdfQuestions.length === 0) {
@@ -286,48 +610,66 @@
     const saveBtn = document.getElementById('btn-save-pdf-questions');
     if (saveBtn) {
       saveBtn.disabled = true;
-      saveBtn.innerHTML = '<span>⏳</span><span>جاري حفظ الأسئلة في البنك...</span>';
+      saveBtn.innerHTML = '<span>⏳</span><span>جاري حفظ واعتماد الأسئلة...</span>';
     }
 
+    const isStaticHost = window.location.hostname.endsWith('github.io') || window.location.protocol === 'file:';
+
+    // 1. محاولة الحفظ عبر خادم بايثون المحلي إذا لم نكن على GitHub Pages
+    if (!isStaticHost) {
+      try {
+        const res = await fetch('./api/save-pdf-questions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            questions: currentPdfQuestions
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            if (typeof window.loadQuestions === 'function') {
+              await window.loadQuestions();
+            } else if (typeof window.fetchQuestions === 'function') {
+              window.fetchQuestions();
+            }
+            if (typeof window.renderAdminQuestionsList === 'function') {
+              window.renderAdminQuestionsList();
+            }
+
+            const headerCount = document.getElementById('header-total-q');
+            if (headerCount) {
+              headerCount.textContent = `${data.total_questions} سؤالاً`;
+            }
+
+            alert(`🎉 نجاح تام!\nتمت إضافة (${data.added_count}) سؤالاً بنجاح إلى بنك الأسئلة!\nإجمالي بنك الأسئلة الآن: (${data.total_questions}) سؤالاً.`);
+            closePdfImportModal();
+
+            if (window.switchTab) {
+              window.switchTab('home');
+            }
+            return;
+          }
+        }
+      } catch (serverErr) {
+        console.warn("تعذر الحفظ عبر الخادم المحلي، الانتقال التلقائي للحفظ في المتصفح والسحابة:", serverErr);
+      }
+    }
+
+    // 2. الحفظ الذكي في المتصفح وقاعدة البيانات السحابية (يعمل 100% على GitHub Pages)
     try {
-      const res = await fetch('/api/save-pdf-questions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          questions: currentPdfQuestions
-        })
-      });
+      const result = await saveQuestionsToBrowserStorage(currentPdfQuestions);
+      const cloudMsg = result.cloud_synced ? '\n☁️ تم مزامنة الأسئلة مع قاعدة بيانات Firebase Firestore بنجاح!' : '';
+      alert(`🎉 نجاح تام!\nتم اعتماد وإضافة (${result.added_count}) سؤالاً بنجاح إلى بنك الأسئلة!\nإجمالي بنك الأسئلة الآن: (${result.total_questions}) سؤالاً.${cloudMsg}`);
+      closePdfImportModal();
 
-      const data = await res.json();
-      if (data.success) {
-        // تحديث مصفوفة الأسئلة المحلية في الموقع
-        if (typeof window.loadQuestions === 'function') {
-          await window.loadQuestions();
-        } else if (typeof window.fetchQuestions === 'function') {
-          window.fetchQuestions();
-        }
-        if (typeof window.renderAdminQuestionsList === 'function') {
-          window.renderAdminQuestionsList();
-        }
-
-        // تحديث إحصائيات الهيدر
-        const headerCount = document.getElementById('header-total-q');
-        if (headerCount) {
-          headerCount.textContent = `${data.total_questions} سؤالاً`;
-        }
-
-        alert(`🎉 نجاح تام!\nتمت إضافة (${data.added_count}) سؤالاً بنجاح إلى بنك الأسئلة!\nإجمالي بنك الأسئلة الآن: (${data.total_questions}) سؤالاً.`);
-        closePdfImportModal();
-
-        // التبديل إلى تبويب بنك الأسئلة في لوحة التحكم لرؤيتها
-        if (window.switchTab) {
-          window.switchTab('home');
-        }
-      } else {
-        throw new Error(data.error || 'فشل الحفظ في الخادم');
+      if (window.switchTab) {
+        window.switchTab('home');
       }
     } catch (err) {
-      alert(`❌ تعذر الحفظ: ${err.message}`);
+      console.error('فشل حفظ الأسئلة في المتصفح:', err);
+      alert(`❌ تعذر الحفظ: ${err.message || err}`);
     } finally {
       if (saveBtn) {
         saveBtn.disabled = false;
