@@ -3,7 +3,7 @@
  * يوفر إمكانية التثبيت كـ PWA والعمل دون اتصال وتخزين الملفات الأساسية
  */
 
-const CACHE_NAME = 'nabih-qiyas-v2';
+const CACHE_NAME = 'nabih-qiyas-v3-fullscreen';
 const CORE_ASSETS = [
   './',
   './index.html',
