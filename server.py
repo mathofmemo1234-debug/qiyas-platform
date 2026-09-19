@@ -2,14 +2,76 @@ import os
 import sys
 import json
 import re
+import base64
+import time
+import sqlite3
 from functools import partial
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
 import urllib.parse
+import pdf_processor
 
 PORT = 8000
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 QUESTIONS_FILE = os.path.join(BASE_DIR, "questions.json")
 FOUNDATION_FILE = os.path.join(BASE_DIR, "foundation_data.json")
+DB_PATH = os.path.join(BASE_DIR, "qiyas.db")
+IMAGES_DIR = os.path.join(BASE_DIR, "questions_images")
+os.makedirs(IMAGES_DIR, exist_ok=True)
+
+GEOM_KEYWORDS = [
+    'مثلث', 'دائرة', 'مستطيل', 'مربع', 'زاوية', 'نصف قطر', 'قطر', 'وتر', 'مضلع', 
+    'متوازي', 'شبه منحرف', 'أسطوانة', 'مكعب', 'مخروط', 'هرم', 'سطح', 'حجم', 
+    'محيط', 'مساحة', 'مظلل', 'غير مظلل', 'متوازيين', 'قاطع', 'مماس', 'مركز الدائرة',
+    'في الشكل', 'المجاور', 'الرسم البياني', 'القطاع الدائري', 'الأعمدة البيانية', 'المستوى الإحداثي', 'انعكاس', 'تناظر'
+]
+
+def sync_question_to_db(q):
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cur = conn.cursor()
+        cur.execute("PRAGMA table_info(questions)")
+        cols = [c[1] for c in cur.fetchall()]
+        if 'image' not in cols:
+            cur.execute("ALTER TABLE questions ADD COLUMN image TEXT")
+        if 'image_url' not in cols:
+            cur.execute("ALTER TABLE questions ADD COLUMN image_url TEXT")
+        
+        cur.execute("""
+        INSERT INTO questions (id, section, section_ar, topic, question, diagram_svg, options_json, correct_index, explanation, speed_rule, difficulty, level, image, image_url)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+            section=excluded.section,
+            section_ar=excluded.section_ar,
+            topic=excluded.topic,
+            question=excluded.question,
+            diagram_svg=excluded.diagram_svg,
+            options_json=excluded.options_json,
+            correct_index=excluded.correct_index,
+            explanation=excluded.explanation,
+            speed_rule=excluded.speed_rule,
+            level=excluded.level,
+            image=excluded.image,
+            image_url=excluded.image_url
+        """, (
+            q.get('id'),
+            q.get('section', 'quantitative'),
+            q.get('section_ar', 'القسم الكمي' if q.get('section') == 'quantitative' else 'القسم اللفظي'),
+            q.get('topic', ''),
+            q.get('question', ''),
+            q.get('diagram_svg', ''),
+            json.dumps(q.get('options', []), ensure_ascii=False),
+            q.get('correct_index', 0),
+            q.get('explanation', ''),
+            q.get('speed_rule', ''),
+            q.get('difficulty', 'متوسط'),
+            q.get('level', 1),
+            q.get('image', ''),
+            q.get('image_url', '')
+        ))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print("SQLite sync error:", e)
 
 class QiyasHandler(SimpleHTTPRequestHandler):
     def send_json_response(self, data, status=200):
@@ -89,6 +151,47 @@ class QiyasHandler(SimpleHTTPRequestHandler):
                     questions = json.load(f)
                 new_id = max([q.get('id', 0) for q in questions] + [0]) + 1
                 body['id'] = new_id
+
+                # 1. Image processing & permanent disk preservation
+                img_b64 = body.pop('image_base64', None) or body.pop('image_data', None) or body.pop('dataUrl', None)
+                if img_b64 and isinstance(img_b64, str) and len(img_b64) > 50:
+                    ext = '.png'
+                    if ',' in img_b64:
+                        header, raw_b64 = img_b64.split(',', 1)
+                        if 'jpeg' in header or 'jpg' in header:
+                            ext = '.jpg'
+                        elif 'webp' in header:
+                            ext = '.webp'
+                    else:
+                        raw_b64 = img_b64
+
+                    try:
+                        img_bytes = base64.b64decode(raw_b64)
+                        filename = f"q_ocr_{new_id}_{int(time.time())}{ext}"
+                        save_path = os.path.join(IMAGES_DIR, filename)
+                        with open(save_path, "wb") as img_file:
+                            img_file.write(img_bytes)
+                        rel_path = f"questions_images/{filename}"
+                        body['image'] = rel_path
+                        body['image_url'] = rel_path
+                    except Exception as img_err:
+                        print("Failed to save OCR image to disk:", img_err)
+
+                # Ensure image / image_url symmetry
+                if body.get('image') and not body.get('image_url'):
+                    body['image_url'] = body['image']
+                elif body.get('image_url') and not body.get('image'):
+                    body['image'] = body['image_url']
+
+                # 2. Geometric & Visual Detection
+                combined_txt = (body.get('question', '') + ' ' + body.get('topic', '')).lower()
+                is_geom = any(kw in combined_txt for kw in GEOM_KEYWORDS)
+                body['has_visual'] = is_geom or bool(body.get('image')) or bool(body.get('diagram_svg'))
+
+                # Auto-classify to Foundation Level 3 (Geometry) if quantitative geometric
+                if is_geom and body.get('section') == 'quantitative':
+                    if not body.get('level') or body.get('level') == 1:
+                        body['level'] = 3
                 
                 if not body.get('explanation') or len(body.get('explanation').strip()) < 5:
                     body['explanation'] = self.generate_smart_explanation(body)
@@ -99,8 +202,19 @@ class QiyasHandler(SimpleHTTPRequestHandler):
                 with open(QUESTIONS_FILE, 'w', encoding='utf-8') as f:
                     json.dump(questions, f, ensure_ascii=False, indent=2)
                 
-                self.send_json_response({"success": True, "question": body})
+                # Sync to SQLite
+                sync_question_to_db(body)
+
+                self.send_json_response({
+                    "success": True, 
+                    "question": body,
+                    "has_visual": body.get('has_visual', False),
+                    "image": body.get('image', ''),
+                    "image_url": body.get('image_url', '')
+                })
             except Exception as e:
+                import traceback
+                traceback.print_exc()
                 self.send_json_response({"error": str(e)}, 500)
             return
 
@@ -129,12 +243,71 @@ class QiyasHandler(SimpleHTTPRequestHandler):
                         item['explanation'] = self.generate_smart_explanation(item)
                     if not item.get('speed_rule'):
                         item['speed_rule'] = self.generate_speed_rule(item)
+                    if item.get('image') and not item.get('image_url'):
+                        item['image_url'] = item['image']
+                    elif item.get('image_url') and not item.get('image'):
+                        item['image'] = item['image_url']
+                    sync_question_to_db(item)
                     questions.append(item)
                 
                 with open(QUESTIONS_FILE, 'w', encoding='utf-8') as f:
                     json.dump(questions, f, ensure_ascii=False, indent=2)
                 
                 self.send_json_response({"success": True, "added_count": len(new_items)})
+            except Exception as e:
+                self.send_json_response({"error": str(e)}, 500)
+            return
+
+        elif parsed.path == '/api/parse-pdf':
+            try:
+                b64_data = body.get('pdf_base64') or body.get('file_data') or ''
+                filename = body.get('filename', 'uploaded_exam.pdf')
+                if not b64_data:
+                    self.send_json_response({"error": "لم يتم إرسال بيانات ملف الـ PDF"}, 400)
+                    return
+                result = pdf_processor.process_pdf_base64(b64_data, filename=filename)
+                self.send_json_response(result)
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                self.send_json_response({"error": f"فشل تحليل ملف الـ PDF: {str(e)}"}, 500)
+            return
+
+        elif parsed.path == '/api/save-pdf-questions':
+            try:
+                new_items = body.get('questions', [])
+                with open(QUESTIONS_FILE, 'r', encoding='utf-8') as f:
+                    questions = json.load(f)
+                
+                start_id = max([q.get('id', 0) for q in questions] + [0]) + 1
+                for i, item in enumerate(new_items):
+                    item['id'] = start_id + i
+                    if not item.get('explanation'):
+                        item['explanation'] = self.generate_smart_explanation(item)
+                    if not item.get('speed_rule'):
+                        item['speed_rule'] = self.generate_speed_rule(item)
+                    if item.get('image') and not item.get('image_url'):
+                        item['image_url'] = item['image']
+                    elif item.get('image_url') and not item.get('image'):
+                        item['image'] = item['image_url']
+                    
+                    combined = (item.get('question', '') + ' ' + item.get('topic', '')).lower()
+                    is_geom = any(w in combined for w in GEOM_KEYWORDS)
+                    item['has_visual'] = is_geom or bool(item.get('image'))
+                    if is_geom and item.get('section') == 'quantitative':
+                        item['level'] = 3
+
+                    questions.append(item)
+                    sync_question_to_db(item)
+                
+                with open(QUESTIONS_FILE, 'w', encoding='utf-8') as f:
+                    json.dump(questions, f, ensure_ascii=False, indent=2)
+                
+                self.send_json_response({
+                    "success": True,
+                    "added_count": len(new_items),
+                    "total_questions": len(questions)
+                })
             except Exception as e:
                 self.send_json_response({"error": str(e)}, 500)
             return

@@ -16,12 +16,14 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 1
+    "level": 1,
+    "image": "questions_images/q_1.png",
+    "image_url": "questions_images/q_1.png"
   },
   {
     "id": 2,
     "section": "quantitative",
-    "topic": "مقارنات",
+    "topic": "هندسة",
     "question": "في الشكل المكتمل لدائرة بنصف قطر يساوي ٨، قارن بين:\nالقيمة الأولى: مساحة الجزء المظلل\nالقيمة الثانية: ١٨ ط",
     "diagram_svg": "<svg viewBox=\"0 0 360 200\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M 180 160 A 80 80 0 0 1 260 160 Z\" fill=\"#06b6d4\" stroke=\"#cbd5e1\" stroke-width=\"2.5\"/><circle cx=\"180\" cy=\"160\" r=\"80\" fill=\"none\" stroke=\"#cbd5e1\" stroke-width=\"2.5\" opacity=\"0.4\"/><line x1=\"180\" y1=\"160\" x2=\"260\" y2=\"160\" stroke=\"#cbd5e1\" stroke-width=\"2.5\"/><text x=\"215\" y=\"150\" fill=\"#ffffff\" font-size=\"16\" font-weight=\"bold\">نق = ٨</text></svg>",
     "options": [
@@ -35,7 +37,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 2
+    "level": 3,
+    "image": "questions_images/q_2.png",
+    "image_url": "questions_images/q_2.png"
   },
   {
     "id": 3,
@@ -54,13 +58,15 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 3
+    "level": 3,
+    "image": "questions_images/q_3.png",
+    "image_url": "questions_images/q_3.png"
   },
   {
     "id": 4,
     "section": "quantitative",
     "topic": "متتابعات",
-    "question": "أوجد الحد الخامس في المتتابعة: ٣ ، ٧ ، ١٣ ، .....",
+    "question": "أوجد الحد التالي في المتتابعة: ٣ ، ٧ ، ١٣ ، .....",
     "diagram_svg": null,
     "options": [
       "٢٠",
@@ -69,11 +75,13 @@
       "٢٣"
     ],
     "correct_index": 1,
-    "explanation": "مقدار الزيادة: من ٣ إلى ٧ (+٤)، من ٧ إلى ١٣ (+٦)، وبالتالي الزيادة التالية تكون (+٨) فيصبح الحد الرابع = ١٣ + ٨ = ٢١.",
+    "explanation": "مقدار الزيادة: من ٣ إلى ٧ (+٤)، من ٧ إلى ١٣ (+٦)، وبالتالي الزيادة التالية تكون (+٨): ١٣ + ٨ = ٢١. إذاً الإجابة الصحيحة (ب) ٢١.",
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 4
+    "level": 4,
+    "image": "questions_images/q_4.png",
+    "image_url": "questions_images/q_4.png"
   },
   {
     "id": 5,
@@ -88,11 +96,13 @@
       "المعطيات غير كافية"
     ],
     "correct_index": 1,
-    "explanation": "الأعداد الصحيحة الموجبة التي حاصل ضربها يساوي مجموعها هي ١، ٢، ٣ حيث:\n١ + ٢ + ٣ = ٦ ، وكذلك ١ × ٢ × ٣ = ٦.\nبما أن القيمتين متساويتان فإن الإجابة (ج).",
+    "explanation": "الأعداد الصحيحة الموجبة التي حاصل ضربها يساوي مجموعها هي ١، ٢، ٣ حيث: ١ + ٢ + ٣ = ٦ وكذلك ١ × ٢ × ٣ = ٦. أكبر هذه الأعداد هو ٣. وبما أن ٣.٦٥ > ٣ فإن القيمة الثانية أكبر (ب).",
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 1
+    "level": 1,
+    "image": "questions_images/q_5.png",
+    "image_url": "questions_images/q_5.png"
   },
   {
     "id": 6,
@@ -111,7 +121,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 2
+    "level": 2,
+    "image": "questions_images/q_6.png",
+    "image_url": "questions_images/q_6.png"
   },
   {
     "id": 7,
@@ -130,7 +142,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 3
+    "level": 3,
+    "image": "questions_images/q_7.png",
+    "image_url": "questions_images/q_7.png"
   },
   {
     "id": 8,
@@ -149,7 +163,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 4
+    "level": 4,
+    "image": "questions_images/q_8.png",
+    "image_url": "questions_images/q_8.png"
   },
   {
     "id": 9,
@@ -168,12 +184,14 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 1
+    "level": 1,
+    "image": "questions_images/q_9.png",
+    "image_url": "questions_images/q_9.png"
   },
   {
     "id": 10,
     "section": "quantitative",
-    "topic": "مقارنات",
+    "topic": "هندسة",
     "question": "في الشكل التالي: مربعين متطابقين، قارن بين:\nالقيمة الأولى: مساحة الجزء المظلل في المربع الأول\nالقيمة الثانية: مساحة الجزء المظلل في المربع الثاني",
     "diagram_svg": "<svg viewBox=\"0 0 360 200\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"50\" y=\"40\" width=\"100\" height=\"100\" fill=\"none\" stroke=\"#cbd5e1\" stroke-width=\"2.5\"/><polygon points=\"50,140 100,40 150,140\" fill=\"#06b6d4\" stroke=\"#cbd5e1\" stroke-width=\"2\"/><rect x=\"210\" y=\"40\" width=\"100\" height=\"100\" fill=\"none\" stroke=\"#cbd5e1\" stroke-width=\"2.5\"/><polygon points=\"210,40 210,140 310,140\" fill=\"#06b6d4\" stroke=\"#cbd5e1\" stroke-width=\"2\"/></svg>",
     "options": [
@@ -187,7 +205,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 2
+    "level": 3,
+    "image": "questions_images/q_10.png",
+    "image_url": "questions_images/q_10.png"
   },
   {
     "id": 11,
@@ -206,7 +226,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 3
+    "level": 3,
+    "image": "questions_images/q_11.png",
+    "image_url": "questions_images/q_11.png"
   },
   {
     "id": 12,
@@ -225,7 +247,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 4
+    "level": 4,
+    "image": "questions_images/q_12.png",
+    "image_url": "questions_images/q_12.png"
   },
   {
     "id": 13,
@@ -244,7 +268,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 1
+    "level": 1,
+    "image": "questions_images/q_13.png",
+    "image_url": "questions_images/q_13.png"
   },
   {
     "id": 14,
@@ -263,7 +289,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 2
+    "level": 3,
+    "image": "questions_images/q_14.png",
+    "image_url": "questions_images/q_14.png"
   },
   {
     "id": 15,
@@ -282,7 +310,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 3
+    "level": 3,
+    "image": "questions_images/q_15.png",
+    "image_url": "questions_images/q_15.png"
   },
   {
     "id": 16,
@@ -301,7 +331,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 4
+    "level": 4,
+    "image": "questions_images/q_16.png",
+    "image_url": "questions_images/q_16.png"
   },
   {
     "id": 17,
@@ -320,7 +352,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 1
+    "level": 1,
+    "image": "questions_images/q_17.png",
+    "image_url": "questions_images/q_17.png"
   },
   {
     "id": 18,
@@ -339,7 +373,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 2
+    "level": 2,
+    "image": "questions_images/q_18.png",
+    "image_url": "questions_images/q_18.png"
   },
   {
     "id": 19,
@@ -358,7 +394,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 3
+    "level": 3,
+    "image": "questions_images/q_19.png",
+    "image_url": "questions_images/q_19.png"
   },
   {
     "id": 20,
@@ -377,7 +415,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 4
+    "level": 4,
+    "image": "questions_images/q_20.png",
+    "image_url": "questions_images/q_20.png"
   },
   {
     "id": 21,
@@ -396,7 +436,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 1
+    "level": 3,
+    "image": "questions_images/q_21.png",
+    "image_url": "questions_images/q_21.png"
   },
   {
     "id": 22,
@@ -415,7 +457,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 2
+    "level": 3,
+    "image": "questions_images/q_22.png",
+    "image_url": "questions_images/q_22.png"
   },
   {
     "id": 23,
@@ -434,7 +478,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 3
+    "level": 3,
+    "image": "questions_images/q_23.png",
+    "image_url": "questions_images/q_23.png"
   },
   {
     "id": 24,
@@ -449,11 +495,13 @@
       "المعطيات غير كافية"
     ],
     "correct_index": 1,
-    "explanation": "نعلم أن (٤ ص - ٢ س) = -٢ (س - ٢ ص).\nبالتعويض: -٢ (س - ٢ ص)² = -٢٤ ⇐ (س - ٢ ص)² = ١٢.\nإذاً القيمتان متساويتان.",
+    "explanation": "نعلم أن (٤ ص - ٢ س) = -٢ (س - ٢ ص). بالتعويض: (س - ٢ ص) × [-٢ (س - ٢ ص)] = -٢ (س - ٢ ص)² = -٢٤ ⇐ (س - ٢ ص)² = ١٢. القيمة الثانية هي مفكوك (س - ٢ ص)² = ١٢، بينما القيمة الأولى هي √٦ ≈ ٢.٤٥. وبما أن ١٢ > √٦ فإن القيمة الثانية أكبر (ب).",
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 4
+    "level": 4,
+    "image": "questions_images/q_24.png",
+    "image_url": "questions_images/q_24.png"
   },
   {
     "id": 25,
@@ -472,7 +520,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 1
+    "level": 3,
+    "image": "questions_images/q_25.png",
+    "image_url": "questions_images/q_25.png"
   },
   {
     "id": 26,
@@ -486,17 +536,19 @@
       "١٢",
       "٣٦"
     ],
-    "correct_index": 1,
-    "explanation": "بما أن س = ص فإن (س - ص) = ٠، وأي عدد صفر مرفوع لأي أس موجب يساوي ٠.",
+    "correct_index": 0,
+    "explanation": "بما أن س = ص فإن (س - ص) = ٠. وأي قيمة صفر مرفوعة لأي أس موجب تساوي ٠: (٠)⁶ = ٠. إذاً الإجابة الصحيحة هي (أ) ٠.",
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 2
+    "level": 2,
+    "image": "questions_images/q_26.png",
+    "image_url": "questions_images/q_26.png"
   },
   {
     "id": 27,
     "section": "quantitative",
-    "topic": "مقارنات",
+    "topic": "هندسة",
     "question": "في الشكل التالي: دائرة طول قطرها ٢ √٢، قارن بين:\nالقيمة الأولى: محيط الدائرة\nالقيمة الثانية: ١٠ √٢",
     "diagram_svg": "<svg viewBox=\"0 0 360 200\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"180\" cy=\"100\" r=\"60\" fill=\"none\" stroke=\"#06b6d4\" stroke-width=\"2.5\"/><line x1=\"120\" y1=\"100\" x2=\"240\" y2=\"100\" stroke=\"#cbd5e1\" stroke-width=\"2\"/></svg>",
     "options": [
@@ -510,7 +562,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 3
+    "level": 3,
+    "image": "questions_images/q_27.png",
+    "image_url": "questions_images/q_27.png"
   },
   {
     "id": 28,
@@ -529,12 +583,14 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 4
+    "level": 3,
+    "image": "questions_images/q_28.png",
+    "image_url": "questions_images/q_28.png"
   },
   {
     "id": 29,
     "section": "quantitative",
-    "topic": "مقارنات",
+    "topic": "هندسة",
     "question": "في الشكل التالي: ن مركز الدائرة، فإذا كان قياس القوس = قياس الزاوية المركزية المقابلة له، قارن بين:\nالقيمة الأولى: قياس القوس أ ل / قياس القوس م ل\nالقيمة الثانية: $\\frac{٣}{٥}$",
     "diagram_svg": "<svg viewBox=\"0 0 360 200\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"180\" cy=\"100\" r=\"65\" fill=\"none\" stroke=\"#cbd5e1\" stroke-width=\"2.5\"/><text x=\"175\" y=\"105\" fill=\"#ffffff\" font-size=\"14\">ن</text></svg>",
     "options": [
@@ -548,7 +604,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 1
+    "level": 3,
+    "image": "questions_images/q_29.png",
+    "image_url": "questions_images/q_29.png"
   },
   {
     "id": 30,
@@ -567,7 +625,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 2
+    "level": 2,
+    "image": "questions_images/q_30.png",
+    "image_url": "questions_images/q_30.png"
   },
   {
     "id": 31,
@@ -586,7 +646,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 3
+    "level": 3,
+    "image": "questions_images/q_31.png",
+    "image_url": "questions_images/q_31.png"
   },
   {
     "id": 32,
@@ -605,7 +667,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 4
+    "level": 4,
+    "image": "questions_images/q_32.png",
+    "image_url": "questions_images/q_32.png"
   },
   {
     "id": 33,
@@ -624,7 +688,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 1
+    "level": 3,
+    "image": "questions_images/q_33.png",
+    "image_url": "questions_images/q_33.png"
   },
   {
     "id": 34,
@@ -643,7 +709,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 2
+    "level": 2,
+    "image": "questions_images/q_34.png",
+    "image_url": "questions_images/q_34.png"
   },
   {
     "id": 35,
@@ -662,7 +730,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 3
+    "level": 3,
+    "image": "questions_images/q_35.png",
+    "image_url": "questions_images/q_35.png"
   },
   {
     "id": 36,
@@ -681,7 +751,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 4
+    "level": 4,
+    "image": "questions_images/q_36.png",
+    "image_url": "questions_images/q_36.png"
   },
   {
     "id": 37,
@@ -700,7 +772,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 1
+    "level": 1,
+    "image": "questions_images/q_37.png",
+    "image_url": "questions_images/q_37.png"
   },
   {
     "id": 38,
@@ -719,7 +793,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 2
+    "level": 3,
+    "image": "questions_images/q_38.png",
+    "image_url": "questions_images/q_38.png"
   },
   {
     "id": 39,
@@ -738,7 +814,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 3
+    "level": 3,
+    "image": "questions_images/q_39.png",
+    "image_url": "questions_images/q_39.png"
   },
   {
     "id": 40,
@@ -752,12 +830,14 @@
       "١٨",
       "٢٠"
     ],
-    "correct_index": 2,
-    "explanation": "عدد الصفوف = ٢٧٠ ÷ ١٨ = ١٥ صفاً (ووفق مفتاح النموذج المعلم الإجابة المعتمدة ج).",
+    "correct_index": 1,
+    "explanation": "عدد الصفوف = إجمالي عدد الطلاب ÷ عدد الطلاب في كل عمود = ٢٧٠ ÷ ١٨ = ١٥ صفاً. إذاً الإجابة الصحيحة هي (ب) ١٥.",
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 4
+    "level": 4,
+    "image": "questions_images/q_40.png",
+    "image_url": "questions_images/q_40.png"
   },
   {
     "id": 41,
@@ -771,17 +851,19 @@
       "$٠.٢ \\times ١٠^٣$",
       "$٠.٢^٣ \\times ١٠^٣$"
     ],
-    "correct_index": 0,
-    "explanation": "٠.٢³ × ١٠³ = (٠.٢ × ١٠)³ = ٢³ = ٨.\nوبما أن ٨ = ٠.٢ × ٤٠ ، وبمقارنة الخيارات نجد الخيار الصحيح.",
+    "correct_index": 3,
+    "explanation": "بحساب المقدار: (٠.٢)³ ÷ (١٠⁻³) = (٠.٢)³ × ١٠³ = (٠.٢ × ١٠)³ = ٢³ = ٨. وهذا يطابق تماماً الخيار الرابع (د) (٠.٢)³ × ١٠³.",
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 1
+    "level": 1,
+    "image": "questions_images/q_41.png",
+    "image_url": "questions_images/q_41.png"
   },
   {
     "id": 42,
     "section": "quantitative",
-    "topic": "مقارنات",
+    "topic": "هندسة",
     "question": "زجاجتان على شكل متوازي مستطيلات، الزجاجة الأولى أبعادها ١ ، ٣ ، ٢ ، والزجاجة الثانية أبعادها ٢ ، ٣ ، ٢. قارن بين:\nالقيمة الأولى: ثلاثة أرباع سعة الزجاجة الأولى\nالقيمة الثانية: سعة الزجاجة الثانية",
     "diagram_svg": null,
     "options": [
@@ -795,7 +877,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 2
+    "level": 3,
+    "image": "questions_images/q_42.png",
+    "image_url": "questions_images/q_42.png"
   },
   {
     "id": 43,
@@ -814,7 +898,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 3
+    "level": 3,
+    "image": "questions_images/q_43.png",
+    "image_url": "questions_images/q_43.png"
   },
   {
     "id": 44,
@@ -833,7 +919,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 4
+    "level": 4,
+    "image": "questions_images/q_44.png",
+    "image_url": "questions_images/q_44.png"
   },
   {
     "id": 45,
@@ -852,7 +940,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 1
+    "level": 1,
+    "image": "questions_images/q_45.png",
+    "image_url": "questions_images/q_45.png"
   },
   {
     "id": 46,
@@ -871,7 +961,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 2
+    "level": 3,
+    "image": "questions_images/q_46.png",
+    "image_url": "questions_images/q_46.png"
   },
   {
     "id": 47,
@@ -890,7 +982,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 3
+    "level": 3,
+    "image": "questions_images/q_47.png",
+    "image_url": "questions_images/q_47.png"
   },
   {
     "id": 48,
@@ -909,13 +1003,15 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 4
+    "level": 3,
+    "image": "questions_images/q_48.png",
+    "image_url": "questions_images/q_48.png"
   },
   {
     "id": 49,
     "section": "quantitative",
     "topic": "إحصاء",
-    "question": "أوجد المنوال للقيم الآتية: (١٠ + ١٥٠٠) ، (٢ + ١٥٠٠) ، (٣ + ١٤٩٠) ، (٤ + ١٤٩٠) ، (٥٠ + ١٤٩٠)",
+    "question": "أوجد المنوال للقيم الآتية: (١٠ + ١٥٠٠) ، (٢٠ + ١٥٠٠) ، (٣٠ + ١٤٩٠) ، (٤ + ١٤٩٠) ، (٥٠ + ١٤٩٠)",
     "diagram_svg": null,
     "options": [
       "١٥٤٠",
@@ -924,11 +1020,13 @@
       "١٥١٠"
     ],
     "correct_index": 2,
-    "explanation": "القيمة المكررة والأكثر شيوعاً بين الحسابات المذكورة هي ١٥٢٠.",
+    "explanation": "حساب القيم: (١٠ + ١٥٠٠ = ١٥١٠) ، (٢٠ + ١٥٠٠ = ١٥٢٠) ، (٣٠ + ١٤٩٠ = ١٥٢٠) ، (٤ + ١٤٩٠ = ١٤٩٤) ، (٥٠ + ١٤٩٠ = ١٥٤٠). القيمة الأكثر تكراراً (المنوال) هي ١٥٢٠ حيث تكررت مرتين. إذاً الإجابة الصحيحة (ج) ١٥٢٠.",
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 1
+    "level": 1,
+    "image": "questions_images/q_49.png",
+    "image_url": "questions_images/q_49.png"
   },
   {
     "id": 50,
@@ -947,12 +1045,14 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 2
+    "level": 3,
+    "image": "questions_images/q_50.png",
+    "image_url": "questions_images/q_50.png"
   },
   {
     "id": 51,
     "section": "quantitative",
-    "topic": "مقارنات",
+    "topic": "هندسة",
     "question": "قارن بين:\nالقيمة الأولى: قياس الزاوية الصغرى بين عقربي الدقائق والساعات الساعة ٦:١٥\nالقيمة الثانية: قياس الزاوية الصغرى بين عقربي الدقائق والساعات الساعة ١:٣٥",
     "diagram_svg": null,
     "options": [
@@ -966,7 +1066,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 3
+    "level": 3,
+    "image": "questions_images/q_51.png",
+    "image_url": "questions_images/q_51.png"
   },
   {
     "id": 52,
@@ -985,7 +1087,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 4
+    "level": 4,
+    "image": "questions_images/q_52.png",
+    "image_url": "questions_images/q_52.png"
   },
   {
     "id": 53,
@@ -1004,12 +1108,14 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 1
+    "level": 1,
+    "image": "questions_images/q_53.png",
+    "image_url": "questions_images/q_53.png"
   },
   {
     "id": 54,
     "section": "quantitative",
-    "topic": "مقارنات",
+    "topic": "هندسة",
     "question": "إذا كان حجم المكعب = حجم متوازي المستطيلات، قارن بين:\nالقيمة الأولى: مساحة سطح المكعب\nالقيمة الثانية: مساحة سطح متوازي المستطيلات",
     "diagram_svg": null,
     "options": [
@@ -1023,7 +1129,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 2
+    "level": 3,
+    "image": "questions_images/q_54.png",
+    "image_url": "questions_images/q_54.png"
   },
   {
     "id": 55,
@@ -1042,7 +1150,9 @@
     "section_ar": "القسم الكمي",
     "speed_rule": "استخدم التبسيط الرياضي المباشر أو التجريب الذكي للخيارات لتوفير الوقت.",
     "difficulty": "متوسط",
-    "level": 3
+    "level": 3,
+    "image": "questions_images/q_55.png",
+    "image_url": "questions_images/q_55.png"
   },
   {
     "id": 56,

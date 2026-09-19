@@ -3,8 +3,18 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Logs
+# Logs & audit text dumps
 *.log
+audit_report*.txt
+
+# Temporary scratch & inspection scripts
+audit_*.py
+check_*.py
+inspect_*.py
+find_*.py
+cleanup_test.py
+test_save_api.py
+update_*.py
 
 # Temporary test images
 temp_page*.png

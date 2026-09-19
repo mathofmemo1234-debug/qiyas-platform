@@ -1,0 +1,64 @@
+{
+  "name": "منصة نبيه للقدرات العامة",
+  "short_name": "منصة نبيه",
+  "description": "منظومة التدريب التفاعلي للقدرات العامة (كمي ولفظي) مع محاكي قياس المحوسب وشروحات نموذجية.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "background_color": "#f8fafc",
+  "theme_color": "#0284c7",
+  "dir": "rtl",
+  "lang": "ar",
+  "orientation": "any",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "مسار التأسيس",
+      "short_name": "التأسيس",
+      "description": "دروس وقوانين التأسيس السريع",
+      "url": "./index.html?tab=foundation",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "اختبار ذاتي",
+      "short_name": "اختبار",
+      "description": "اختبر مهاراتك بشكل مخصص",
+      "url": "./index.html?tab=custom-test",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "محاكي قياس المحوسب",
+      "short_name": "المحاكي",
+      "description": "تجربة الاختبار الحقيقي مع مؤقت",
+      "url": "./index.html?tab=simulator",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
