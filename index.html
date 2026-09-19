@@ -291,7 +291,7 @@
 
           <div class="hidden lg:flex items-center gap-1 bg-slate-100 p-1 rounded-xl text-xs font-bold border border-slate-200">
             <span class="px-2 py-1 text-slate-600">بنك الأسئلة:</span>
-            <span id="header-total-q" class="bg-white px-2 py-1 rounded-lg text-sky-600 shadow-xs">70 سؤالاً</span>
+            <span id="header-total-q" class="bg-white px-2 py-1 rounded-lg text-sky-600 shadow-xs">١٥٠ سؤالاً</span>
           </div>
 
           <!-- Student Account Widget -->
@@ -570,6 +570,28 @@
 
       </div>
 
+      <!-- ================= DOWNLOADABLE PDFS LIBRARY (مكتبة ملفات وتجميعات الـ PDF) ================= -->
+      <div id="student-pdf-library-section" class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 text-purple-700 text-xs font-bold border border-purple-200 mb-1.5">
+              <span>📑 مذكرات وتجميعات جاهزة للتحميل</span>
+            </div>
+            <h3 class="text-xl md:text-2xl font-black text-slate-900">مكتبة ملفات الـ PDF والتجميعات القابلة للتحميل</h3>
+            <p class="text-xs text-slate-500 mt-0.5">حمل أحدث كتب التأسيس، نماذج الـ 120 المحلولة، وملخصات القوانين الذهبية مجاناً بروابط مباشرة.</p>
+          </div>
+          <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-2xl border border-slate-200 text-xs font-bold self-start md:self-auto">
+            <button type="button" onclick="filterStudentPdfs('all')" id="pdf-filter-all" class="px-4 py-2 rounded-xl bg-purple-600 text-white font-bold transition-all shadow-xs">الكل</button>
+            <button type="button" onclick="filterStudentPdfs('quantitative')" id="pdf-filter-quant" class="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all">كمي</button>
+            <button type="button" onclick="filterStudentPdfs('verbal')" id="pdf-filter-verb" class="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 transition-all">لفظي</button>
+          </div>
+        </div>
+
+        <div id="student-pdf-cards-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Rendered dynamically via renderStudentPdfs() -->
+        </div>
+      </div>
+
     </section>
 
     <!-- ==================== TAB 2: FOUNDATION TRACK ==================== -->
@@ -780,7 +802,7 @@
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <span class="text-xs font-bold text-slate-500">إجمالي الأسئلة</span>
           <div class="flex items-baseline gap-1 mt-2">
-            <span id="stat-total-q" class="text-2xl md:text-3xl font-black text-slate-900">70</span>
+            <span id="stat-total-q" class="text-2xl md:text-3xl font-black text-slate-900">150</span>
             <span class="text-xs text-slate-400 font-bold">سؤالاً</span>
           </div>
           <span class="text-[11px] text-emerald-600 font-bold mt-1">✓ جاهزة في البنك</span>
@@ -789,7 +811,7 @@
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <span class="text-xs font-bold text-blue-600">القسم الكمي</span>
           <div class="flex items-baseline gap-1 mt-2">
-            <span id="stat-quant-q" class="text-2xl md:text-3xl font-black text-blue-700">55</span>
+            <span id="stat-quant-q" class="text-2xl md:text-3xl font-black text-blue-700">95</span>
             <span class="text-xs text-slate-400 font-bold">سؤالاً</span>
           </div>
           <span class="text-[11px] text-blue-500 font-medium mt-1">حساب، جبر، هندسة، مقارنات</span>
@@ -798,7 +820,7 @@
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
           <span class="text-xs font-bold text-purple-600">القسم اللفظي</span>
           <div class="flex items-baseline gap-1 mt-2">
-            <span id="stat-verb-q" class="text-2xl md:text-3xl font-black text-purple-700">15</span>
+            <span id="stat-verb-q" class="text-2xl md:text-3xl font-black text-purple-700">55</span>
             <span class="text-xs text-slate-400 font-bold">سؤالاً</span>
           </div>
           <span class="text-[11px] text-purple-500 font-medium mt-1">تناظر، سياقي، إكمال</span>
@@ -824,21 +846,31 @@
       </div>
 
       <!-- Admin Sub-Navigation -->
-      <div class="flex items-center gap-2 border-b border-slate-200 pb-3">
-        <button onclick="setAdminSubTab('questions')" id="btn-admin-sub-questions" class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2">
+      <div class="flex items-center gap-2 border-b border-slate-200 pb-3 overflow-x-auto">
+        <button onclick="setAdminSubTab('questions')" id="btn-admin-sub-questions" class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2 shrink-0">
           <span>📚 بنك الأسئلة والشروحات</span>
         </button>
-        <button onclick="setAdminSubTab('students')" id="btn-admin-sub-students" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2">
+        <button onclick="setAdminSubTab('foundation')" id="btn-admin-sub-foundation" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2 shrink-0">
+          <span>📖 تحرير التأسيس والمستويات</span>
+        </button>
+        <button onclick="setAdminSubTab('scanned')" id="btn-admin-sub-scanned" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2 shrink-0">
+          <span>📋 المسائل الممسوحة مؤخراً</span>
+          <span id="scanned-badge-count" class="px-2 py-0.5 rounded-full text-[10px] bg-amber-100 text-amber-900 font-bold border border-amber-300">0</span>
+        </button>
+        <button onclick="setAdminSubTab('pdfs')" id="btn-admin-sub-pdfs" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2 shrink-0">
+          <span>📑 ملفات PDF للتحميل</span>
+        </button>
+        <button onclick="setAdminSubTab('students')" id="btn-admin-sub-students" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2 shrink-0">
           <span>👥 سجل ومتابعة الطلاب</span>
         </button>
-        <button onclick="setAdminSubTab('files')" id="btn-admin-sub-files" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2">
+        <button onclick="setAdminSubTab('files')" id="btn-admin-sub-files" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2 shrink-0">
           <span>📁 ملفات المراجع والنظام</span>
         </button>
-        <button onclick="setAdminSubTab('firebase')" id="btn-admin-sub-firebase" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2">
+        <button onclick="setAdminSubTab('firebase')" id="btn-admin-sub-firebase" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2 shrink-0">
           <span>☁️ قاعدة بيانات Firebase</span>
           <span id="firebase-tab-pill" class="w-2 h-2 rounded-full bg-slate-300"></span>
         </button>
-        <button onclick="setAdminSubTab('ocr')" id="btn-admin-sub-ocr" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2">
+        <button onclick="setAdminSubTab('ocr')" id="btn-admin-sub-ocr" class="px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2 shrink-0">
           <span>📸 قارئ ومحلل الـ OCR</span>
           <span class="px-1.5 py-0.2 rounded text-[10px] bg-sky-100 text-sky-800 font-bold">ذكاء اصطناعي</span>
         </button>
@@ -914,6 +946,110 @@
             <div id="admin-questions-list" class="space-y-3 max-h-[650px] overflow-y-auto pr-1">
               <!-- Loaded dynamically -->
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: FOUNDATION & LEVELS MANAGEMENT -->
+      <div id="admin-view-foundation" class="hidden space-y-6">
+        <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="font-black text-slate-900 text-lg flex items-center gap-2">
+                <span>📖 إدارة وتعديل محتوى التأسيس والمستويات</span>
+                <span class="text-xs bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full font-bold">الكمي واللفظي</span>
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">تحكم كامل في شروحات المستويات، القوانين الذهبية، إضافة وحذف المواضيع، وإدارة مسائل كل مستوى.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="saveFoundationChangesToServer()" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5">
+                <span>💾 حفظ التغييرات في السيرفر</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Section Switch -->
+          <div class="flex items-center gap-2 p-1.5 bg-slate-100 rounded-2xl max-w-md">
+            <button onclick="switchAdminFoundationSection('quant')" id="btn-admin-found-quant" class="flex-1 py-2 rounded-xl bg-white text-blue-700 font-extrabold text-xs shadow-sm transition-all">
+              📐 القسم الكمي (4 مستويات)
+            </button>
+            <button onclick="switchAdminFoundationSection('verbal')" id="btn-admin-found-verbal" class="flex-1 py-2 rounded-xl text-slate-600 hover:text-slate-900 font-extrabold text-xs transition-all">
+              📖 القسم اللفظي (4 مستويات)
+            </button>
+          </div>
+
+          <!-- Levels Container -->
+          <div id="admin-foundation-levels-container" class="space-y-4">
+            <!-- Loaded dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: SCANNED QUESTIONS REVIEW & APPROVAL -->
+      <div id="admin-view-scanned" class="hidden space-y-6">
+        <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="font-black text-slate-900 text-lg flex items-center gap-2">
+                <span>📋 مراجعة واعتماد المسائل الممسوحة ضوئياً (OCR / Scanner)</span>
+                <span id="scanned-pending-count-badge" class="text-xs bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full font-bold">0 بانتظار الاعتماد</span>
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">راجع المسائل الممسوحة مؤخراً، عين مستواها وصعوبتها، واعتمدها لتظهر تلقائياً في مسارات التدريب والمحاكاة والتأسيس.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="openOcrModal()" class="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5">
+                <span>📸 مسح مسألة جديدة</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Filters -->
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs font-bold text-slate-500">تصفية حسب:</span>
+              <select id="scanned-filter-status" onchange="renderAdminScannedQuestions()" class="p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
+                <option value="all">جميع الحالات</option>
+                <option value="pending" selected>بانتظار المراجعة والاعتماد</option>
+                <option value="approved">المعتمدة فقط</option>
+              </select>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <select id="scanned-filter-section" onchange="renderAdminScannedQuestions()" class="p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
+                <option value="all">القسم (الكل)</option>
+                <option value="quantitative">كمي فقط</option>
+                <option value="verbal">لفظي فقط</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Scanned Questions List -->
+          <div id="admin-scanned-questions-container" class="space-y-4">
+            <!-- Loaded dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: DOWNLOADABLE PDFS MANAGEMENT -->
+      <div id="admin-view-pdfs" class="hidden space-y-6">
+        <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="font-black text-slate-900 text-lg flex items-center gap-2">
+                <span>📑 إدارة مكتبة ملفات PDF القابلة للتحميل</span>
+                <span id="admin-pdfs-count-badge" class="text-xs bg-purple-100 text-purple-800 px-2.5 py-0.5 rounded-full font-bold">0 ملفات</span>
+              </h3>
+              <p class="text-xs text-slate-500 mt-1">إضافة وحذف ملفات PDF الجاهزة للتحميل من قبل الطلاب في الصفحة الرئيسية (نماذج اختبارات، تجميعات، ملخصات قوانين).</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="openAddPdfModal()" class="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5">
+                <span>➕ إضافة ملف PDF جديد</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- PDFs List Container -->
+          <div id="admin-pdfs-list-container" class="space-y-3">
+            <!-- Loaded dynamically -->
           </div>
         </div>
       </div>
@@ -1421,8 +1557,29 @@
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">📷 مسار أو رابط صورة المسألة (اختياري / للمسائل الهندسية):</label>
-          <input type="text" id="m-image" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-mono" placeholder="مثال: questions_images/q_14.png">
+          <label class="block font-bold text-slate-700 mb-1 flex items-center justify-between">
+            <span>📷 صورة أو رسم المسألة (اختياري / للمسائل الهندسية):</span>
+            <span class="text-[10px] text-slate-400 font-normal">رفع مباشر من الجهاز أو إدخال مسار</span>
+          </label>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <input type="file" id="m-image-file-input" accept="image/*" class="hidden" onchange="handleModalImageSelect(event, 'm')">
+              <button type="button" onclick="document.getElementById('m-image-file-input').click()" class="px-4 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-bold text-xs flex items-center gap-1.5 transition-all shrink-0">
+                <span>📁 اختيار صورة</span>
+              </button>
+              <input type="text" id="m-image" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-mono" placeholder="أو اكتب مساراً: questions_images/q_14.png">
+            </div>
+            <div id="m-image-preview-container" class="hidden flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-200">
+              <img id="m-image-preview-img" src="" alt="معاينة" class="w-14 h-14 object-contain rounded-lg border border-slate-200 bg-white">
+              <div class="flex-1 text-xs">
+                <span class="font-bold text-slate-700 block">تم اختيار صورة للمسألة</span>
+                <span id="m-image-preview-size" class="text-[10px] text-slate-400"></span>
+              </div>
+              <button type="button" onclick="clearModalImage('m')" class="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold text-xs">
+                ✕ حذف
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1503,14 +1660,30 @@
 
         <div>
           <label class="block font-bold text-slate-700 mb-1 flex items-center justify-between">
-            <span>📷 مسار أو رابط صورة المسألة / الرسم الهندسي:</span>
+            <span>📷 صورة المسألة / الرسم الهندسي:</span>
             <span class="text-[10px] text-slate-400 font-normal">يضمن ظهور الرسم في بنك الأسئلة والاختبارات</span>
           </label>
-          <div class="flex items-center gap-2">
-            <input type="text" id="edit-image" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50" placeholder="مثال: questions_images/q_14.png">
-            <button type="button" onclick="previewEditModalImage()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs whitespace-nowrap">
-              🔍 معاينة
-            </button>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2">
+              <input type="file" id="edit-image-file-input" accept="image/*" class="hidden" onchange="handleModalImageSelect(event, 'edit')">
+              <button type="button" onclick="document.getElementById('edit-image-file-input').click()" class="px-3 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-bold text-xs flex items-center gap-1.5 whitespace-nowrap transition-all shrink-0">
+                <span>📁 رفع صورة</span>
+              </button>
+              <input type="text" id="edit-image" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50" placeholder="مثال: questions_images/q_14.png">
+              <button type="button" onclick="previewEditModalImage()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs whitespace-nowrap">
+                🔍 معاينة
+              </button>
+            </div>
+            <div id="edit-image-preview-container" class="hidden flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-200">
+              <img id="edit-image-preview-img" src="" alt="معاينة" class="w-14 h-14 object-contain rounded-lg border border-slate-200 bg-white">
+              <div class="flex-1 text-xs">
+                <span class="font-bold text-slate-700 block">الصورة المرفقة بالمسألة</span>
+                <span id="edit-image-preview-size" class="text-[10px] text-slate-400"></span>
+              </div>
+              <button type="button" onclick="clearModalImage('edit')" class="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold text-xs">
+                ✕ حذف
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1948,6 +2121,174 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- ================= FOUNDATION LEVEL & TOPICS & QUESTIONS EDITOR MODAL ================= -->
+  <div id="foundation-level-editor-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-4xl w-full p-6 md:p-8 shadow-2xl border border-slate-200 space-y-6 my-auto max-h-[92vh] overflow-y-auto">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div class="flex items-center gap-3">
+          <div id="f-modal-level-icon" class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black text-xl shadow-md">
+            1
+          </div>
+          <div>
+            <h3 class="font-black text-xl text-slate-900 flex items-center gap-2">
+              <span id="f-modal-title">تحرير محتوى ومسائل المستوى</span>
+              <span id="f-modal-section-badge" class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-0.5 rounded-full">كمي</span>
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">تعديل شروحات المواضيع، القوانين الذهبية، الأمثلة التوضيحية، وإدارة المسائل المعتمدة للمستوى.</p>
+          </div>
+        </div>
+        <button onclick="closeFoundationLevelEditor()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xl font-bold transition-all">&times;</button>
+      </div>
+
+      <input type="hidden" id="f-modal-section">
+      <input type="hidden" id="f-modal-level">
+
+      <!-- Level Info: Title & Badge -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">عنوان المستوى:</label>
+          <input type="text" id="f-modal-level-title" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">شارة المستوى (Badge):</label>
+          <input type="text" id="f-modal-level-badge" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
+        </div>
+      </div>
+
+      <!-- Tabs: Topics vs Questions -->
+      <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+        <button type="button" onclick="switchFoundationEditorTab('topics')" id="btn-f-tab-topics" class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5">
+          <span>📚 مواضيع وشروحات المستوى</span>
+          <span id="f-topics-count-badge" class="px-2 py-0.5 rounded-full text-[10px] bg-white/20 text-white font-bold">0</span>
+        </button>
+        <button type="button" onclick="switchFoundationEditorTab('questions')" id="btn-f-tab-questions" class="px-4 py-2 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-1.5">
+          <span>🎯 مسائل وتدريبات المستوى</span>
+          <span id="f-questions-count-badge" class="px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-800 font-bold">0</span>
+        </button>
+      </div>
+
+      <!-- Tab Content: Topics -->
+      <div id="f-editor-tab-topics" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-600">قائمة المواضيع والشروحات والقوانين الذهبية:</span>
+          <button type="button" onclick="addNewFoundationTopic()" class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-bold text-xs flex items-center gap-1 transition-all">
+            <span>➕ إضافة موضوع جديد</span>
+          </button>
+        </div>
+        <div id="f-topics-list-container" class="space-y-4 max-h-[450px] overflow-y-auto pr-1">
+          <!-- Loaded dynamically -->
+        </div>
+      </div>
+
+      <!-- Tab Content: Questions -->
+      <div id="f-editor-tab-questions" class="hidden space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-600">المسائل المرتبطة بهذا المستوى (تظهر للطالب عند الضغط على تدريب سريع):</span>
+          <button type="button" onclick="openAddQuestionModalForFoundation()" class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs flex items-center gap-1 transition-all">
+            <span>➕ إضافة مسألة جديدة لهذا المستوى</span>
+          </button>
+        </div>
+        <div id="f-questions-list-container" class="space-y-3 max-h-[450px] overflow-y-auto pr-1">
+          <!-- Loaded dynamically -->
+        </div>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="pt-4 border-t border-slate-200 flex items-center justify-between gap-3">
+        <button type="button" onclick="closeFoundationLevelEditor()" class="px-4 py-2.5 rounded-xl text-slate-500 font-bold text-xs hover:bg-slate-100">
+          إلغاء
+        </button>
+        <button type="button" onclick="saveFoundationLevelChanges()" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md flex items-center gap-1.5 transition-all">
+          <span>💾 حفظ تعديلات المستوى</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ADMIN ADD/EDIT PDF MODAL ================= -->
+  <div id="admin-pdf-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl border border-slate-200 space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-purple-600 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+            📑
+          </div>
+          <div>
+            <h3 class="font-black text-lg text-slate-900">إضافة ملف PDF جديد للتحميل</h3>
+            <p class="text-xs text-slate-500">يتيح للطلاب تحميل نماذج وتجميعات بصيغة PDF مباشرة</p>
+          </div>
+        </div>
+        <button onclick="closeAddPdfModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold">&times;</button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">عنوان الملف أو الاختبار:</label>
+          <input type="text" id="pdf-input-title" placeholder="مثال: نموذج 126 محوسب - شامل كمي ولفظي مع الحلول" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">التصنيف:</label>
+            <select id="pdf-input-category" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
+              <option value="نماذج محاكاة">نماذج محاكاة واختبارات</option>
+              <option value="تأسيس">شروحات وتأسيس</option>
+              <option value="تجميعات">تجميعات حديثة</option>
+              <option value="قوانين وسرعة">قوانين واستراتيجيات الحل السريع</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">القسم المستهدف:</label>
+            <select id="pdf-input-section" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
+              <option value="شامل (كمي + لفظي)">شامل (كمي + لفظي)</option>
+              <option value="القسم الكمي">القسم الكمي فقط</option>
+              <option value="القسم اللفظي">القسم اللفظي فقط</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">وصف مختصر للملف:</label>
+          <textarea id="pdf-input-desc" rows="2" placeholder="وصف محتوى الملف وأهميته للطالب..." class="w-full p-2.5 rounded-xl border border-slate-200 text-xs bg-white outline-none"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">عدد الصفحات (تقريبي):</label>
+            <input type="text" id="pdf-input-pages" placeholder="مثال: 55 صفحة" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">حجم الملف (تقريبي):</label>
+            <input type="text" id="pdf-input-size" placeholder="مثال: 4.8 ميجابايت" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">مسار أو رابط التحميل (أو ارفع ملفاً من جهازك):</label>
+          <div class="space-y-2">
+            <input type="text" id="pdf-input-url" placeholder="مثال: downloads/exam126.pdf أو رابط مباشر" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-mono bg-white outline-none">
+            <div class="flex items-center gap-2">
+              <input type="file" id="pdf-file-upload-input" accept="application/pdf" class="hidden" onchange="handleAdminPdfFileSelect(event)">
+              <button type="button" onclick="document.getElementById('pdf-file-upload-input').click()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 transition-all">
+                <span>📁 رفع ملف PDF من الجهاز</span>
+              </button>
+              <span id="pdf-file-selected-name" class="text-xs text-slate-500 font-mono truncate max-w-xs">لم يتم اختيار ملف</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-4 border-t border-slate-100">
+        <button onclick="closeAddPdfModal()" class="px-4 py-2.5 rounded-xl text-slate-500 font-bold text-xs">إلغاء</button>
+        <button onclick="savePdfFileFromModal()" class="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-md">حفظ وإتاحة للتحميل</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= IMAGE ZOOM MODAL ================= -->
   <div id="image-zoom-modal" class="fixed inset-0 z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 hidden" onclick="closeImageZoomModal(event)">
     <div class="relative max-w-4xl w-full max-h-[90vh] bg-white rounded-3xl p-4 shadow-2xl overflow-hidden flex flex-col items-center animate-scale-in" onclick="event.stopPropagation()">
@@ -2092,13 +2433,181 @@
       return n.toString().replace(/[0-9]/g, d => arabicDigits[d]);
     }
 
+    // ================= INDEXEDDB IMAGE STORE =================
+    const QiyasImageStore = {
+      dbName: 'QiyasImageDB',
+      dbVersion: 1,
+      storeName: 'images',
+      _db: null,
+
+      async getDB() {
+        if (this._db) return this._db;
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open(this.dbName, this.dbVersion);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(this.storeName)) {
+              db.createObjectStore(this.storeName);
+            }
+          };
+          req.onsuccess = (e) => {
+            this._db = e.target.result;
+            resolve(this._db);
+          };
+          req.onerror = (e) => reject(e);
+        });
+      },
+
+      async set(key, value) {
+        try {
+          const db = await this.getDB();
+          return new Promise((resolve, reject) => {
+            const tx = db.transaction(this.storeName, 'readwrite');
+            const store = tx.objectStore(this.storeName);
+            const req = store.put(value, String(key));
+            req.onsuccess = () => resolve(true);
+            req.onerror = (e) => reject(e);
+          });
+        } catch (err) {
+          console.warn('IndexedDB set error:', err);
+          return false;
+        }
+      },
+
+      async get(key) {
+        try {
+          const db = await this.getDB();
+          return new Promise((resolve, reject) => {
+            const tx = db.transaction(this.storeName, 'readonly');
+            const store = tx.objectStore(this.storeName);
+            const req = store.get(String(key));
+            req.onsuccess = (e) => resolve(e.target.result || null);
+            req.onerror = (e) => reject(e);
+          });
+        } catch (err) {
+          console.warn('IndexedDB get error:', err);
+          return null;
+        }
+      },
+
+      async delete(key) {
+        try {
+          const db = await this.getDB();
+          return new Promise((resolve, reject) => {
+            const tx = db.transaction(this.storeName, 'readwrite');
+            const store = tx.objectStore(this.storeName);
+            const req = store.delete(String(key));
+            req.onsuccess = () => resolve(true);
+            req.onerror = (e) => reject(e);
+          });
+        } catch (err) {
+          console.warn('IndexedDB delete error:', err);
+          return false;
+        }
+      }
+    };
+
+    // ================= IMAGE COMPRESSION VIA CANVAS =================
+    async function compressAndOptimizeImage(dataUrlOrFile, maxDim = 900, quality = 0.82) {
+      return new Promise((resolve) => {
+        const processDataUrl = (src) => {
+          const img = new Image();
+          img.onload = () => {
+            let width = img.width;
+            let height = img.height;
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+            let optimized = canvas.toDataURL('image/webp', quality);
+            if (!optimized || optimized.length > src.length) {
+              optimized = canvas.toDataURL('image/jpeg', quality);
+            }
+            resolve(optimized);
+          };
+          img.onerror = () => resolve(src);
+          img.src = src;
+        };
+
+        if (typeof dataUrlOrFile === 'string') {
+          processDataUrl(dataUrlOrFile);
+        } else if (dataUrlOrFile instanceof File || dataUrlOrFile instanceof Blob) {
+          const reader = new FileReader();
+          reader.onload = (e) => processDataUrl(e.target.result);
+          reader.onerror = () => resolve('');
+          reader.readAsDataURL(dataUrlOrFile);
+        } else {
+          resolve('');
+        }
+      });
+    }
+
+    // Modal Image Selection Handler (for Add and Edit question modals)
+    async function handleModalImageSelect(event, prefix) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const compressed = await compressAndOptimizeImage(file, 900, 0.82);
+      if (prefix === 'm') {
+        window.currentModalImageDataUrl = compressed;
+        const preview = document.getElementById('m-image-preview-img');
+        const container = document.getElementById('m-image-preview-container');
+        const sizeSpan = document.getElementById('m-image-preview-size');
+        if (preview) preview.src = compressed;
+        if (container) container.classList.remove('hidden');
+        if (sizeSpan) sizeSpan.innerText = `${Math.round(compressed.length / 1024)} كيلوبايت (محسنة)`;
+      } else if (prefix === 'edit') {
+        window.currentEditModalImageDataUrl = compressed;
+        const preview = document.getElementById('edit-image-preview-img');
+        const container = document.getElementById('edit-image-preview-container');
+        const sizeSpan = document.getElementById('edit-image-preview-size');
+        if (preview) preview.src = compressed;
+        if (container) container.classList.remove('hidden');
+        if (sizeSpan) sizeSpan.innerText = `${Math.round(compressed.length / 1024)} كيلوبايت (محسنة)`;
+      }
+    }
+
+    function clearModalImage(prefix) {
+      if (prefix === 'm') {
+        window.currentModalImageDataUrl = '';
+        const input = document.getElementById('m-image-file-input');
+        if (input) input.value = '';
+        const container = document.getElementById('m-image-preview-container');
+        if (container) container.classList.add('hidden');
+        const txtInput = document.getElementById('m-image');
+        if (txtInput) txtInput.value = '';
+      } else if (prefix === 'edit') {
+        window.currentEditModalImageDataUrl = '';
+        const input = document.getElementById('edit-image-file-input');
+        if (input) input.value = '';
+        const container = document.getElementById('edit-image-preview-container');
+        if (container) container.classList.add('hidden');
+        const txtInput = document.getElementById('edit-image');
+        if (txtInput) txtInput.value = '';
+      }
+    }
+
     // 1. Initial Load
     async function initApp() {
       await loadQuestions();
       await loadFoundation();
+      await loadScannedQuestions();
+      await loadDownloadablePdfs();
       updateMistakesBadge();
       populateTopicCheckboxes();
       renderFoundation();
+      renderStudentPdfs();
       renderAuthWidget();
       updateAdminStatusUI();
       initFirebaseIntegration();
@@ -2106,7 +2615,7 @@
 
     async function loadQuestions() {
       try {
-        const Q_VERSION = 'v4_geometric_ocr_images';
+        const Q_VERSION = 'v6_full_150q_bank';
         const savedVer = localStorage.getItem('qiyas_q_version');
         if (savedVer !== Q_VERSION) {
           localStorage.removeItem('qiyas_questions_override');
@@ -2119,26 +2628,50 @@
           if (!res.ok) throw new Error("questions.json returned " + res.status);
           allQuestions = await res.json();
         } catch (fetchErr) {
-          res = await fetch('/api/questions');
-          allQuestions = await res.json();
-        }
-        
-        // Merge custom questions or edits saved in localStorage
-        const savedOverride = JSON.parse(localStorage.getItem('qiyas_questions_override') || 'null');
-        if (savedOverride && Array.isArray(savedOverride) && savedOverride.length > 0) {
-          allQuestions = savedOverride;
-        } else {
-          const customQ = JSON.parse(localStorage.getItem('qiyas_custom_questions') || '[]');
-          if (customQ.length > 0) {
-            customQ.forEach(cq => {
-              if (!allQuestions.some(q => q.id === cq.id)) {
-                allQuestions.push(cq);
-              }
-            });
+          try {
+            res = await fetch('/api/questions?t=' + Date.now());
+            allQuestions = await res.json();
+          } catch (e2) {
+            console.warn("Could not fetch questions from API:", e2);
           }
         }
 
-        document.getElementById('header-total-q').innerText = toAr(allQuestions.length) + ' سؤالاً';
+        if (!allQuestions || allQuestions.length === 0) {
+          allQuestions = [];
+        }
+
+        // Build questionMap starting with all official questions from questions.json (150 questions)
+        const questionMap = new Map();
+        allQuestions.forEach(q => {
+          if (q && q.id) questionMap.set(q.id, q);
+        });
+
+        // Overlay any custom or scanned questions or specific edits from localStorage
+        const savedOverride = JSON.parse(localStorage.getItem('qiyas_questions_override') || 'null');
+        if (savedOverride && Array.isArray(savedOverride)) {
+          savedOverride.forEach(sq => {
+            if (sq && sq.id) {
+              if (sq.id > 150 || sq.is_custom || sq.is_scanned) {
+                questionMap.set(sq.id, sq);
+              } else if (questionMap.has(sq.id)) {
+                questionMap.set(sq.id, { ...questionMap.get(sq.id), ...sq });
+              }
+            }
+          });
+        }
+
+        const customQ = JSON.parse(localStorage.getItem('qiyas_custom_questions') || '[]');
+        if (customQ && Array.isArray(customQ)) {
+          customQ.forEach(cq => {
+            if (cq && cq.id) questionMap.set(cq.id, cq);
+          });
+        }
+
+        allQuestions = Array.from(questionMap.values()).sort((a, b) => (a.id || 0) - (b.id || 0));
+
+        const totalBadge = document.getElementById('header-total-q');
+        if (totalBadge) totalBadge.innerText = toAr(allQuestions.length) + ' سؤالاً';
+        renderAdminDashboardStats();
       } catch (e) {
         console.error("Error loading questions.json:", e);
       }
@@ -2146,8 +2679,13 @@
 
     async function loadFoundation() {
       try {
-        const res = await fetch('foundation_data.json?t=' + Date.now());
-        foundationData = await res.json();
+        const savedFoundationOverride = localStorage.getItem('qiyas_foundation_data_override');
+        if (savedFoundationOverride) {
+          foundationData = JSON.parse(savedFoundationOverride);
+        } else {
+          const res = await fetch('foundation_data.json?t=' + Date.now());
+          foundationData = await res.json();
+        }
       } catch (e) {
         console.error("Error loading foundation_data.json:", e);
       }
@@ -2323,13 +2861,20 @@
               `).join('')}
             </div>
 
-            <!-- Mini Level Practice Launch -->
-            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+            <!-- Mini Level Practice Launch & Admin Level Editor -->
+            <div class="pt-4 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
               <span class="text-xs text-slate-500">جاهز لاختبار فهمك لهذا المستوى؟</span>
-              <button onclick="startLevelPractice('${key}', ${lvl.level})" class="px-4 py-2 rounded-xl ${foundationSubTab === 'quant' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-purple-600 hover:bg-purple-700'} text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1">
-                <span>تدريب سريع على المستوى ${toAr(lvl.level)}</span>
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-              </button>
+              <div class="flex items-center gap-2">
+                ${isAdminLoggedIn() ? `
+                  <button onclick="openFoundationLevelEditor('${key}', ${lvl.level})" class="px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-bold text-xs shadow-xs transition-all flex items-center gap-1.5" title="تحرير شروحات ومسائل هذا المستوى">
+                    <span>⚙️ تحرير التأسيس ومسائل المستوى</span>
+                  </button>
+                ` : ''}
+                <button onclick="startLevelPractice('${key}', ${lvl.level})" class="px-4 py-2 rounded-xl ${foundationSubTab === 'quant' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-purple-600 hover:bg-purple-700'} text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1">
+                  <span>تدريب سريع على المستوى ${toAr(lvl.level)}</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+              </div>
             </div>
           </div>
         `;
@@ -2342,14 +2887,20 @@
     }
 
     function startLevelPractice(section, level) {
-      let filtered = allQuestions.filter(q => q.section === section && q.level === level);
+      let filtered = allQuestions.filter(q => q.is_foundation && q.section === section && q.level === level);
+      if (filtered.length === 0) {
+        filtered = allQuestions.filter(q => q.section === section && q.level === level);
+      }
       if (filtered.length === 0) {
         filtered = allQuestions.filter(q => q.section === section);
       }
       if (filtered.length === 0) {
         filtered = allQuestions;
       }
-      const list = [...filtered].sort(() => 0.5 - Math.random()).slice(0, 5);
+      const hasFoundation = filtered.some(q => q.is_foundation);
+      const list = hasFoundation
+        ? [...filtered].sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+        : [...filtered].sort(() => 0.5 - Math.random()).slice(0, 5);
       launchTest(list, 'practice');
     }
 
@@ -2525,14 +3076,28 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function startExamTimer() {
+    function startExamTimer(isSimulator = false) {
       if (activeTest.timerInterval) clearInterval(activeTest.timerInterval);
       activeTest.timerInterval = setInterval(() => {
-        activeTest.timeRemaining--;
-        updateTimerDisplay();
-        if (activeTest.timeRemaining <= 0) {
-          clearInterval(activeTest.timerInterval);
-          finishTest();
+        if (activeTest.simMode === 'experimental') {
+          activeTest.timeElapsed = (activeTest.timeElapsed || 0) + 1;
+          updateTimerDisplay();
+        } else {
+          activeTest.timeRemaining--;
+          updateTimerDisplay();
+          if (activeTest.timeRemaining <= 0) {
+            clearInterval(activeTest.timerInterval);
+            if (isSimulator || activeTest.isSimulator) {
+              if (window.simExamState && typeof handleSectionTimeExpired === 'function') {
+                handleSectionTimeExpired();
+              } else {
+                alert("⏰ انتهى الوقت المخصص للاختبار المحوسب! سيتم الآن رصد إجاباتك واعتماد النتيجة النهائية.");
+                finishSimulator();
+              }
+            } else {
+              finishTest();
+            }
+          }
         }
       }, 1000);
     }
@@ -2540,9 +3105,34 @@
     function updateTimerDisplay() {
       const el = document.getElementById('active-test-timer');
       if (!el) return;
-      const mins = Math.floor(activeTest.timeRemaining / 60);
-      const secs = activeTest.timeRemaining % 60;
-      el.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+      if (activeTest.simMode === 'experimental') {
+        const elapsed = activeTest.timeElapsed || 0;
+        const mins = Math.floor(elapsed / 60);
+        const secs = elapsed % 60;
+        el.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')} (تجريبي)`;
+        el.className = "flex items-center gap-1.5 bg-slate-800 border border-slate-700 px-3 py-1 rounded-xl font-mono text-xs sm:text-sm font-bold text-sky-400";
+        return;
+      }
+
+      const time = Math.max(0, activeTest.timeRemaining || 0);
+      const hours = Math.floor(time / 3600);
+      const mins = Math.floor((time % 3600) / 60);
+      const secs = time % 60;
+      let text = '';
+      if (hours > 0) {
+        text = `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      } else {
+        text = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }
+      el.innerText = text;
+
+      // تغيير لون العداد عند اقتراب نفاد الوقت
+      if (activeTest.totalTime && time < activeTest.totalTime * 0.15) {
+        el.className = "flex items-center gap-1.5 bg-rose-950/80 border border-rose-600 px-3 py-1 rounded-xl font-mono text-xs sm:text-sm font-bold text-rose-300 animate-pulse";
+      } else {
+        el.className = "flex items-center gap-1.5 bg-slate-800 border border-slate-700 px-3 py-1 rounded-xl font-mono text-xs sm:text-sm font-bold text-emerald-400";
+      }
     }
 
     // تنسيق ذكي لأسئلة المقارنات والمسائل الرياضية للفصل التام بين القيمتين وعرض الرسوم الهندسية
@@ -2606,10 +3196,10 @@
         `;
       }
 
-      // Question Image (with full zoom capability)
+      // Question Image (with full zoom capability) - only if diagram_svg is not already showing it
       let imgHtml = '';
       const imgSrc = q.image || q.image_url;
-      if (imgSrc) {
+      if (imgSrc && !q.diagram_svg) {
         imgHtml = `
           <div class="question-image-box my-3 p-3 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col items-center justify-center">
             <div class="relative group cursor-pointer" onclick="openImageZoomModal('${imgSrc}')">
@@ -2953,74 +3543,399 @@
       `;
     }
 
-    // ================= REAL CBT SIMULATOR =================
+    // ================= REAL CBT SIMULATOR (محاكي قياس المحوسب الواقعي) =================
+    window.simConfig = window.simConfig || {
+      sectionsCount: 1, // 1: قسم واحد (25س), 2: قسمين (50س), 3: ثلاثة أقسام (75س), 4: اختبار كامل (100س)
+      mode: 'real' // 'real' (حقيقي - مؤقت 75ث/سؤال مع قفل الأقسام) أو 'experimental' (تجريبي حر)
+    };
+
     function renderSimulatorSetup() {
       const container = document.getElementById('simulator-container');
       if (!container) return;
 
+      const currentSections = window.simConfig.sectionsCount || 1;
+      const currentMode = window.simConfig.mode || 'real';
+      const totalQuestions = currentSections * 25;
+      const totalVerbal = currentSections * 13;
+      const totalQuant = currentSections * 12;
+      const totalSeconds = totalQuestions * 75; // 75 ثانية لكل سؤال
+      const totalMins = Math.floor(totalSeconds / 60);
+      const remSecs = totalSeconds % 60;
+      const formattedTotalTime = remSecs > 0 ? `${totalMins} دقيقة و ${remSecs} ثانية` : `${totalMins} دقيقة`;
+
       container.innerHTML = `
-        <div class="max-w-3xl mx-auto bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-          <div class="border-b border-slate-100 pb-4 flex items-center justify-between">
+        <div class="max-w-4xl mx-auto bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-slate-200 shadow-sm space-y-8">
+          
+          <!-- Header -->
+          <div class="border-b border-slate-100 pb-5 flex items-center justify-between">
             <div>
-              <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">محاكاة قاعة قياس</span>
-              <h2 class="text-2xl font-black text-slate-900 mt-1">محاكي اختبار قياس المحوسب الواقعي</h2>
-              <p class="text-xs text-slate-500 mt-0.5">تجربة تحاكي تماماً شاشات وأجواء الاختبار الرسمي للمركز الوطني للقياس.</p>
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 mb-2">
+                <span>🖥️ محاكاة قاعة قياس الرسمية المطابقة</span>
+              </div>
+              <h2 class="text-2xl sm:text-3xl font-black text-slate-900">محاكي اختبار قياس المحوسب الواقعي</h2>
+              <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                اختر عدد الأقسام المطلوب، كل قسم يتكون من <b>٢٥ سؤالاً (١٣ لفظي + ١٢ كمي)</b> بجميع المستويات موزعة بالتساوي تماماً.
+              </p>
             </div>
-            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl border border-emerald-200">
-              🖥️
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white flex items-center justify-center text-3xl shadow-lg shadow-emerald-600/20 shrink-0">
+              ⏱️
             </div>
           </div>
 
-          <div class="space-y-4 text-xs text-slate-600 leading-relaxed bg-slate-50 p-5 rounded-2xl border border-slate-200">
-            <h4 class="font-bold text-slate-900 text-sm">📋 تعليمات وقواعد المحاكي:</h4>
-            <ul class="list-disc list-inside space-y-1.5 font-medium">
-              <li>يتكون نموذج المحاكي من 25 سؤالاً شاملاً (كمي ولفظي) من أحدث التجميعات المعتمدة.</li>
-              <li>الزمن المخصص للمحاكي هو 25 دقيقة (دقيقة واحدة لكل سؤال).</li>
-              <li>تتيح لك الشاشة تمييز السؤال للمراجعة لاحقاً، والتنقل السريع عبر لوحة أرقام الأسئلة الجانبية.</li>
-              <li>لا تظهر الإجابات الصحيحة إلا بعد انتهاء الاختبار وتسليم الإجابات بالكامل.</li>
-            </ul>
+          <!-- Section 1: The 4 Real Exam Choices -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h4 class="font-black text-slate-900 text-sm sm:text-base flex items-center gap-2">
+                <span>📋</span>
+                <span>اختر عدد أقسام الاختبار الحقيقي (4 خيارات رسمية):</span>
+              </h4>
+              <span class="text-xs text-slate-400 font-bold">٢٥ سؤالاً لكل قسم (١٣ لفظي + ١٢ كمي)</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              
+              <!-- Option 1: 1 Section -->
+              <div onclick="selectSimSections(1)" class="cursor-pointer p-5 rounded-2xl border-2 transition-all relative flex flex-col justify-between ${currentSections === 1 ? 'bg-emerald-50/90 border-emerald-500 shadow-md ring-2 ring-emerald-500/20' : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'}">
+                <div class="space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <span class="w-8 h-8 rounded-xl ${currentSections === 1 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'} flex items-center justify-center font-black text-sm">1️⃣</span>
+                    <span class="w-5 h-5 rounded-full border-2 flex items-center justify-center ${currentSections === 1 ? 'border-emerald-600 bg-emerald-600 text-white text-xs' : 'border-slate-300'}">
+                      ${currentSections === 1 ? '✓' : ''}
+                    </span>
+                  </div>
+                  <h5 class="font-black text-slate-900 text-base">قسم واحد</h5>
+                  <div class="space-y-1 text-xs text-slate-600">
+                    <p class="font-bold text-emerald-800">٢٥ سؤالاً</p>
+                    <p class="text-[11px] text-slate-500">١٣ لفظي + ١٢ كمي</p>
+                    <p class="text-[11px] text-slate-500">⏱️ ٣١ دقيقة و ١٥ ثانية</p>
+                  </div>
+                </div>
+                <div class="mt-3 pt-2.5 border-t border-slate-100">
+                  <span class="text-[10px] font-bold text-slate-400">جلسة اختبار سريعة</span>
+                </div>
+              </div>
+
+              <!-- Option 2: 2 Sections -->
+              <div onclick="selectSimSections(2)" class="cursor-pointer p-5 rounded-2xl border-2 transition-all relative flex flex-col justify-between ${currentSections === 2 ? 'bg-emerald-50/90 border-emerald-500 shadow-md ring-2 ring-emerald-500/20' : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'}">
+                <div class="space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <span class="w-8 h-8 rounded-xl ${currentSections === 2 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'} flex items-center justify-center font-black text-sm">2️⃣</span>
+                    <span class="w-5 h-5 rounded-full border-2 flex items-center justify-center ${currentSections === 2 ? 'border-emerald-600 bg-emerald-600 text-white text-xs' : 'border-slate-300'}">
+                      ${currentSections === 2 ? '✓' : ''}
+                    </span>
+                  </div>
+                  <h5 class="font-black text-slate-900 text-base">قسمان متتاليان</h5>
+                  <div class="space-y-1 text-xs text-slate-600">
+                    <p class="font-bold text-emerald-800">٥٠ سؤالاً</p>
+                    <p class="text-[11px] text-slate-500">٢٦ لفظي + ٢٤ كمي</p>
+                    <p class="text-[11px] text-slate-500">⏱️ ساعة ودقيقتان و ٣٠ ثانية</p>
+                  </div>
+                </div>
+                <div class="mt-3 pt-2.5 border-t border-slate-100">
+                  <span class="text-[10px] font-bold text-slate-400">قفل القسم 1 بعد إنهائه</span>
+                </div>
+              </div>
+
+              <!-- Option 3: 3 Sections -->
+              <div onclick="selectSimSections(3)" class="cursor-pointer p-5 rounded-2xl border-2 transition-all relative flex flex-col justify-between ${currentSections === 3 ? 'bg-emerald-50/90 border-emerald-500 shadow-md ring-2 ring-emerald-500/20' : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'}">
+                <div class="space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <span class="w-8 h-8 rounded-xl ${currentSections === 3 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'} flex items-center justify-center font-black text-sm">3️⃣</span>
+                    <span class="w-5 h-5 rounded-full border-2 flex items-center justify-center ${currentSections === 3 ? 'border-emerald-600 bg-emerald-600 text-white text-xs' : 'border-slate-300'}">
+                      ${currentSections === 3 ? '✓' : ''}
+                    </span>
+                  </div>
+                  <h5 class="font-black text-slate-900 text-base">ثلاثة أقسام</h5>
+                  <div class="space-y-1 text-xs text-slate-600">
+                    <p class="font-bold text-emerald-800">٧٥ سؤالاً</p>
+                    <p class="text-[11px] text-slate-500">٣٩ لفظي + ٣٦ كمي</p>
+                    <p class="text-[11px] text-slate-500">⏱️ ساعة و ٣٣ دقيقة و ٤٥ ثانية</p>
+                  </div>
+                </div>
+                <div class="mt-3 pt-2.5 border-t border-slate-100">
+                  <span class="text-[10px] font-bold text-slate-400">محاكاة متقدمة ومكثفة</span>
+                </div>
+              </div>
+
+              <!-- Option 4: Full Exam (4 Sections) -->
+              <div onclick="selectSimSections(4)" class="cursor-pointer p-5 rounded-2xl border-2 transition-all relative flex flex-col justify-between ${currentSections === 4 ? 'bg-gradient-to-b from-amber-50 to-emerald-50/80 border-amber-500 shadow-md ring-2 ring-amber-500/20' : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50'}">
+                <div class="space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <span class="w-8 h-8 rounded-xl ${currentSections === 4 ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-700'} flex items-center justify-center font-black text-sm">🏆</span>
+                    <span class="w-5 h-5 rounded-full border-2 flex items-center justify-center ${currentSections === 4 ? 'border-amber-600 bg-amber-600 text-white text-xs' : 'border-slate-300'}">
+                      ${currentSections === 4 ? '✓' : ''}
+                    </span>
+                  </div>
+                  <div>
+                    <span class="inline-block px-2 py-0.5 rounded-md bg-amber-100 text-amber-800 text-[10px] font-black mb-1">النموذج الكامل</span>
+                    <h5 class="font-black text-slate-900 text-base">اختبار كامل (4 أقسام)</h5>
+                  </div>
+                  <div class="space-y-1 text-xs text-slate-600">
+                    <p class="font-bold text-amber-800">١٠٠ سؤال كامل</p>
+                    <p class="text-[11px] text-slate-500">٥٢ لفظي + ٤٨ كمي</p>
+                    <p class="text-[11px] text-slate-500">⏱️ ساعتان و ٥ دقائق</p>
+                  </div>
+                </div>
+                <div class="mt-3 pt-2.5 border-t border-amber-200">
+                  <span class="text-[10px] font-extrabold text-amber-700">مطابق للاختبار الرسمي 100%</span>
+                </div>
+              </div>
+
+            </div>
           </div>
 
-          <button onclick="launchRealSimulator()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-black text-base shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2">
-            <span>بدء المحاكي الآن (25 دقيقة)</span>
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
-          </button>
+          <!-- Section 2: Mode Selector (Real with locked sections vs Experimental) -->
+          <div class="space-y-3">
+            <h4 class="font-black text-slate-900 text-sm sm:text-base flex items-center gap-2">
+              <span>⚖️</span>
+              <span>اختر نمط الاختبار وقواعد تسليم الأقسام:</span>
+            </h4>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              <!-- Real Mode Card -->
+              <div onclick="setSimMode('real')" class="cursor-pointer p-5 rounded-2xl border-2 transition-all relative ${currentMode === 'real' ? 'bg-emerald-50/90 border-emerald-500 shadow-md ring-2 ring-emerald-500/20' : 'bg-white border-slate-200 hover:border-slate-300'}">
+                <div class="flex items-start justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl ${currentMode === 'real' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600'} flex items-center justify-center font-bold text-lg shadow-xs">
+                      ⏱️
+                    </div>
+                    <div>
+                      <h5 class="font-extrabold text-slate-900 text-sm sm:text-base">اختبار حقيقي (نظام قياس الرسمي)</h5>
+                      <span class="inline-block text-[11px] font-bold ${currentMode === 'real' ? 'text-emerald-700' : 'text-slate-500'}">توقيت إلزامي وقفل الأقسام</span>
+                    </div>
+                  </div>
+                  <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center ${currentMode === 'real' ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-300'}">
+                    ${currentMode === 'real' ? '<span class="text-xs font-bold">✓</span>' : ''}
+                  </div>
+                </div>
+
+                <div class="mt-3.5 text-xs text-slate-600 space-y-2 leading-relaxed">
+                  <p class="font-bold text-emerald-950 flex items-center gap-1.5">
+                    <span>⚡</span>
+                    <span><b>دقيقة وربع (75 ثانية) لكل سؤال</b> (31 دقيقة و 15 ثانية لكل قسم).</span>
+                  </p>
+                  <p class="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200 text-amber-900 font-semibold text-[11px]">
+                    🔒 <b>قاعدة قياس الرسمية:</b> عند تسليم القسم الأول لا يمكن الرجوع إليه نهائياً حتى انتهاء الاختبار كاملاً.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Experimental Mode Card -->
+              <div onclick="setSimMode('experimental')" class="cursor-pointer p-5 rounded-2xl border-2 transition-all relative ${currentMode === 'experimental' ? 'bg-sky-50/90 border-sky-500 shadow-md ring-2 ring-sky-500/20' : 'bg-white border-slate-200 hover:border-slate-300'}">
+                <div class="flex items-start justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl ${currentMode === 'experimental' ? 'bg-sky-600 text-white' : 'bg-slate-100 text-slate-600'} flex items-center justify-center font-bold text-lg shadow-xs">
+                      🌿
+                    </div>
+                    <div>
+                      <h5 class="font-extrabold text-slate-900 text-sm sm:text-base">اختبار تجريبي (تدريب حر مريح)</h5>
+                      <span class="inline-block text-[11px] font-bold ${currentMode === 'experimental' ? 'text-sky-700' : 'text-slate-500'}">حل براحة وتأمل دون إغلاق</span>
+                    </div>
+                  </div>
+                  <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center ${currentMode === 'experimental' ? 'border-sky-600 bg-sky-600 text-white' : 'border-slate-300'}">
+                    ${currentMode === 'experimental' ? '<span class="text-xs font-bold">✓</span>' : ''}
+                  </div>
+                </div>
+
+                <div class="mt-3.5 text-xs text-slate-600 space-y-2 leading-relaxed">
+                  <p class="font-bold text-sky-950 flex items-center gap-1.5">
+                    <span>🌱</span>
+                    <span><b>عداد تصاعدي لمعرفة الوقت المستغرق فقط</b> دون إنهاء تلقائي.</span>
+                  </p>
+                  <p class="p-2.5 rounded-xl bg-sky-50/80 border border-sky-200 text-sky-900 font-semibold text-[11px]">
+                    🔓 تدريب مفتوح يتيح لك التأني ومراجعة إجاباتك براحة كاملة.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Section 3: Distribution Guarantee Badge -->
+          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 font-bold">
+              <span class="text-xl">🎯</span>
+              <span>توزيع المستويات في كل قسم:</span>
+              <span class="text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded font-black">متساوٍ 100%</span>
+            </div>
+            <div class="flex items-center gap-2 text-[11px] text-slate-500 font-semibold">
+              <span>سهل (3 كمي + 3 لفظي)</span> •
+              <span>متوسط (3 كمي + 3 لفظي)</span> •
+              <span>صعب (3 كمي + 3 لفظي)</span> •
+              <span>متقدم (3 كمي + 4 لفظي)</span>
+            </div>
+          </div>
+
+          <!-- Summary & Start Button Bar -->
+          <div class="p-4 sm:p-6 rounded-3xl bg-slate-900 text-white flex flex-wrap items-center justify-between gap-4 shadow-xl">
+            <div class="space-y-1.5">
+              <span class="text-xs text-slate-400 font-bold">ملخص الاختبار المحوسب:</span>
+              <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-sm font-black">
+                <span class="text-emerald-400 text-lg">${toAr(totalQuestions)} سؤالاً</span>
+                <span class="text-slate-400">•</span>
+                <span class="text-blue-300">${toAr(totalQuant)} كمي</span>
+                <span class="text-slate-400">+</span>
+                <span class="text-purple-300">${toAr(totalVerbal)} لفظي</span>
+                <span class="text-slate-400">•</span>
+                <span class="text-amber-300">
+                  ${currentMode === 'real' ? `⏱️ حقيقي (${formattedTotalTime})` : '🌿 تجريبي حر'}
+                </span>
+              </div>
+            </div>
+
+            <button onclick="launchRealExam()" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-sm sm:text-base shadow-xl shadow-emerald-500/25 transition-all flex items-center justify-center gap-2">
+              <span>بدء الاختبار الآن</span>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
+            </button>
+          </div>
+
         </div>
       `;
     }
 
-    function launchRealSimulator() {
-      // Pick 25 diverse questions
-      const pool = [...allQuestions].sort(() => 0.5 - Math.random()).slice(0, 25);
-      activeTest = {
-        questions: pool,
-        currentIndex: 0,
-        userAnswers: {},
-        flagged: {},
-        mode: 'exam',
-        startTime: Date.now(),
-        timerInterval: null,
-        timeRemaining: 25 * 60 // 25 mins
+    function selectSimSections(cnt) {
+      window.simConfig.sectionsCount = cnt;
+      renderSimulatorSetup();
+    }
+
+    function setSimMode(mode) {
+      window.simConfig.mode = mode;
+      renderSimulatorSetup();
+    }
+
+    // بناء الأقسام مع توزيع المستويات بالتساوي التام
+    function buildRealExamSections(numSections) {
+      const allQuant = allQuestions.filter(q => q.section === 'quantitative');
+      const allVerb = allQuestions.filter(q => q.section === 'verbal');
+
+      // تصنيف الأسئلة حسب المستوى (1, 2, 3, 4)
+      const quantByLevel = {
+        1: allQuant.filter(q => (q.level || 1) === 1).sort(() => 0.5 - Math.random()),
+        2: allQuant.filter(q => (q.level || 2) === 2).sort(() => 0.5 - Math.random()),
+        3: allQuant.filter(q => (q.level || 3) === 3).sort(() => 0.5 - Math.random()),
+        4: allQuant.filter(q => (q.level || 4) === 4).sort(() => 0.5 - Math.random())
       };
 
-      startExamTimer();
+      const verbByLevel = {
+        1: allVerb.filter(q => (q.level || 1) === 1).sort(() => 0.5 - Math.random()),
+        2: allVerb.filter(q => (q.level || 2) === 2).sort(() => 0.5 - Math.random()),
+        3: allVerb.filter(q => (q.level || 3) === 3).sort(() => 0.5 - Math.random()),
+        4: allVerb.filter(q => (q.level || 4) === 4).sort(() => 0.5 - Math.random())
+      };
+
+      function pick(arr, count, offset) {
+        const res = [];
+        if (!arr || arr.length === 0) return res;
+        for (let i = 0; i < count; i++) {
+          res.push(arr[(offset + i) % arr.length]);
+        }
+        return res;
+      }
+
+      const sections = [];
+      for (let s = 0; s < numSections; s++) {
+        // 12 سؤال كمي: 3 من كل مستوى بالتساوي التام
+        const q1 = pick(quantByLevel[1], 3, s * 3);
+        const q2 = pick(quantByLevel[2], 3, s * 3);
+        const q3 = pick(quantByLevel[3], 3, s * 3);
+        const q4 = pick(quantByLevel[4], 3, s * 3);
+        const sectionQuant = [...q1, ...q2, ...q3, ...q4];
+
+        // 13 سؤال لفظي: 3 من كل مستوى + سؤال إضافي لمستوى متغير بالتناوب
+        const extraLvl = (s % 4) + 1;
+        const v1 = pick(verbByLevel[1], extraLvl === 1 ? 4 : 3, s * 3);
+        const v2 = pick(verbByLevel[2], extraLvl === 2 ? 4 : 3, s * 3);
+        const v3 = pick(verbByLevel[3], extraLvl === 3 ? 4 : 3, s * 3);
+        const v4 = pick(verbByLevel[4], extraLvl === 4 ? 4 : 3, s * 3);
+        const sectionVerb = [...v1, ...v2, ...v3, ...v4];
+
+        // دمج الأسئلة (25 سؤالاً: 13 لفظي + 12 كمي) وتوزيعها عشوائياً
+        const sectionQuestions = [...sectionQuant, ...sectionVerb].sort(() => 0.5 - Math.random());
+
+        sections.push({
+          sectionIndex: s,
+          sectionNumber: s + 1,
+          questions: sectionQuestions,
+          userAnswers: {},
+          flagged: {},
+          timeRemaining: 25 * 75, // 1875 ثانية (31 دقيقة و 15 ثانية)
+          totalTime: 25 * 75,
+          timeElapsed: 0,
+          isSubmitted: false
+        });
+      }
+
+      return sections;
+    }
+
+    function launchRealExam() {
+      const numSections = window.simConfig.sectionsCount || 1;
+      const simMode = window.simConfig.mode || 'real';
+      const sections = buildRealExamSections(numSections);
+
+      window.simExamState = {
+        numSections: numSections,
+        currentSectionIndex: 0,
+        currentQuestionIndex: 0,
+        simMode: simMode,
+        sections: sections,
+        isSimulator: true,
+        startTime: Date.now(),
+        timerInterval: null
+      };
+
+      // الربط مع activeTest لضمان توافق العداد والوظائف المساعدة
+      syncActiveTestFromExamState();
+
+      startExamTimer(true);
       renderSimulatorInterface();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function syncActiveTestFromExamState() {
+      if (!window.simExamState) return;
+      const sec = window.simExamState.sections[window.simExamState.currentSectionIndex];
+      if (!sec) return;
+
+      activeTest = {
+        questions: sec.questions,
+        currentIndex: window.simExamState.currentQuestionIndex,
+        userAnswers: sec.userAnswers,
+        flagged: sec.flagged,
+        isSimulator: true,
+        simMode: window.simExamState.simMode,
+        mode: window.simExamState.simMode === 'real' ? 'exam' : 'practice',
+        startTime: window.simExamState.startTime,
+        timerInterval: window.simExamState.timerInterval,
+        timePerQuestion: 75,
+        totalTime: sec.totalTime,
+        timeRemaining: sec.timeRemaining,
+        timeElapsed: sec.timeElapsed,
+        currentSectionNumber: sec.sectionNumber,
+        totalSectionsCount: window.simExamState.numSections
+      };
     }
 
     function renderSimulatorInterface() {
       const container = document.getElementById('simulator-container');
-      if (!container || !activeTest.questions.length) return;
+      if (!container || !window.simExamState) return;
 
-      const q = activeTest.questions[activeTest.currentIndex];
-      const userChoice = activeTest.userAnswers[activeTest.currentIndex];
-      const isFlagged = activeTest.flagged[activeTest.currentIndex];
+      const state = window.simExamState;
+      const sec = state.sections[state.currentSectionIndex];
+      if (!sec) return;
+
+      const q = sec.questions[state.currentQuestionIndex];
+      const userChoice = sec.userAnswers[state.currentQuestionIndex];
+      const isFlagged = sec.flagged[state.currentQuestionIndex];
       const letters = ['أ', 'ب', 'ج', 'د'];
+      const totalQ = sec.questions.length; // 25
 
-      // Build grid of 25 question number badges
-      let paletteHtml = activeTest.questions.map((item, idx) => {
-        const isCurrent = idx === activeTest.currentIndex;
-        const isAnswered = activeTest.userAnswers[idx] !== undefined;
-        const flagged = activeTest.flagged[idx];
+      // بناء لوحة أرقام أسئلة القسم الحالي (1 إلى 25)
+      let paletteHtml = sec.questions.map((item, idx) => {
+        const isCurrent = idx === state.currentQuestionIndex;
+        const isAnswered = sec.userAnswers[idx] !== undefined;
+        const flagged = sec.flagged[idx];
 
         let badgeColor = "bg-slate-100 text-slate-600 border-slate-200";
         if (flagged) {
@@ -3053,31 +3968,56 @@
         `;
       }).join('');
 
+      // مؤشر حالة جميع الأقسام
+      let sectionsNavHtml = state.sections.map((s, sIdx) => {
+        const isCurrentSec = sIdx === state.currentSectionIndex;
+        const isPast = s.isSubmitted;
+        return `
+          <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold border transition-all ${isCurrentSec ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm' : isPast ? 'bg-slate-800 text-slate-400 border-slate-700' : 'bg-slate-800/40 text-slate-500 border-slate-700/50'}">
+            <span>${isPast ? '🔒' : isCurrentSec ? '▶' : '⏳'}</span>
+            <span>القسم ${toAr(s.sectionNumber)}</span>
+            ${isPast ? '<span class="text-[10px] text-emerald-400">(مسلّم)</span>' : ''}
+          </div>
+        `;
+      }).join('');
+
       container.innerHTML = `
         <!-- Official Header Bar -->
-        <div class="bg-slate-900 text-white p-4 rounded-3xl shadow-md flex flex-wrap items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold">
-              CBT
+        <div class="bg-slate-900 text-white p-4 rounded-3xl shadow-md space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold">
+                CBT
+              </div>
+              <div>
+                <span class="block text-sm font-bold">نظام الاختبارات المحوسبة (قياس)</span>
+                <span class="block text-[11px] ${state.simMode === 'real' ? 'text-emerald-400 font-semibold' : 'text-sky-300 font-semibold'}">
+                  ${state.simMode === 'real' ? '⏱️ نمط حقيقي (قفل الأقسام • دقيقة وربع لكل سؤال)' : '🌿 نمط تجريبي (وقت مفتوح)'}
+                </span>
+              </div>
             </div>
-            <div>
-              <span class="block text-sm font-bold">نظام الاختبارات المحوسبة (قياس)</span>
-              <span class="block text-[11px] text-slate-400">المركز الوطني للقياس والتقويم</span>
+
+            <div class="flex items-center gap-3">
+              <!-- Countdown / Countup Clock -->
+              <div id="active-test-timer" class="flex items-center gap-1.5 bg-slate-800 border border-slate-700 px-3.5 py-1.5 rounded-xl font-mono text-xs sm:text-sm font-bold text-emerald-400">
+                00:00
+              </div>
+
+              <!-- Submit Section Button -->
+              <button onclick="promptSubmitCurrentSection()" class="px-4 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5">
+                <span>🔒</span>
+                <span>${state.currentSectionIndex === state.numSections - 1 ? 'إنهاء الاختبار النهائي' : `تسليم القسم (${toAr(sec.sectionNumber)}) والانتقال`}</span>
+              </button>
             </div>
           </div>
 
-          <div class="flex items-center gap-4">
-            <!-- Countdown Clock -->
-            <div class="flex items-center gap-2 bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-xl font-mono text-base font-bold text-emerald-400">
-              <span>⏱️</span>
-              <span id="active-test-timer">25:00</span>
+          <!-- Section Stepper Bar if more than 1 section -->
+          ${state.numSections > 1 ? `
+            <div class="pt-2 border-t border-slate-800 flex flex-wrap items-center gap-2">
+              <span class="text-[11px] text-slate-400 font-bold ml-1">أقسام الاختبار:</span>
+              ${sectionsNavHtml}
             </div>
-
-            <!-- Finish Exam Button -->
-            <button onclick="confirmFinishSimulator()" class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm transition-all">
-              إنهاء الاختبار
-            </button>
-          </div>
+          ` : ''}
         </div>
 
         <!-- Main Workspace -->
@@ -3085,14 +4025,24 @@
           
           <!-- Left: Question Presentation Area -->
           <div class="lg:col-span-3 bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 md:p-8 border border-slate-200 shadow-sm space-y-6">
+            
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-              <span class="text-xs font-bold text-slate-400">
-                السؤال رقم (${toAr(activeTest.currentIndex + 1)} من ٢٥) • <span class="${q.section === 'quantitative' ? 'text-blue-600' : 'text-purple-600'}">${q.section_ar || 'قسم القدرات'}</span>
-              </span>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-600">
+                  السؤال (${toAr(state.currentQuestionIndex + 1)} من ٢٥) في القسم (${toAr(sec.sectionNumber)}) • 
+                  <span class="${q.section === 'quantitative' ? 'text-blue-600 font-black' : 'text-purple-600 font-black'}">
+                    ${q.section_ar || (q.section === 'quantitative' ? 'قسم كمي' : 'قسم لفظي')}
+                  </span>
+                </span>
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700">
+                  المستوى ${toAr(q.level || 1)} (${q.difficulty || 'متوسط'})
+                </span>
+              </div>
+
               <div class="flex items-center gap-2">
                 <button onclick="toggleSimulatorFlag()" class="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 ${isFlagged ? 'bg-amber-50 border-amber-400 text-amber-800' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}">
                   <span>🚩</span>
-                  <span>${isFlagged ? 'تم التمييز للمراجعة' : 'تمييز للمراجعة'}</span>
+                  <span>${isFlagged ? 'تم التمييز' : 'تمييز للمراجعة'}</span>
                 </button>
                 <button onclick="openScratchpad()" class="px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-600 hover:bg-slate-50">
                   📝 مسودة
@@ -3125,18 +4075,24 @@
 
             <!-- Navigation Controls -->
             <div class="pt-6 border-t border-slate-100 flex items-center justify-between">
-              <button onclick="prevSimulatorQuestion()" ${activeTest.currentIndex === 0 ? 'disabled' : ''} class="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 disabled:opacity-30">
+              <button onclick="prevSimulatorQuestion()" ${state.currentQuestionIndex === 0 ? 'disabled' : ''} class="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50 disabled:opacity-30">
                 السابق
               </button>
+              
               <button onclick="nextSimulatorQuestion()" class="px-7 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow-md transition-all">
-                ${activeTest.currentIndex === 24 ? 'مراجعة وتسليم' : 'التالي ←'}
+                ${state.currentQuestionIndex === totalQ - 1 
+                  ? (state.currentSectionIndex === state.numSections - 1 ? 'مراجعة وتسليم الاختبار النهائي 🏁' : `تسليم القسم (${toAr(sec.sectionNumber)}) والانتقال 🔒`) 
+                  : 'التالي ←'}
               </button>
             </div>
           </div>
 
           <!-- Right: Simulator Questions Palette & Legend -->
           <div class="lg:col-span-1 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-5">
-            <h4 class="font-extrabold text-slate-900 text-sm">لوحة أسئلة الاختبار</h4>
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h4 class="font-extrabold text-slate-900 text-sm">أسئلة القسم (${toAr(sec.sectionNumber)})</h4>
+              <span class="text-xs text-slate-400 font-bold">٢٥ سؤالاً</span>
+            </div>
             
             <div class="grid grid-cols-5 gap-2">
               ${paletteHtml}
@@ -3146,16 +4102,21 @@
             <div class="pt-4 border-t border-slate-100 space-y-2 text-xs text-slate-600">
               <div class="flex items-center gap-2">
                 <span class="w-3.5 h-3.5 rounded bg-emerald-500"></span>
-                <span>تمت الإجابة (${toAr(Object.keys(activeTest.userAnswers).length)})</span>
+                <span>تمت الإجابة (${toAr(Object.keys(sec.userAnswers).length)})</span>
               </div>
               <div class="flex items-center gap-2">
                 <span class="w-3.5 h-3.5 rounded bg-amber-400"></span>
-                <span>مُعلّم للمراجعة (${toAr(Object.values(activeTest.flagged).filter(Boolean).length)})</span>
+                <span>مُعلّم للمراجعة (${toAr(Object.values(sec.flagged).filter(Boolean).length)})</span>
               </div>
               <div class="flex items-center gap-2">
                 <span class="w-3.5 h-3.5 rounded bg-slate-200"></span>
-                <span>لم تتم الإجابة (${toAr(25 - Object.keys(activeTest.userAnswers).length)})</span>
+                <span>لم تتم الإجابة (${toAr(25 - Object.keys(sec.userAnswers).length)})</span>
               </div>
+            </div>
+
+            <!-- Section Lock Notice -->
+            <div class="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-[11px] text-amber-900 leading-relaxed font-semibold">
+              🔒 عند تسليم هذا القسم، سيتم قفله نهائياً ولن يمكنك العودة لتعديل إجاباته.
             </div>
           </div>
 
@@ -3169,129 +4130,341 @@
     }
 
     function handleSimulatorAnswer(idx) {
-      activeTest.userAnswers[activeTest.currentIndex] = idx;
+      if (!window.simExamState) return;
+      const state = window.simExamState;
+      const sec = state.sections[state.currentSectionIndex];
+      if (!sec) return;
+
+      sec.userAnswers[state.currentQuestionIndex] = idx;
+      syncActiveTestFromExamState();
       renderSimulatorInterface();
     }
 
     function toggleSimulatorFlag() {
-      activeTest.flagged[activeTest.currentIndex] = !activeTest.flagged[activeTest.currentIndex];
+      if (!window.simExamState) return;
+      const state = window.simExamState;
+      const sec = state.sections[state.currentSectionIndex];
+      if (!sec) return;
+
+      sec.flagged[state.currentQuestionIndex] = !sec.flagged[state.currentQuestionIndex];
+      syncActiveTestFromExamState();
       renderSimulatorInterface();
     }
 
     function jumpToSimQuestion(idx) {
-      activeTest.currentIndex = idx;
+      if (!window.simExamState) return;
+      window.simExamState.currentQuestionIndex = idx;
+      syncActiveTestFromExamState();
       renderSimulatorInterface();
     }
 
     function nextSimulatorQuestion() {
-      if (activeTest.currentIndex < 24) {
-        activeTest.currentIndex++;
+      if (!window.simExamState) return;
+      const state = window.simExamState;
+      if (state.currentQuestionIndex < 24) {
+        state.currentQuestionIndex++;
+        syncActiveTestFromExamState();
         renderSimulatorInterface();
       } else {
-        confirmFinishSimulator();
+        promptSubmitCurrentSection();
       }
     }
 
     function prevSimulatorQuestion() {
-      if (activeTest.currentIndex > 0) {
-        activeTest.currentIndex--;
+      if (!window.simExamState) return;
+      if (window.simExamState.currentQuestionIndex > 0) {
+        window.simExamState.currentQuestionIndex--;
+        syncActiveTestFromExamState();
         renderSimulatorInterface();
       }
     }
 
-    function confirmFinishSimulator() {
-      const answeredCount = Object.keys(activeTest.userAnswers).length;
+    function promptSubmitCurrentSection() {
+      if (!window.simExamState) return;
+      const state = window.simExamState;
+      const sec = state.sections[state.currentSectionIndex];
+      const answeredCount = Object.keys(sec.userAnswers).length;
       const remaining = 25 - answeredCount;
-      if (confirm(`لقد أجبت عن ${answeredCount} سؤالاً، ومتبقي ${remaining} سؤالاً.\nهل ترغب في تسليم الإجابات واعتماد النتيجة النهائية؟`)) {
-        finishSimulator();
+      const isLastSection = state.currentSectionIndex === state.numSections - 1;
+
+      const modalDiv = document.createElement('div');
+      modalDiv.id = 'section-confirm-modal';
+      modalDiv.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/75 backdrop-blur-sm animate-fade-in';
+      modalDiv.innerHTML = `
+        <div class="max-w-md w-full bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 space-y-5 text-right">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl border border-amber-200 shrink-0">
+              ⚠️
+            </div>
+            <div>
+              <h4 class="text-base font-black text-slate-900">
+                ${isLastSection ? 'تأكيد تسليم الاختبار كاملاً' : `تأكيد تسليم القسم (${toAr(sec.sectionNumber)}) والانتقال`}
+              </h4>
+              <p class="text-xs text-slate-500 mt-0.5">
+                أجبت عن <b>${toAr(answeredCount)}</b> سؤالاً من أصل <b>٢٥</b> (متبقي ${toAr(remaining)} سؤالاً).
+              </p>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-xs text-rose-900 leading-relaxed font-bold space-y-1">
+            <p>🔒 <b>قاعدة قياس الرسمية الصارمة:</b></p>
+            <p class="font-medium text-rose-800">
+              ${isLastSection 
+                ? 'بمجرد تسليم الاختبار النهائي سيتم إغلاق الجلسة ورصد درجاتك وعرض الحلول التفصيلية.' 
+                : `بمجرد تسليم القسم (${toAr(sec.sectionNumber)}) والانتقال للقسم التالي، <u>لن تتمكن من الرجوع إليه أو تعديل أي إجابة فيه نهائياً</u> حتى ينتهي الاختبار كاملاً.`}
+            </p>
+          </div>
+
+          <div class="flex items-center gap-3 pt-2">
+            <button onclick="executeSectionSubmission()" class="flex-1 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition-all">
+              ${isLastSection ? 'تسليم الاختبار النهائي الآن' : `نعم، تسليم وقفل القسم (${toAr(sec.sectionNumber)})`}
+            </button>
+            <button onclick="document.getElementById('section-confirm-modal').remove()" class="px-5 py-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs transition-all">
+              تراجع ومتابعة الحل
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(modalDiv);
+    }
+
+    function executeSectionSubmission() {
+      const modal = document.getElementById('section-confirm-modal');
+      if (modal) modal.remove();
+
+      if (!window.simExamState) return;
+      const state = window.simExamState;
+      const sec = state.sections[state.currentSectionIndex];
+      sec.isSubmitted = true;
+
+      // هل هذا هو القسم الأخير؟
+      if (state.currentSectionIndex >= state.numSections - 1) {
+        finishRealExam();
+      } else {
+        // الانتقال للقسم التالي
+        state.currentSectionIndex++;
+        state.currentQuestionIndex = 0;
+        const nextSec = state.sections[state.currentSectionIndex];
+        nextSec.timeRemaining = 25 * 75; // إعادة ضبط العداد للقسم الجديد
+
+        syncActiveTestFromExamState();
+        renderSimulatorInterface();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        showPwaToast(`🔒 تم تسليم القسم (${toAr(sec.sectionNumber)}) بنجاح وقفله. مرحباً بك في القسم (${toAr(nextSec.sectionNumber)})!`);
       }
     }
 
-    function finishSimulator() {
-      if (activeTest.timerInterval) clearInterval(activeTest.timerInterval);
+    function handleSectionTimeExpired() {
+      if (!window.simExamState) return;
+      const state = window.simExamState;
+      const sec = state.sections[state.currentSectionIndex];
+      sec.isSubmitted = true;
 
-      let correctCount = 0;
-      activeTest.questions.forEach((q, idx) => {
-        if (activeTest.userAnswers[idx] === q.correct_index) correctCount++;
-        else addMistake(q);
+      if (state.currentSectionIndex >= state.numSections - 1) {
+        alert("⏰ انتهى الوقت المخصص للقسم الأخير! يتم الآن رصد نتيجتك النهائية واعتماد شهادة الاختبار.");
+        finishRealExam();
+      } else {
+        alert(`⏰ انتهى الوقت المخصص للقسم (${toAr(sec.sectionNumber)})! تم حفظ إجاباتك وقفل هذا القسم والانتقال للقسم التالي تلقائياً.`);
+        state.currentSectionIndex++;
+        state.currentQuestionIndex = 0;
+        const nextSec = state.sections[state.currentSectionIndex];
+        nextSec.timeRemaining = 25 * 75;
+
+        syncActiveTestFromExamState();
+        startExamTimer(true);
+        renderSimulatorInterface();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function finishRealExam() {
+      if (activeTest && activeTest.timerInterval) clearInterval(activeTest.timerInterval);
+      if (window.simExamState && window.simExamState.timerInterval) clearInterval(window.simExamState.timerInterval);
+
+      const state = window.simExamState;
+      let totalQuestions = 0;
+      let totalCorrect = 0;
+      let quantCorrect = 0, quantTotal = 0;
+      let verbCorrect = 0, verbTotal = 0;
+
+      const sectionScores = [];
+
+      state.sections.forEach((sec, sIdx) => {
+        let secCorrect = 0;
+        sec.questions.forEach((q, qIdx) => {
+          totalQuestions++;
+          const isQuant = q.section === 'quantitative';
+          if (isQuant) quantTotal++; else verbTotal++;
+
+          if (sec.userAnswers[qIdx] === q.correct_index) {
+            totalCorrect++;
+            secCorrect++;
+            if (isQuant) quantCorrect++; else verbCorrect++;
+          } else {
+            addMistake(q);
+          }
+        });
+
+        sectionScores.push({
+          sectionNumber: sec.sectionNumber,
+          correct: secCorrect,
+          total: sec.questions.length,
+          pct: Math.round((secCorrect / sec.questions.length) * 100)
+        });
       });
 
-      const scorePct = Math.round((correctCount / 25) * 100);
+      const overallPct = Math.round((totalCorrect / totalQuestions) * 100);
+      const quantPct = quantTotal > 0 ? Math.round((quantCorrect / quantTotal) * 100) : 0;
+      const verbPct = verbTotal > 0 ? Math.round((verbCorrect / verbTotal) * 100) : 0;
 
       recordTestResult({
-        title: 'محاكي قياس المحوسب (٢٥ سؤال)',
+        title: `محاكي قياس المحوسب (${state.simMode === 'real' ? 'حقيقي 75ث/سؤال' : 'تجريبي حر'} - ${totalQuestions} سؤال)`,
         date: new Date().toLocaleDateString('ar-SA') + ' ' + new Date().toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }),
-        scorePct: scorePct,
-        correct: correctCount,
-        total: 25,
-        quantScore: null,
-        verbScore: null
+        scorePct: overallPct,
+        correct: totalCorrect,
+        total: totalQuestions,
+        quantScore: quantPct,
+        verbScore: verbPct
       });
 
       const container = document.getElementById('simulator-container');
       container.innerHTML = `
-        <div class="max-w-3xl mx-auto bg-white rounded-3xl p-8 border border-slate-200 shadow-xl space-y-8">
+        <div class="max-w-4xl mx-auto bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-xl space-y-8">
+          
+          <!-- Certificate Header -->
           <div class="text-center space-y-3">
-            <div class="w-20 h-20 mx-auto rounded-3xl bg-sky-50 text-sky-600 flex items-center justify-center text-4xl border border-sky-200">
+            <div class="w-20 h-20 mx-auto rounded-3xl bg-sky-50 text-sky-600 flex items-center justify-center text-4xl border border-sky-200 shadow-sm">
               📜
             </div>
-            <h2 class="text-3xl font-black text-slate-900">شهادة نتيجة الاختبار المحوسب</h2>
-            <p class="text-xs text-slate-500">تم رصد وتحليل نتيجتك وفق المعايير الرسمية المعتمدة</p>
+            <h2 class="text-2xl sm:text-3xl font-black text-slate-900">شهادة نتيجة اختبار قياس المحوسب</h2>
+            <p class="text-xs sm:text-sm text-slate-500">تم رصد وتحليل نتيجتك وفق المعايير الرسمية للمركز الوطني للقياس</p>
           </div>
 
-          <div class="p-6 rounded-3xl bg-gradient-to-tr from-slate-900 to-indigo-950 text-white flex items-center justify-around shadow-inner">
+          <!-- Overall Score Ribbon -->
+          <div class="p-6 rounded-3xl bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-900 text-white flex flex-wrap items-center justify-around gap-4 shadow-inner">
             <div class="text-center">
-              <span class="block text-4xl font-black text-emerald-400">${scorePct}%</span>
-              <span class="text-xs text-slate-400 font-bold">الدرجة الموزونة</span>
+              <span class="block text-4xl sm:text-5xl font-black text-emerald-400">${overallPct}%</span>
+              <span class="text-xs text-slate-400 font-bold">الدرجة الموزونة العامة</span>
             </div>
-            <div class="h-12 w-[1px] bg-slate-800"></div>
+            <div class="hidden sm:block h-14 w-[1px] bg-slate-800"></div>
             <div class="text-center">
-              <span class="block text-4xl font-black text-cyan-300">${toAr(correctCount)} / ٢٥</span>
-              <span class="text-xs text-slate-400 font-bold">الإجابات الصحيحة</span>
+              <span class="block text-4xl sm:text-5xl font-black text-cyan-300">${toAr(totalCorrect)} / ${toAr(totalQuestions)}</span>
+              <span class="text-xs text-slate-400 font-bold">إجمالي الإجابات الصحيحة</span>
             </div>
-            <div class="h-12 w-[1px] bg-slate-800"></div>
+            <div class="hidden sm:block h-14 w-[1px] bg-slate-800"></div>
             <div class="text-center">
-              <span class="block text-4xl font-black text-amber-300">${scorePct >= 95 ? 'نخبة 100%' : scorePct >= 85 ? 'متميز' : 'جيد'}</span>
+              <span class="block text-3xl sm:text-4xl font-black text-amber-300">
+                ${overallPct >= 95 ? 'نخبة 100%' : overallPct >= 85 ? 'متميز جداً' : overallPct >= 75 ? 'جيد جداً' : 'يحتاج مراجعة'}
+              </span>
               <span class="text-xs text-slate-400 font-bold">التصنيف التحصيلي</span>
             </div>
           </div>
 
-          <!-- Question Review with Full Arabic Solutions -->
-          <div class="space-y-4">
-            <h3 class="font-extrabold text-slate-900 text-base">مراجعة الأسئلة والشروحات:</h3>
-            <div class="space-y-3 max-h-96 overflow-y-auto pr-1">
-              ${activeTest.questions.map((q, idx) => {
-                const userChoice = activeTest.userAnswers[idx];
-                const isCorrect = userChoice === q.correct_index;
-                const letters = ['أ', 'ب', 'ج', 'د'];
-                return `
-                  <div class="p-4 rounded-2xl border ${isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-rose-50/40 border-rose-200'} space-y-2 text-xs">
-                    <div class="flex items-center justify-between font-bold">
-                      <span class="${isCorrect ? 'text-emerald-700' : 'text-rose-700'}">السؤال ${toAr(idx + 1)}: ${isCorrect ? '✓ صحيح' : '✕ غير صحيح'}</span>
-                      <span class="text-slate-400">${q.topic}</span>
-                    </div>
-                    <p class="font-medium text-slate-800">${q.question}</p>
-                    <div class="text-slate-600 font-medium">
-                      <span>إجابتك: <b>${userChoice !== undefined ? letters[userChoice] : 'لم تجب'}</b></span> • 
-                      <span class="text-emerald-700 font-bold">الإجابة الصحيحة: <b>${letters[q.correct_index]} (${q.options[q.correct_index]})</b></span>
-                    </div>
-                    <div class="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 whitespace-pre-line leading-relaxed">
-                      💡 <b>الشرح:</b> ${q.explanation || 'تم اعتماد هذا الخيار بناءً على التبسيط الرياضي أو السياق اللغوي الصحيح.'}
-                    </div>
-                  </div>
-                `;
-              }).join('')}
+          <!-- Section-by-Section Score Breakdown (أقسام الاختبار) -->
+          <div class="space-y-3">
+            <h4 class="font-extrabold text-slate-900 text-sm sm:text-base flex items-center gap-2">
+              <span>📊</span>
+              <span>نتائج أقسام الاختبار المستقلة:</span>
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-${state.numSections} gap-3">
+              ${sectionScores.map(sc => `
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-1.5">
+                  <span class="text-xs text-slate-500 font-bold">القسم رقم (${toAr(sc.sectionNumber)})</span>
+                  <div class="text-2xl font-black text-slate-900">${sc.pct}%</div>
+                  <div class="text-xs font-semibold text-emerald-700">${toAr(sc.correct)} من ٢٥ صحيحة</div>
+                </div>
+              `).join('')}
             </div>
           </div>
 
-          <div class="flex items-center justify-center gap-3 pt-4 border-t border-slate-100">
-            <button onclick="launchRealSimulator()" class="px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md">
-              إعادة اختبار المحاكي
+          <!-- Quant & Verbal Breakdown -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-5 rounded-2xl bg-blue-50/80 border border-blue-200 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="text-3xl">📐</span>
+                <div>
+                  <h4 class="font-extrabold text-blue-950 text-sm">القسم الكمي (الرياضيات)</h4>
+                  <span class="text-xs text-blue-700 font-medium">${toAr(quantCorrect)} من ${toAr(quantTotal)} صحيحة</span>
+                </div>
+              </div>
+              <span class="text-2xl font-black text-blue-900">${quantPct}%</span>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-purple-50/80 border border-purple-200 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <span class="text-3xl">📖</span>
+                <div>
+                  <h4 class="font-extrabold text-purple-950 text-sm">القسم اللفظي (اللغة العربية)</h4>
+                  <span class="text-xs text-purple-700 font-medium">${toAr(verbCorrect)} من ${toAr(verbTotal)} صحيحة</span>
+                </div>
+              </div>
+              <span class="text-2xl font-black text-purple-900">${verbPct}%</span>
+            </div>
+          </div>
+
+          <!-- Full Review of All Questions across all sections -->
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-extrabold text-slate-900 text-base flex items-center gap-2">
+                <span>💡</span>
+                <span>المراجعة الشاملة لجميع الأسئلة والحلول النموذجية (مفتوحة الآن):</span>
+              </h3>
+              <span class="text-xs text-slate-500 font-bold">متاح الآن بعد انتهاء كامل الاختبار</span>
+            </div>
+
+            <div class="space-y-4 max-h-[500px] overflow-y-auto pr-1">
+              ${state.sections.map(sec => `
+                <div class="space-y-3 pt-2">
+                  <div class="sticky top-0 bg-slate-100/95 backdrop-blur-xs p-2.5 rounded-xl font-black text-xs text-slate-800 border border-slate-200">
+                    📂 أسئلة القسم رقم (${toAr(sec.sectionNumber)}) - ٢٥ سؤالاً
+                  </div>
+                  
+                  ${sec.questions.map((q, idx) => {
+                    const userChoice = sec.userAnswers[idx];
+                    const isCorrect = userChoice === q.correct_index;
+                    const letters = ['أ', 'ب', 'ج', 'د'];
+                    return `
+                      <div class="p-4 rounded-2xl border ${isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-rose-50/40 border-rose-200'} space-y-2 text-xs">
+                        <div class="flex items-center justify-between font-bold">
+                          <span class="${isCorrect ? 'text-emerald-700' : 'text-rose-700'}">
+                            السؤال ${toAr(idx + 1)}: ${isCorrect ? '✓ إجابة صحيحة' : '✕ إجابة غير صحيحة'}
+                          </span>
+                          <span class="${q.section === 'quantitative' ? 'text-blue-600' : 'text-purple-600'}">
+                            ${q.topic} • المستوى ${toAr(q.level || 1)} (${q.difficulty || 'متوسط'})
+                          </span>
+                        </div>
+                        <p class="font-medium text-slate-800 leading-relaxed">${q.question}</p>
+                        <div class="text-slate-600 font-medium">
+                          <span>إجابتك: <b>${userChoice !== undefined ? letters[userChoice] : 'لم تجب'}</b></span> • 
+                          <span class="text-emerald-700 font-bold">الإجابة الصحيحة: <b>${letters[q.correct_index]} (${q.options[q.correct_index]})</b></span>
+                        </div>
+                        <div class="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 whitespace-pre-line leading-relaxed">
+                          💡 <b>الشرح والتبسيط:</b> ${q.explanation || 'تم اعتماد هذا الخيار بناءً على التبسيط الرياضي أو السياق اللغوي الصحيح.'}
+                          ${q.speed_rule ? `<div class="mt-1 pt-1 border-t border-slate-100 text-emerald-800 font-bold">⚡ قاعدة الحل السريع: ${q.speed_rule}</div>` : ''}
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-wrap items-center justify-center gap-3 pt-4 border-t border-slate-100">
+            <button onclick="renderSimulatorSetup()" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md">
+              ⚙️ اختبار محاكي جديد
             </button>
-            <button onclick="switchTab('home')" class="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs">
+            <button onclick="launchRealExam()" class="px-6 py-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs shadow-md">
+              🔄 إعادة نفس الاختبار
+            </button>
+            <button onclick="switchTab('home')" class="px-6 py-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold text-xs">
               العودة للرئيسية
             </button>
           </div>
+
         </div>
       `;
 
@@ -3543,44 +4716,815 @@
 
     // 2. ADMIN DASHBOARD SUBTABS & STATS
     function setAdminSubTab(sub) {
-      document.getElementById('admin-view-questions').classList.add('hidden');
-      document.getElementById('admin-view-students').classList.add('hidden');
-      document.getElementById('admin-view-files').classList.add('hidden');
-      const vFb = document.getElementById('admin-view-firebase');
-      if (vFb) vFb.classList.add('hidden');
-      const vOcr = document.getElementById('admin-view-ocr');
-      if (vOcr) vOcr.classList.add('hidden');
+      const views = [
+        'admin-view-questions',
+        'admin-view-foundation',
+        'admin-view-scanned',
+        'admin-view-pdfs',
+        'admin-view-students',
+        'admin-view-files',
+        'admin-view-firebase',
+        'admin-view-ocr'
+      ];
+      views.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
 
-      const bQ = document.getElementById('btn-admin-sub-questions');
-      const bS = document.getElementById('btn-admin-sub-students');
-      const bF = document.getElementById('btn-admin-sub-files');
-      const bFb = document.getElementById('btn-admin-sub-firebase');
-      const bOcr = document.getElementById('btn-admin-sub-ocr');
-
-      [bQ, bS, bF, bFb, bOcr].forEach(b => {
-        if (b) b.className = "px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2";
+      const btns = [
+        'btn-admin-sub-questions',
+        'btn-admin-sub-foundation',
+        'btn-admin-sub-scanned',
+        'btn-admin-sub-pdfs',
+        'btn-admin-sub-students',
+        'btn-admin-sub-files',
+        'btn-admin-sub-firebase',
+        'btn-admin-sub-ocr'
+      ];
+      btns.forEach(id => {
+        const b = document.getElementById(id);
+        if (b) b.className = "px-5 py-2.5 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-2 shrink-0";
       });
 
       if (sub === 'questions') {
-        document.getElementById('admin-view-questions').classList.remove('hidden');
-        if (bQ) bQ.className = "px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2";
+        const v = document.getElementById('admin-view-questions');
+        const b = document.getElementById('btn-admin-sub-questions');
+        if (v) v.classList.remove('hidden');
+        if (b) b.className = "px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2 shrink-0";
         renderAdminQuestionsList();
+      } else if (sub === 'foundation') {
+        const v = document.getElementById('admin-view-foundation');
+        const b = document.getElementById('btn-admin-sub-foundation');
+        if (v) v.classList.remove('hidden');
+        if (b) b.className = "px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2 shrink-0";
+        renderAdminFoundation();
+      } else if (sub === 'scanned') {
+        const v = document.getElementById('admin-view-scanned');
+        const b = document.getElementById('btn-admin-sub-scanned');
+        if (v) v.classList.remove('hidden');
+        if (b) b.className = "px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2 shrink-0";
+        renderAdminScannedQuestions();
+      } else if (sub === 'pdfs') {
+        const v = document.getElementById('admin-view-pdfs');
+        const b = document.getElementById('btn-admin-sub-pdfs');
+        if (v) v.classList.remove('hidden');
+        if (b) b.className = "px-5 py-2.5 rounded-xl bg-purple-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2 shrink-0";
+        renderAdminPdfsList();
       } else if (sub === 'students') {
-        document.getElementById('admin-view-students').classList.remove('hidden');
-        if (bS) bS.className = "px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2";
+        const v = document.getElementById('admin-view-students');
+        const b = document.getElementById('btn-admin-sub-students');
+        if (v) v.classList.remove('hidden');
+        if (b) b.className = "px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2 shrink-0";
         renderAdminStudents();
       } else if (sub === 'files') {
-        document.getElementById('admin-view-files').classList.remove('hidden');
-        if (bF) bF.className = "px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2";
+        const v = document.getElementById('admin-view-files');
+        const b = document.getElementById('btn-admin-sub-files');
+        if (v) v.classList.remove('hidden');
+        if (b) b.className = "px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2 shrink-0";
       } else if (sub === 'firebase') {
-        if (vFb) vFb.classList.remove('hidden');
-        if (bFb) bFb.className = "px-5 py-2.5 rounded-xl bg-amber-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2";
+        const v = document.getElementById('admin-view-firebase');
+        const b = document.getElementById('btn-admin-sub-firebase');
+        if (v) v.classList.remove('hidden');
+        if (b) b.className = "px-5 py-2.5 rounded-xl bg-amber-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2 shrink-0";
         populateFirebaseSettingsForm();
         updateFirebaseStatusUI();
       } else if (sub === 'ocr') {
-        if (vOcr) vOcr.classList.remove('hidden');
-        if (bOcr) bOcr.className = "px-5 py-2.5 rounded-xl bg-sky-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2";
+        const v = document.getElementById('admin-view-ocr');
+        const b = document.getElementById('btn-admin-sub-ocr');
+        if (v) v.classList.remove('hidden');
+        if (b) b.className = "px-5 py-2.5 rounded-xl bg-sky-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-2 shrink-0";
       }
+    }
+
+    // ================= FOUNDATION ADMIN MANAGEMENT =================
+    let adminFoundationSection = 'quant';
+
+    function switchAdminFoundationSection(sec) {
+      adminFoundationSection = sec;
+      const bQ = document.getElementById('btn-admin-found-quant');
+      const bV = document.getElementById('btn-admin-found-verbal');
+      if (sec === 'quant') {
+        if (bQ) bQ.className = "flex-1 py-2 rounded-xl bg-white text-blue-700 font-extrabold text-xs shadow-sm transition-all";
+        if (bV) bV.className = "flex-1 py-2 rounded-xl text-slate-600 hover:text-slate-900 font-extrabold text-xs transition-all";
+      } else {
+        if (bQ) bQ.className = "flex-1 py-2 rounded-xl text-slate-600 hover:text-slate-900 font-extrabold text-xs transition-all";
+        if (bV) bV.className = "flex-1 py-2 rounded-xl bg-white text-purple-700 font-extrabold text-xs shadow-sm transition-all";
+      }
+      renderAdminFoundation();
+    }
+
+    function renderAdminFoundation() {
+      const container = document.getElementById('admin-foundation-levels-container');
+      if (!container) return;
+      const key = adminFoundationSection === 'quant' ? 'quantitative' : 'verbal';
+      const data = foundationData ? foundationData[key] : null;
+      if (!data || !data.levels) {
+        container.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs">لا توجد بيانات تأسيس متوفرة حالياً.</div>`;
+        return;
+      }
+
+      container.innerHTML = data.levels.map(lvl => {
+        const lvlQuestions = allQuestions.filter(q => (q.section === key || (key === 'quantitative' && q.section === 'quantitative') || (key === 'verbal' && q.section === 'verbal')) && q.level === lvl.level);
+        return `
+          <div class="p-5 rounded-2xl border border-slate-200 bg-white space-y-4 shadow-2xs">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl ${adminFoundationSection === 'quant' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-purple-50 text-purple-700 border border-purple-200'} flex items-center justify-center font-black text-base">
+                  ${lvl.level}
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h4 class="font-black text-slate-900 text-base">${lvl.title}</h4>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${adminFoundationSection === 'quant' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-purple-50 text-purple-700 border border-purple-200'}">${lvl.badge}</span>
+                  </div>
+                  <div class="flex items-center gap-3 text-xs text-slate-500 mt-0.5">
+                    <span>📚 ${toAr(lvl.topics.length)} مواضيع وشروحات</span>
+                    <span>•</span>
+                    <span>🎯 ${toAr(lvlQuestions.length)} مسائل مخصصة</span>
+                  </div>
+                </div>
+              </div>
+              <button onclick="openFoundationLevelEditor('${key}', ${lvl.level})" class="px-4 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs flex items-center gap-1.5 transition-all self-start sm:self-auto">
+                <span>✏️ تحرير الشروحات والمسائل</span>
+              </button>
+            </div>
+
+            <!-- Quick Topics Preview -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+              ${lvl.topics.map(t => `
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs">
+                  <span class="font-bold text-slate-800 block truncate">📌 ${t.name}</span>
+                  <span class="text-[11px] text-slate-500 block truncate mt-0.5">${t.summary}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Modal Foundation Editor
+    let currentEditingFoundationLevel = null;
+    let currentEditingFoundationSection = null;
+
+    function openFoundationLevelEditor(section, levelNum) {
+      currentEditingFoundationSection = section;
+      currentEditingFoundationLevel = levelNum;
+
+      const data = foundationData ? foundationData[section] : null;
+      if (!data) return;
+      const lvl = data.levels.find(l => l.level === levelNum);
+      if (!lvl) return;
+
+      document.getElementById('f-modal-section').value = section;
+      document.getElementById('f-modal-level').value = levelNum;
+      document.getElementById('f-modal-level-icon').innerText = levelNum;
+      document.getElementById('f-modal-level-title').value = lvl.title || '';
+      document.getElementById('f-modal-level-badge').value = lvl.badge || '';
+      
+      const badgeSec = document.getElementById('f-modal-section-badge');
+      if (badgeSec) {
+        badgeSec.innerText = section === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي';
+        badgeSec.className = `text-xs font-bold px-2.5 py-0.5 rounded-full ${section === 'quantitative' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}`;
+      }
+
+      switchFoundationEditorTab('topics');
+      renderFoundationEditorTopics(lvl.topics || []);
+      renderFoundationEditorQuestions(section, levelNum);
+
+      document.getElementById('foundation-level-editor-modal').classList.remove('hidden');
+    }
+
+    function closeFoundationLevelEditor() {
+      document.getElementById('foundation-level-editor-modal').classList.add('hidden');
+    }
+
+    function switchFoundationEditorTab(tab) {
+      const tabTopics = document.getElementById('f-editor-tab-topics');
+      const tabQuestions = document.getElementById('f-editor-tab-questions');
+      const btnTopics = document.getElementById('btn-f-tab-topics');
+      const btnQuestions = document.getElementById('btn-f-tab-questions');
+
+      if (tab === 'topics') {
+        if (tabTopics) tabTopics.classList.remove('hidden');
+        if (tabQuestions) tabQuestions.classList.add('hidden');
+        if (btnTopics) btnTopics.className = "px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5";
+        if (btnQuestions) btnQuestions.className = "px-4 py-2 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-1.5";
+      } else {
+        if (tabTopics) tabTopics.classList.add('hidden');
+        if (tabQuestions) tabQuestions.classList.remove('hidden');
+        if (btnTopics) btnTopics.className = "px-4 py-2 rounded-xl bg-white text-slate-600 hover:text-slate-900 border border-slate-200 font-bold text-xs transition-all flex items-center gap-1.5";
+        if (btnQuestions) btnQuestions.className = "px-4 py-2 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5";
+      }
+    }
+
+    function renderFoundationEditorTopics(topics) {
+      const container = document.getElementById('f-topics-list-container');
+      const badge = document.getElementById('f-topics-count-badge');
+      if (badge) badge.innerText = toAr(topics.length);
+      if (!container) return;
+
+      container.innerHTML = topics.map((t, idx) => `
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 relative group" id="f-topic-card-${idx}">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-slate-800 flex items-center gap-1.5">
+              <span class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">${idx + 1}</span>
+              <span>الموضوع التأسيسي</span>
+            </span>
+            <button type="button" onclick="deleteFoundationTopic(${idx})" class="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold transition-all" title="حذف هذا الموضوع">
+              🗑️ حذف الموضوع
+            </button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-0.5">اسم الموضوع / المهارة:</label>
+              <input type="text" id="f-topic-name-${idx}" value="${(t.name || '').replace(/"/g, '&quot;')}" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-0.5">قانون أو استراتيجية الحل السريع:</label>
+              <input type="text" id="f-topic-rule-${idx}" value="${(t.rule || '').replace(/"/g, '&quot;')}" class="w-full p-2 rounded-xl border border-slate-200 text-xs bg-white text-emerald-800 font-bold">
+            </div>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-0.5">الشرح والتأسيس النظري:</label>
+            <textarea id="f-topic-summary-${idx}" rows="2" class="w-full p-2 rounded-xl border border-slate-200 text-xs bg-white">${t.summary || ''}</textarea>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-0.5">مثال توضيحي محلول:</label>
+            <textarea id="f-topic-example-${idx}" rows="2" class="w-full p-2 rounded-xl border border-slate-200 text-xs bg-white font-mono">${t.example || ''}</textarea>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addNewFoundationTopic() {
+      const sec = document.getElementById('f-modal-section').value;
+      const lvlNum = parseInt(document.getElementById('f-modal-level').value);
+      const lvl = foundationData[sec].levels.find(l => l.level === lvlNum);
+      if (!lvl) return;
+      if (!lvl.topics) lvl.topics = [];
+
+      lvl.topics.push({
+        name: 'موضوع تأسيسي جديد',
+        summary: 'اكتب هنا الشرح التفصيلي للموضوع والقاعدة الأساسية.',
+        example: 'مثال: مسألة تطبيقية خطوة بخطوة مع الناتج.',
+        rule: 'القانون السريع لحل المسألة في ثوانٍ.'
+      });
+
+      renderFoundationEditorTopics(lvl.topics);
+    }
+
+    function deleteFoundationTopic(idx) {
+      if (!confirm("هل أنت متأكد من رغبتك في حذف هذا الموضوع التأسيسي؟")) return;
+      const sec = document.getElementById('f-modal-section').value;
+      const lvlNum = parseInt(document.getElementById('f-modal-level').value);
+      const lvl = foundationData[sec].levels.find(l => l.level === lvlNum);
+      if (!lvl || !lvl.topics) return;
+
+      lvl.topics.splice(idx, 1);
+      renderFoundationEditorTopics(lvl.topics);
+    }
+
+    function renderFoundationEditorQuestions(section, levelNum) {
+      const container = document.getElementById('f-questions-list-container');
+      const badge = document.getElementById('f-questions-count-badge');
+      const lvlQuestions = allQuestions.filter(q => (q.section === section || (section === 'quantitative' && q.section === 'quantitative') || (section === 'verbal' && q.section === 'verbal')) && q.level === levelNum);
+      if (badge) badge.innerText = toAr(lvlQuestions.length);
+      if (!container) return;
+
+      if (lvlQuestions.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 text-center text-slate-400 text-xs bg-slate-50 rounded-2xl border border-slate-200">
+            لا توجد مسائل مرتبطة بهذا المستوى حالياً. اضغط على الزر أعلاه لإضافة مسألة جديدة.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = lvlQuestions.map((q, idx) => `
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3 text-xs">
+          <div class="flex items-center gap-3 overflow-hidden">
+            <span class="w-7 h-7 rounded-xl bg-white text-indigo-700 font-bold border border-slate-200 flex items-center justify-center shrink-0">#${q.id}</span>
+            <div class="truncate">
+              <span class="font-bold text-slate-800 block truncate">${q.question}</span>
+              <span class="text-[11px] text-slate-500">${q.topic} • خيار صحيح: (${['أ', 'ب', 'ج', 'د'][q.correct_index || 0]}) ${q.options ? q.options[q.correct_index || 0] : ''}</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button type="button" onclick="openEditQuestionModal(${q.id})" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-700 font-bold border border-slate-200 text-xs">
+              ✏️ تعديل
+            </button>
+            <button type="button" onclick="deleteQuestion(${q.id})" class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs">
+              🗑️ حذف
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openAddQuestionModalForFoundation() {
+      const sec = document.getElementById('f-modal-section').value;
+      const lvlNum = parseInt(document.getElementById('f-modal-level').value);
+      closeFoundationLevelEditor();
+      openAddQuestionModal();
+      const secSelect = document.getElementById('m-section');
+      if (secSelect) {
+        secSelect.value = sec;
+        onModalSectionChange();
+      }
+      window.nextQuestionDefaultLevel = lvlNum;
+    }
+
+    async function saveFoundationLevelChanges() {
+      const sec = document.getElementById('f-modal-section').value;
+      const lvlNum = parseInt(document.getElementById('f-modal-level').value);
+      const lvl = foundationData[sec].levels.find(l => l.level === lvlNum);
+      if (!lvl) return;
+
+      lvl.title = document.getElementById('f-modal-level-title').value.trim();
+      lvl.badge = document.getElementById('f-modal-level-badge').value.trim();
+
+      // Read topics from DOM
+      if (lvl.topics) {
+        lvl.topics.forEach((t, idx) => {
+          const elName = document.getElementById(`f-topic-name-${idx}`);
+          const elSummary = document.getElementById(`f-topic-summary-${idx}`);
+          const elRule = document.getElementById(`f-topic-rule-${idx}`);
+          const elExample = document.getElementById(`f-topic-example-${idx}`);
+          if (elName) t.name = elName.value.trim();
+          if (elSummary) t.summary = elSummary.value.trim();
+          if (elRule) t.rule = elRule.value.trim();
+          if (elExample) t.example = elExample.value.trim();
+        });
+      }
+
+      localStorage.setItem('qiyas_foundation_data_override', JSON.stringify(foundationData));
+      await saveFoundationChangesToServer();
+
+      closeFoundationLevelEditor();
+      renderFoundation();
+      renderAdminFoundation();
+      alert("تم حفظ تعديلات المستوى بنجاح ومزامنتها!");
+    }
+
+    async function saveFoundationChangesToServer() {
+      try {
+        const resp = await fetch('/api/save-foundation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(foundationData)
+        });
+        if (resp.ok) {
+          console.log("Foundation data saved to server successfully.");
+        }
+      } catch (err) {
+        console.warn("Could not save foundation to server API:", err);
+      }
+    }
+
+    // ================= SCANNED QUESTIONS MANAGEMENT =================
+    let scannedQuestions = [];
+
+    async function loadScannedQuestions() {
+      try {
+        let res = await fetch('/api/scanned-questions?t=' + Date.now());
+        if (!res.ok) {
+          res = await fetch('scanned_data.json?t=' + Date.now());
+        }
+        if (res.ok) {
+          scannedQuestions = await res.json();
+        }
+      } catch (e) {
+        console.warn("Could not load scanned questions:", e);
+        scannedQuestions = JSON.parse(localStorage.getItem('qiyas_scanned_questions') || '[]');
+      }
+      updateScannedBadge();
+    }
+
+    function updateScannedBadge() {
+      const badge = document.getElementById('scanned-badge-count');
+      const pendingBadge = document.getElementById('scanned-pending-count-badge');
+      const pendingCount = scannedQuestions.filter(q => q.status !== 'approved').length;
+      if (badge) badge.innerText = toAr(pendingCount);
+      if (pendingBadge) pendingBadge.innerText = `${toAr(pendingCount)} بانتظار الاعتماد`;
+    }
+
+    function renderAdminScannedQuestions() {
+      const container = document.getElementById('admin-scanned-questions-container');
+      if (!container) return;
+
+      const statusFilter = document.getElementById('scanned-filter-status') ? document.getElementById('scanned-filter-status').value : 'all';
+      const sectionFilter = document.getElementById('scanned-filter-section') ? document.getElementById('scanned-filter-section').value : 'all';
+
+      let list = [...scannedQuestions];
+      if (statusFilter !== 'all') {
+        list = list.filter(q => (statusFilter === 'approved' ? q.status === 'approved' : q.status !== 'approved'));
+      }
+      if (sectionFilter !== 'all') {
+        list = list.filter(q => q.section === sectionFilter);
+      }
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 text-center text-slate-400 text-xs bg-slate-50 rounded-2xl border border-slate-200">
+            لا توجد مسائل ممسوحة مطابقة للتصفية الحالية.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = list.map(q => {
+        const isApproved = q.status === 'approved';
+        const imgUrl = q.image || q.image_url || '';
+        return `
+          <div class="p-5 rounded-2xl border ${isApproved ? 'bg-emerald-50/20 border-emerald-200' : 'bg-white border-slate-200'} shadow-2xs space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-bold ${isApproved ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-900'}">
+                  ${isApproved ? '✓ معتمد في جميع المسارات' : '⏳ بانتظار المراجعة والاعتماد'}
+                </span>
+                <span class="text-xs font-bold text-slate-500">مسألة رقم #${q.id}</span>
+                <span class="text-xs text-slate-400">• ${q.date_scanned || 'مسح حديث'}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                ${!isApproved ? `
+                  <button onclick="approveScannedQuestion(${q.id})" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-all flex items-center gap-1.5">
+                    <span>✅ اعتماد في جميع المسارات</span>
+                  </button>
+                ` : `
+                  <span class="text-xs text-emerald-700 font-bold">معتمد ومدرج في البنك</span>
+                `}
+                <button onclick="deleteScannedQuestion(${q.id})" class="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition-all" title="حذف">
+                  🗑️
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              <!-- Question & Image -->
+              <div class="${imgUrl ? 'lg:col-span-8' : 'lg:col-span-12'} space-y-3">
+                <p class="text-sm font-bold text-slate-900 leading-relaxed">${q.question}</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                  ${(q.options || []).map((opt, oIdx) => `
+                    <div class="p-2 rounded-xl border ${oIdx === q.correct_index ? 'bg-emerald-50 border-emerald-400 text-emerald-800 font-bold' : 'bg-slate-50 border-slate-200 text-slate-700'}">
+                      (${['أ', 'ب', 'ج', 'د'][oIdx]}) ${opt}
+                    </div>
+                  `).join('')}
+                </div>
+                ${q.explanation ? `
+                  <div class="p-2.5 rounded-xl bg-slate-50 text-xs text-slate-700 border border-slate-200">
+                    💡 <b>الشرح:</b> ${q.explanation}
+                  </div>
+                ` : ''}
+              </div>
+
+              ${imgUrl ? `
+                <div class="lg:col-span-4 flex flex-col items-center justify-center p-2 rounded-xl bg-slate-50 border border-slate-200">
+                  <img src="${imgUrl}" alt="صورة المسألة" class="max-h-40 object-contain rounded-lg cursor-pointer hover:scale-105 transition-all" onclick="openImageZoomModal('${imgUrl}')">
+                  <span class="text-[10px] text-slate-400 mt-1">انقر للتكبير</span>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Settings: Level, Difficulty, Section, Tracks -->
+            <div class="pt-3 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">المستوى المحدد:</label>
+                <select onchange="updateScannedQuestionField(${q.id}, 'level', parseInt(this.value))" class="w-full p-2 rounded-xl border border-slate-200 font-bold bg-white outline-none">
+                  <option value="1" ${q.level === 1 ? 'selected' : ''}>المستوى 1 (مبتدئ)</option>
+                  <option value="2" ${q.level === 2 ? 'selected' : ''}>المستوى 2 (متوسط)</option>
+                  <option value="3" ${q.level === 3 ? 'selected' : ''}>المستوى 3 (متقدم)</option>
+                  <option value="4" ${q.level === 4 ? 'selected' : ''}>المستوى 4 (احترافي)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">درجة الصعوبة:</label>
+                <select onchange="updateScannedQuestionField(${q.id}, 'difficulty', this.value)" class="w-full p-2 rounded-xl border border-slate-200 font-bold bg-white outline-none">
+                  <option value="سهل" ${q.difficulty === 'سهل' ? 'selected' : ''}>سهل</option>
+                  <option value="متوسط" ${q.difficulty === 'متوسط' ? 'selected' : ''}>متوسط</option>
+                  <option value="صعب" ${q.difficulty === 'صعب' ? 'selected' : ''}>صعب</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">القسم:</label>
+                <select onchange="updateScannedQuestionField(${q.id}, 'section', this.value)" class="w-full p-2 rounded-xl border border-slate-200 font-bold bg-white outline-none">
+                  <option value="quantitative" ${q.section === 'quantitative' ? 'selected' : ''}>القسم الكمي</option>
+                  <option value="verbal" ${q.section === 'verbal' ? 'selected' : ''}>القسم اللفظي</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-bold text-slate-600 mb-1">الموضوع الفرعي:</label>
+                <input type="text" value="${(q.topic || '').replace(/"/g, '&quot;')}" onchange="updateScannedQuestionField(${q.id}, 'topic', this.value)" class="w-full p-2 rounded-xl border border-slate-200 font-bold bg-white outline-none">
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function approveScannedQuestion(id) {
+      const q = scannedQuestions.find(item => item.id === id);
+      if (!q) return;
+
+      q.status = 'approved';
+      q.approved_tracks = ['training', 'simulation', 'foundation', 'custom_test'];
+
+      const existingIdx = allQuestions.findIndex(item => item.id === q.id);
+      const questionRecord = {
+        id: q.id,
+        section: q.section || 'quantitative',
+        section_ar: q.section === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي',
+        topic: q.topic || 'عام',
+        question: q.question,
+        options: q.options || ['أ', 'ب', 'ج', 'د'],
+        correct_index: q.correct_index !== undefined ? q.correct_index : 0,
+        explanation: q.explanation || 'شرح نموذجي معتمد.',
+        speed_rule: q.speed_rule || 'استراتيجية الحل السريع.',
+        level: q.level || 1,
+        difficulty: q.difficulty || 'متوسط',
+        image: q.image || q.image_url || '',
+        image_url: q.image || q.image_url || '',
+        has_visual: !!(q.image || q.image_url),
+        is_scanned: true
+      };
+
+      if (existingIdx !== -1) {
+        allQuestions[existingIdx] = questionRecord;
+      } else {
+        allQuestions.push(questionRecord);
+      }
+
+      saveQuestionsOverride();
+      localStorage.setItem('qiyas_scanned_questions', JSON.stringify(scannedQuestions));
+
+      try {
+        await fetch('/api/approve-scanned-question', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: q.id, question: questionRecord })
+        });
+      } catch (e) {
+        console.warn("Could not post approve-scanned-question:", e);
+      }
+
+      updateScannedBadge();
+      renderAdminScannedQuestions();
+      renderAdminQuestionsList();
+      renderAdminDashboardStats();
+      const totalBadge = document.getElementById('header-total-q');
+      if (totalBadge) totalBadge.innerText = toAr(allQuestions.length) + ' سؤالاً';
+      alert(`تم اعتماد المسألة رقم #${id} بنجاح وإدراجها في جميع مسارات المنصة (المستوى ${toAr(q.level || 1)})!`);
+    }
+
+    async function deleteScannedQuestion(id) {
+      if (!confirm(`هل أنت متأكد من رغبتك في حذف المسألة رقم #${id} من قائمة الممسوحات؟`)) return;
+      scannedQuestions = scannedQuestions.filter(q => q.id !== id);
+      localStorage.setItem('qiyas_scanned_questions', JSON.stringify(scannedQuestions));
+
+      try {
+        await fetch('/api/delete-scanned-question', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id })
+        });
+      } catch (e) {
+        console.warn("Could not delete scanned question on server:", e);
+      }
+
+      updateScannedBadge();
+      renderAdminScannedQuestions();
+    }
+
+    function updateScannedQuestionField(id, field, value) {
+      const q = scannedQuestions.find(item => item.id === id);
+      if (!q) return;
+      q[field] = value;
+      localStorage.setItem('qiyas_scanned_questions', JSON.stringify(scannedQuestions));
+      const inBank = allQuestions.find(item => item.id === id);
+      if (inBank) {
+        inBank[field] = value;
+        saveQuestionsOverride();
+      }
+    }
+
+    // ================= DOWNLOADABLE PDFS MANAGEMENT =================
+    let downloadablePdfs = [];
+
+    async function loadDownloadablePdfs() {
+      try {
+        let res = await fetch('/api/downloadable-pdfs?t=' + Date.now());
+        if (!res.ok) {
+          res = await fetch('downloadable_pdfs.json?t=' + Date.now());
+        }
+        if (res.ok) {
+          downloadablePdfs = await res.json();
+        }
+      } catch (e) {
+        console.warn("Could not load downloadable PDFs:", e);
+        downloadablePdfs = JSON.parse(localStorage.getItem('qiyas_downloadable_pdfs') || '[]');
+      }
+      renderStudentPdfs();
+    }
+
+    function renderStudentPdfs() {
+      const container = document.getElementById('student-pdfs-container');
+      if (!container) return;
+
+      if (downloadablePdfs.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full p-8 text-center text-slate-400 text-xs bg-slate-50 rounded-3xl border border-slate-200">
+            جاري إعداد وتحضير ملفات وتجميعات الـ PDF للتحميل...
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = downloadablePdfs.map(pdf => `
+        <div class="bg-white rounded-3xl p-6 border border-slate-200 hover:border-purple-300 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-4">
+          <div class="space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                ${pdf.category || 'ملف PDF'}
+              </span>
+              <span class="text-xs text-slate-400 font-mono">${pdf.size || ''}</span>
+            </div>
+            <h4 class="font-extrabold text-sm text-slate-900 leading-snug">${pdf.title}</h4>
+            <p class="text-xs text-slate-500 line-clamp-2">${pdf.description || ''}</p>
+          </div>
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-[11px] text-slate-400 font-medium">📄 ${pdf.pages || ''}</span>
+            <a href="${pdf.url}" download class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-xs transition-all flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              <span>تحميل الملف</span>
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderAdminPdfsList() {
+      const container = document.getElementById('admin-pdfs-list-container');
+      const badge = document.getElementById('admin-pdfs-count-badge');
+      if (badge) badge.innerText = `${toAr(downloadablePdfs.length)} ملفات`;
+      if (!container) return;
+
+      if (downloadablePdfs.length === 0) {
+        container.innerHTML = `
+          <div class="p-8 text-center text-slate-400 text-xs bg-slate-50 rounded-2xl border border-slate-200">
+            لا توجد ملفات PDF مضافة حتى الآن. انقر على "إضافة ملف PDF جديد" لإضافة ملفات قابلة للتحميل.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = downloadablePdfs.map(pdf => `
+        <div class="p-4 rounded-2xl bg-white border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-2xs">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-purple-50 text-purple-700 border border-purple-200 flex items-center justify-center font-bold text-lg shrink-0">
+              📑
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-black text-slate-900 text-sm">${pdf.title}</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">${pdf.category}</span>
+              </div>
+              <p class="text-[11px] text-slate-500 mt-0.5">${pdf.description || ''} • <b>${pdf.pages || ''}</b> • <b>${pdf.size || ''}</b></p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <a href="${pdf.url}" target="_blank" download class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1 transition-all">
+              <span>📥 تحميل</span>
+            </a>
+            <button onclick="deletePdfFile(${pdf.id})" class="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition-all" title="حذف الملف">
+              🗑️
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openAddPdfModal() {
+      document.getElementById('pdf-input-title').value = '';
+      document.getElementById('pdf-input-desc').value = '';
+      document.getElementById('pdf-input-url').value = '';
+      document.getElementById('pdf-input-pages').value = '';
+      document.getElementById('pdf-input-size').value = '';
+      document.getElementById('pdf-file-selected-name').innerText = 'لم يتم اختيار ملف';
+      window.selectedPdfBase64 = null;
+      window.selectedPdfFileName = null;
+      document.getElementById('admin-pdf-modal').classList.remove('hidden');
+    }
+
+    function closeAddPdfModal() {
+      document.getElementById('admin-pdf-modal').classList.add('hidden');
+    }
+
+    function handleAdminPdfFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      document.getElementById('pdf-file-selected-name').innerText = file.name;
+      if (!document.getElementById('pdf-input-title').value) {
+        document.getElementById('pdf-input-title').value = file.name.replace(/\.[^/.]+$/, "");
+      }
+      document.getElementById('pdf-input-size').value = (file.size / (1024 * 1024)).toFixed(1) + ' ميجابايت';
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        window.selectedPdfBase64 = e.target.result;
+        window.selectedPdfFileName = file.name;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function savePdfFileFromModal() {
+      const title = document.getElementById('pdf-input-title').value.trim();
+      const cat = document.getElementById('pdf-input-category').value;
+      const sec = document.getElementById('pdf-input-section').value;
+      const desc = document.getElementById('pdf-input-desc').value.trim();
+      const pages = document.getElementById('pdf-input-pages').value.trim() || 'شامل';
+      const size = document.getElementById('pdf-input-size').value.trim() || 'متغير';
+      let url = document.getElementById('pdf-input-url').value.trim();
+
+      if (!title) {
+        alert("يرجى إدخال عنوان للملف.");
+        return;
+      }
+
+      if (window.selectedPdfBase64) {
+        try {
+          const resp = await fetch('/api/upload-downloadable-pdf', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: title,
+              filename: window.selectedPdfFileName || 'document.pdf',
+              pdf_base64: window.selectedPdfBase64,
+              category: cat,
+              description: desc,
+              pages: pages,
+              size: size,
+              target_section: sec
+            })
+          });
+          if (resp.ok) {
+            const resData = await resp.json();
+            if (resData.success && resData.item) {
+              downloadablePdfs.push(resData.item);
+              localStorage.setItem('qiyas_downloadable_pdfs', JSON.stringify(downloadablePdfs));
+              closeAddPdfModal();
+              renderStudentPdfs();
+              renderAdminPdfsList();
+              alert("تم رفع وحفظ ملف الـ PDF بنجاح وأصبح متاحاً للتحميل!");
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn("Could not upload PDF via server, fallback to local URL:", e);
+        }
+      }
+
+      if (!url && !window.selectedPdfBase64) {
+        alert("يرجى إدخال مسار أو رابط التحميل أو اختيار ملف PDF من جهازك.");
+        return;
+      }
+
+      const newId = downloadablePdfs.length > 0 ? Math.max(...downloadablePdfs.map(p => p.id || 0)) + 1 : 1;
+      const newPdf = {
+        id: newId,
+        title: title,
+        category: cat,
+        description: desc,
+        url: url || window.selectedPdfBase64 || '#',
+        pages: pages,
+        size: size,
+        target_section: sec
+      };
+
+      downloadablePdfs.push(newPdf);
+      localStorage.setItem('qiyas_downloadable_pdfs', JSON.stringify(downloadablePdfs));
+      closeAddPdfModal();
+      renderStudentPdfs();
+      renderAdminPdfsList();
+      alert("تم حفظ ملف الـ PDF بنجاح وأصبح متاحاً للتحميل!");
+    }
+
+    async function deletePdfFile(id) {
+      if (!confirm("هل أنت متأكد من رغبتك في حذف هذا الملف من قائمة التحميلات؟")) return;
+      downloadablePdfs = downloadablePdfs.filter(p => p.id !== id);
+      localStorage.setItem('qiyas_downloadable_pdfs', JSON.stringify(downloadablePdfs));
+
+      try {
+        await fetch('/api/delete-downloadable-pdf', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id })
+        });
+      } catch (e) {
+        console.warn("Could not delete PDF on server:", e);
+      }
+
+      renderStudentPdfs();
+      renderAdminPdfsList();
     }
 
     function renderAdminDashboardStats() {
@@ -4095,7 +6039,7 @@
       }
     }
 
-    function saveNewQuestionFromModal() {
+    async function saveNewQuestionFromModal() {
       const type = document.querySelector('input[name="m-q-type"]:checked').value;
       let qText = '';
       if (type === 'comparison') {
@@ -4125,8 +6069,11 @@
         document.getElementById('m-opt-3').value.trim() || 'د'
       ];
 
-      const mImg = (document.getElementById('m-image') ? document.getElementById('m-image').value : '').trim();
+      const mImgPath = (document.getElementById('m-image') ? document.getElementById('m-image').value : '').trim();
+      const mImgData = window.currentModalImageDataUrl || mImgPath;
       const isGeom = isQuestionVisualOrGeometric(qText, topic);
+      const assignedLevel = window.nextQuestionDefaultLevel || ((isGeom && section === 'quantitative') ? 3 : 1);
+      window.nextQuestionDefaultLevel = null;
 
       const newQ = {
         id: allQuestions.length > 0 ? Math.max(...allQuestions.map(q => q.id || 0)) + 1 : 1,
@@ -4138,10 +6085,10 @@
         correct_index: correctIdx,
         explanation: document.getElementById('m-explanation').value.trim(),
         speed_rule: document.getElementById('m-speed-rule').value.trim(),
-        image: mImg,
-        image_url: mImg,
-        has_visual: isGeom || !!mImg,
-        level: (isGeom && section === 'quantitative') ? 3 : 1
+        image: mImgData,
+        image_url: mImgData,
+        has_visual: isGeom || !!mImgData,
+        level: assignedLevel
       };
 
       if (!newQ.explanation || newQ.explanation.length < 5) {
@@ -4151,10 +6098,38 @@
         newQ.speed_rule = generateSmartSpeedRule(newQ);
       }
 
+      if (mImgData && mImgData.startsWith('data:')) {
+        await QiyasImageStore.set('img_' + newQ.id, mImgData);
+      }
+
+      try {
+        const payload = { ...newQ };
+        if (mImgData && mImgData.startsWith('data:')) {
+          payload.image_base64 = mImgData;
+        }
+        const resp = await fetch('/api/save-question', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (resp.ok) {
+          const resData = await resp.json();
+          if (resData.success && resData.question) {
+            newQ.id = resData.question.id;
+            newQ.image = resData.question.image || newQ.image;
+            newQ.image_url = resData.question.image_url || newQ.image_url;
+          }
+        }
+      } catch (err) {
+        console.warn("Could not save to server API:", err);
+      }
+
       allQuestions.push(newQ);
       saveQuestionsOverride();
 
-      document.getElementById('header-total-q').innerText = toAr(allQuestions.length) + ' سؤالاً';
+      clearModalImage('m');
+      const totalBadge = document.getElementById('header-total-q');
+      if (totalBadge) totalBadge.innerText = toAr(allQuestions.length) + ' سؤالاً';
       alert("تم بنجاح حفظ المسألة وإضافتها إلى بنك الأسئلة!");
       closeAddQuestionModal();
       renderAdminQuestionsList();
@@ -4180,6 +6155,15 @@
       document.getElementById('edit-speed-rule').value = q.speed_rule || '';
       document.getElementById('edit-image').value = q.image || q.image_url || '';
 
+      if (q.image || q.image_url) {
+        const preview = document.getElementById('edit-image-preview-img');
+        const container = document.getElementById('edit-image-preview-container');
+        if (preview) preview.src = q.image || q.image_url;
+        if (container) container.classList.remove('hidden');
+      } else {
+        clearModalImage('edit');
+      }
+
       document.getElementById('edit-modal').classList.remove('hidden');
     }
 
@@ -4188,7 +6172,7 @@
     }
 
     function previewEditModalImage() {
-      const val = (document.getElementById('edit-image') ? document.getElementById('edit-image').value : '').trim();
+      const val = window.currentEditModalImageDataUrl || (document.getElementById('edit-image') ? document.getElementById('edit-image').value : '').trim();
       if (val) {
         openImageZoomModal(val);
       } else {
@@ -4196,7 +6180,7 @@
       }
     }
 
-    function saveEditedQuestion() {
+    async function saveEditedQuestion() {
       const id = parseInt(document.getElementById('edit-q-id').value);
       const idx = allQuestions.findIndex(q => q.id === id);
       if (idx === -1) return;
@@ -4216,26 +6200,54 @@
       allQuestions[idx].explanation = document.getElementById('edit-explanation').value.trim();
       allQuestions[idx].speed_rule = document.getElementById('edit-speed-rule').value.trim();
 
-      const imgVal = (document.getElementById('edit-image') ? document.getElementById('edit-image').value : '').trim();
+      const imgVal = window.currentEditModalImageDataUrl || (document.getElementById('edit-image') ? document.getElementById('edit-image').value : '').trim();
       allQuestions[idx].image = imgVal;
       allQuestions[idx].image_url = imgVal;
       if (imgVal) {
         allQuestions[idx].has_visual = true;
+        if (imgVal.startsWith('data:')) {
+          await QiyasImageStore.set('img_' + id, imgVal);
+        }
+      }
+
+      try {
+        const payload = { ...allQuestions[idx] };
+        if (imgVal && imgVal.startsWith('data:')) {
+          payload.image_base64 = imgVal;
+        }
+        await fetch('/api/update-question', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.warn("Could not update question on server API:", err);
       }
 
       saveQuestionsOverride();
+      clearModalImage('edit');
       closeEditQuestionModal();
       renderAdminQuestionsList();
       renderAdminDashboardStats();
       populateTopicCheckboxes();
-      alert("تم حفظ التعديلات بنجاح!");
+      alert("تم حفظ التعديلات بنجاح ومزامنتها!");
     }
 
-    function deleteQuestion(id) {
+    async function deleteQuestion(id) {
       if (confirm(`هل أنت متأكد من رغبتك في حذف المسألة رقم #${id} نهائياً؟`)) {
         allQuestions = allQuestions.filter(q => q.id !== id);
         saveQuestionsOverride();
-        document.getElementById('header-total-q').innerText = toAr(allQuestions.length) + ' سؤالاً';
+        try {
+          await fetch('/api/delete-question', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+          });
+        } catch (err) {
+          console.warn("Could not delete question on server API:", err);
+        }
+        const totalBadge = document.getElementById('header-total-q');
+        if (totalBadge) totalBadge.innerText = toAr(allQuestions.length) + ' سؤالاً';
         renderAdminQuestionsList();
         renderAdminDashboardStats();
         populateTopicCheckboxes();
@@ -4274,7 +6286,23 @@
     }
 
     function saveQuestionsOverride() {
-      localStorage.setItem('qiyas_questions_override', JSON.stringify(allQuestions));
+      try {
+        localStorage.setItem('qiyas_questions_override', JSON.stringify(allQuestions));
+      } catch (e) {
+        console.warn("localStorage quota exceeded, sanitizing large base64 images:", e);
+        try {
+          const sanitized = allQuestions.map(q => {
+            if (q.image && q.image.length > 50000) {
+              const { image, image_url, ...rest } = q;
+              return { ...rest, image: '', image_url: q.image_url && !q.image_url.startsWith('data:') ? q.image_url : '' };
+            }
+            return q;
+          });
+          localStorage.setItem('qiyas_questions_override', JSON.stringify(sanitized));
+        } catch (innerErr) {
+          console.error("Could not save to localStorage even after sanitizing:", innerErr);
+        }
+      }
     }
 
     function exportQuestionsJSON() {
@@ -6453,6 +8481,12 @@ ${questionStem}
       const isGeom = isQuestionVisualOrGeometric(qText, topic);
       const assignedLevel = (isGeom && sec === 'quantitative') ? 3 : 1;
 
+      // Compress image if present to prevent memory bloat
+      let optimizedImage = '';
+      if (keepImage && window.currentOcrDataUrl) {
+        optimizedImage = await compressAndOptimizeImage(window.currentOcrDataUrl, 900, 0.82);
+      }
+
       const savePayload = {
         section: sec,
         section_ar: sec === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي',
@@ -6463,11 +8497,12 @@ ${questionStem}
         explanation: expl || 'شرح نموذجي للمسألة.',
         speed_rule: speed || 'استراتيجية الحل السريع.',
         level: assignedLevel,
-        has_visual: isGeom || (keepImage && !!window.currentOcrDataUrl)
+        difficulty: 'متوسط',
+        has_visual: isGeom || !!optimizedImage
       };
 
-      if (keepImage && window.currentOcrDataUrl) {
-        savePayload.image_base64 = window.currentOcrDataUrl;
+      if (optimizedImage) {
+        savePayload.image_base64 = optimizedImage;
       }
 
       let savedRecord = null;
@@ -6492,19 +8527,46 @@ ${questionStem}
         savedRecord = {
           id: newId,
           ...savePayload,
-          image: keepImage ? (window.currentOcrDataUrl || '') : '',
-          image_url: keepImage ? (window.currentOcrDataUrl || '') : ''
+          image: optimizedImage || '',
+          image_url: optimizedImage || ''
         };
       }
 
+      // Store image in IndexedDB for unlimited offline access
+      if (optimizedImage) {
+        await QiyasImageStore.set('img_' + savedRecord.id, optimizedImage);
+      }
+
+      // Save to scanned queue as well
+      const scannedItem = {
+        ...savedRecord,
+        status: 'approved',
+        date_scanned: new Date().toISOString().split('T')[0],
+        approved_tracks: ['training', 'simulation', 'foundation', 'custom_test']
+      };
+      scannedQuestions.unshift(scannedItem);
+      localStorage.setItem('qiyas_scanned_questions', JSON.stringify(scannedQuestions));
+
+      try {
+        await fetch('/api/save-scanned-question', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(scannedItem)
+        });
+      } catch (e) {
+        console.warn("Could not post to /api/save-scanned-question:", e);
+      }
+
       allQuestions.push(savedRecord);
-      localStorage.setItem('qiyas_questions_override', JSON.stringify(allQuestions));
+      saveQuestionsOverride();
       
       const totalBadge = document.getElementById('header-total-q');
       if (totalBadge) totalBadge.innerText = toAr(allQuestions.length) + ' سؤالاً';
 
       renderAdminQuestionsList();
       renderAdminDashboardStats();
+      renderAdminScannedQuestions();
+      updateScannedBadge();
       populateTopicCheckboxes();
 
       // Cloud sync if connected
@@ -6512,8 +8574,8 @@ ${questionStem}
         FirebaseService.syncQuestion(savedRecord);
       }
 
-      const visualMsg = savedRecord.image ? '\n📷 تم حفظ الصورة الهندسية بنجاح وربط مسارها بسجل السؤال في بنك الأسئلة.' : '';
-      alert(`✓ تم اعتماد وحفظ السؤال الجديد (رقم ${savedRecord.id}) بنجاح في بنك الأسئلة وقاعدة البيانات!${visualMsg}`);
+      const visualMsg = savedRecord.image ? '\n📷 تم حفظ الصورة وتصغير حجمها وربطها بالمسألة بنجاح.' : '';
+      alert(`✓ تم بنجاح حفظ السؤال الجديد (رقم #${savedRecord.id}) وإضافته إلى بنك الأسئلة وقائمة المراجعة!${visualMsg}`);
       closeOcrModal();
     }
 

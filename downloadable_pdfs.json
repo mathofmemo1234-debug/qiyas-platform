@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "title": "تجميعات الـ 120 نموذج الشاملة (كمي ولفظي)",
+    "description": "المرجع الذهبي الشامل لنماذج اختبار القدرات المحوسب، يحتوي على أسئلة محلولة ونماذج اختبار واقعية.",
+    "category": "تجميعات حديثة",
+    "section": "all",
+    "file_url": "downloads/exam126.pdf",
+    "filename": "exam126.pdf",
+    "size": "7.05 MB",
+    "pages": 126,
+    "date_added": "2026-09-19",
+    "downloads_count": 342
+  },
+  {
+    "id": 2,
+    "title": "مذكرة القوانين الذهبية للتأسيس الكمي السريع",
+    "description": "ملف مكثف يجمع كافة قوانين الجبر والهندسة والمقارنات والمتتابعات مع طرق الحل السريع في ثوانٍ.",
+    "category": "تأسيس كمي",
+    "section": "quantitative",
+    "file_url": "downloads/exam126.pdf",
+    "filename": "qiyas_quant_golden_rules.pdf",
+    "size": "2.4 MB",
+    "pages": 48,
+    "date_added": "2026-09-18",
+    "downloads_count": 519
+  },
+  {
+    "id": 3,
+    "title": "حقيبة التناظر اللفظي واستيعاب المقروء النخبوية",
+    "description": "شرح وتحليل لأكثر من 1000 علاقة تناظر لفظي متكررة وفنيات التعامل مع قطع استيعاب المقروء الطويلة.",
+    "category": "تأسيس لفظي",
+    "section": "verbal",
+    "file_url": "downloads/exam126.pdf",
+    "filename": "qiyas_verbal_elite.pdf",
+    "size": "3.1 MB",
+    "pages": 64,
+    "date_added": "2026-09-17",
+    "downloads_count": 427
+  }
+]

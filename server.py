@@ -14,9 +14,36 @@ PORT = 8000
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 QUESTIONS_FILE = os.path.join(BASE_DIR, "questions.json")
 FOUNDATION_FILE = os.path.join(BASE_DIR, "foundation_data.json")
+SCANNED_FILE = os.path.join(BASE_DIR, "scanned_data.json")
+PDFS_FILE = os.path.join(BASE_DIR, "downloadable_pdfs.json")
+DOWNLOADS_DIR = os.path.join(BASE_DIR, "downloads")
+os.makedirs(DOWNLOADS_DIR, exist_ok=True)
 DB_PATH = os.path.join(BASE_DIR, "qiyas.db")
 IMAGES_DIR = os.path.join(BASE_DIR, "questions_images")
 os.makedirs(IMAGES_DIR, exist_ok=True)
+
+def save_base64_image(b64_str, prefix="q_img"):
+    if not b64_str or not isinstance(b64_str, str) or len(b64_str) < 50:
+        return ""
+    ext = '.png'
+    if ',' in b64_str:
+        header, raw_b64 = b64_str.split(',', 1)
+        if 'jpeg' in header or 'jpg' in header:
+            ext = '.jpg'
+        elif 'webp' in header:
+            ext = '.webp'
+    else:
+        raw_b64 = b64_str
+    try:
+        img_bytes = base64.b64decode(raw_b64)
+        filename = f"{prefix}_{int(time.time()*1000)}{ext}"
+        save_path = os.path.join(IMAGES_DIR, filename)
+        with open(save_path, "wb") as img_file:
+            img_file.write(img_bytes)
+        return f"questions_images/{filename}"
+    except Exception as err:
+        print(f"Error saving image: {err}")
+        return ""
 
 GEOM_KEYWORDS = [
     'مثلث', 'دائرة', 'مستطيل', 'مربع', 'زاوية', 'نصف قطر', 'قطر', 'وتر', 'مضلع', 
@@ -128,6 +155,30 @@ class QiyasHandler(SimpleHTTPRequestHandler):
             try:
                 with open(FOUNDATION_FILE, 'r', encoding='utf-8') as f:
                     data = json.load(f)
+                self.send_json_response(data)
+            except Exception as e:
+                self.send_json_response({"error": str(e)}, 500)
+            return
+
+        elif parsed.path == '/api/scanned-questions':
+            try:
+                if os.path.exists(SCANNED_FILE):
+                    with open(SCANNED_FILE, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                else:
+                    data = []
+                self.send_json_response(data)
+            except Exception as e:
+                self.send_json_response({"error": str(e)}, 500)
+            return
+
+        elif parsed.path == '/api/downloadable-pdfs':
+            try:
+                if os.path.exists(PDFS_FILE):
+                    with open(PDFS_FILE, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                else:
+                    data = []
                 self.send_json_response(data)
             except Exception as e:
                 self.send_json_response({"error": str(e)}, 500)
@@ -308,6 +359,231 @@ class QiyasHandler(SimpleHTTPRequestHandler):
                     "added_count": len(new_items),
                     "total_questions": len(questions)
                 })
+            except Exception as e:
+                self.send_json_response({"error": str(e)}, 500)
+            return
+
+        elif parsed.path == '/api/save-foundation':
+            try:
+                with open(FOUNDATION_FILE, 'w', encoding='utf-8') as f:
+                    json.dump(body, f, ensure_ascii=False, indent=2)
+                self.send_json_response({"success": True, "message": "تم حفظ بيانات التأسيس بنجاح"})
+            except Exception as e:
+                self.send_json_response({"error": str(e)}, 500)
+            return
+
+        elif parsed.path == '/api/save-scanned-question':
+            try:
+                if os.path.exists(SCANNED_FILE):
+                    with open(SCANNED_FILE, 'r', encoding='utf-8') as f:
+                        scanned = json.load(f)
+                else:
+                    scanned = []
+                
+                new_id = max([q.get('id', 0) for q in scanned] + [0]) + 1
+                body['id'] = new_id
+                
+                raw_img = body.pop('image_base64', None) or body.pop('image_data', None) or body.pop('dataUrl', None) or body.get('image', '')
+                if raw_img and (',' in str(raw_img) or len(str(raw_img)) > 100):
+                    img_path = save_base64_image(raw_img, prefix=f"q_scan_{new_id}")
+                    if img_path:
+                        body['image'] = img_path
+                        body['image_url'] = img_path
+                
+                body['verified'] = False
+                if 'level' not in body:
+                    body['level'] = 3 if body.get('has_visual') else 1
+                if 'tracks' not in body:
+                    body['tracks'] = ["foundation", "custom-test", "simulator"]
+                if 'created_at' not in body:
+                    body['created_at'] = time.strftime("%Y-%m-%d %H:%M")
+                    
+                scanned.insert(0, body)
+                with open(SCANNED_FILE, 'w', encoding='utf-8') as f:
+                    json.dump(scanned, f, ensure_ascii=False, indent=2)
+                self.send_json_response({"success": True, "question": body})
+            except Exception as e:
+                self.send_json_response({"error": str(e)}, 500)
+            return
+
+        elif parsed.path == '/api/approve-scanned-question':
+            try:
+                q_id = body.get('id')
+                with open(SCANNED_FILE, 'r', encoding='utf-8') as f:
+                    scanned = json.load(f)
+                
+                target_idx = -1
+                target_q = None
+                for idx, sq in enumerate(scanned):
+                    if sq.get('id') == q_id:
+                        target_idx = idx
+                        target_q = sq
+                        break
+                
+                if not target_q:
+                    self.send_json_response({"error": "المسألة غير موجودة في قائمة المسح"}, 404)
+                    return
+                
+                for k in ['level', 'difficulty', 'section', 'section_ar', 'topic', 'question', 'options', 'correct_index', 'explanation', 'speed_rule', 'tracks']:
+                    if k in body:
+                        target_q[k] = body[k]
+                
+                target_q['verified'] = True
+                
+                with open(QUESTIONS_FILE, 'r', encoding='utf-8') as f:
+                    questions = json.load(f)
+                
+                new_q_id = max([q.get('id', 0) for q in questions] + [0]) + 1
+                approved_q = dict(target_q)
+                approved_q['id'] = new_q_id
+                
+                # Check if image needs saving from base64
+                if approved_q.get('image', '').startswith('data:image'):
+                    img_path = save_base64_image(approved_q['image'], prefix=f"q_{new_q_id}")
+                    if img_path:
+                        approved_q['image'] = img_path
+                        approved_q['image_url'] = img_path
+                        
+                questions.append(approved_q)
+                with open(QUESTIONS_FILE, 'w', encoding='utf-8') as f:
+                    json.dump(questions, f, ensure_ascii=False, indent=2)
+                
+                sync_question_to_db(approved_q)
+                
+                scanned[target_idx]['verified'] = True
+                with open(SCANNED_FILE, 'w', encoding='utf-8') as f:
+                    json.dump(scanned, f, ensure_ascii=False, indent=2)
+                
+                self.send_json_response({
+                    "success": True, 
+                    "question": approved_q, 
+                    "message": "تم اعتماد السؤال بنجاح في جميع المسارات"
+                })
+            except Exception as e:
+                self.send_json_response({"error": str(e)}, 500)
+            return
+
+        elif parsed.path == '/api/delete-scanned-question':
+            try:
+                q_id = body.get('id')
+                with open(SCANNED_FILE, 'r', encoding='utf-8') as f:
+                    scanned = json.load(f)
+                scanned = [q for q in scanned if q.get('id') != q_id]
+                with open(SCANNED_FILE, 'w', encoding='utf-8') as f:
+                    json.dump(scanned, f, ensure_ascii=False, indent=2)
+                self.send_json_response({"success": True})
+            except Exception as e:
+                self.send_json_response({"error": str(e)}, 500)
+            return
+
+        elif parsed.path == '/api/upload-downloadable-pdf':
+            try:
+                title = body.get('title', 'ملف تجميعات جديد')
+                desc = body.get('description', '')
+                cat = body.get('category', 'تجميعات حديثة')
+                sec = body.get('section', 'all')
+                filename = body.get('filename', f"doc_{int(time.time())}.pdf")
+                file_url = body.get('file_url', '')
+                
+                pdf_b64 = body.pop('pdf_base64', None) or body.pop('file_data', None)
+                if pdf_b64 and len(pdf_b64) > 50:
+                    if ',' in pdf_b64:
+                        pdf_b64 = pdf_b64.split(',', 1)[1]
+                    pdf_bytes = base64.b64decode(pdf_b64)
+                    save_name = f"pdf_{int(time.time())}_{filename}"
+                    save_path = os.path.join(DOWNLOADS_DIR, save_name)
+                    with open(save_path, "wb") as pf:
+                        pf.write(pdf_bytes)
+                    file_url = f"downloads/{save_name}"
+                    size_str = f"{round(len(pdf_bytes)/(1024*1024), 2)} MB"
+                else:
+                    size_str = body.get('size', '1.5 MB')
+                    
+                if os.path.exists(PDFS_FILE):
+                    with open(PDFS_FILE, 'r', encoding='utf-8') as f:
+                        pdfs = json.load(f)
+                else:
+                    pdfs = []
+                    
+                new_id = max([p.get('id', 0) for p in pdfs] + [0]) + 1
+                pdf_entry = {
+                    "id": new_id,
+                    "title": title,
+                    "description": desc,
+                    "category": cat,
+                    "section": sec,
+                    "file_url": file_url,
+                    "filename": filename,
+                    "size": size_str,
+                    "pages": body.get('pages', 20),
+                    "date_added": time.strftime("%Y-%m-%d"),
+                    "downloads_count": 0
+                }
+                pdfs.insert(0, pdf_entry)
+                with open(PDFS_FILE, 'w', encoding='utf-8') as f:
+                    json.dump(pdfs, f, ensure_ascii=False, indent=2)
+                self.send_json_response({"success": True, "pdf": pdf_entry})
+            except Exception as e:
+                self.send_json_response({"error": str(e)}, 500)
+            return
+
+        elif parsed.path == '/api/delete-downloadable-pdf':
+            try:
+                pdf_id = body.get('id')
+                with open(PDFS_FILE, 'r', encoding='utf-8') as f:
+                    pdfs = json.load(f)
+                pdfs = [p for p in pdfs if p.get('id') != pdf_id]
+                with open(PDFS_FILE, 'w', encoding='utf-8') as f:
+                    json.dump(pdfs, f, ensure_ascii=False, indent=2)
+                self.send_json_response({"success": True})
+            except Exception as e:
+                self.send_json_response({"error": str(e)}, 500)
+            return
+
+        elif parsed.path == '/api/delete-question':
+            try:
+                q_id = body.get('id')
+                with open(QUESTIONS_FILE, 'r', encoding='utf-8') as f:
+                    questions = json.load(f)
+                questions = [q for q in questions if q.get('id') != q_id]
+                with open(QUESTIONS_FILE, 'w', encoding='utf-8') as f:
+                    json.dump(questions, f, ensure_ascii=False, indent=2)
+                try:
+                    conn = sqlite3.connect(DB_PATH)
+                    cur = conn.cursor()
+                    cur.execute("DELETE FROM questions WHERE id = ?", (q_id,))
+                    conn.commit()
+                    conn.close()
+                except Exception:
+                    pass
+                self.send_json_response({"success": True})
+            except Exception as e:
+                self.send_json_response({"error": str(e)}, 500)
+            return
+
+        elif parsed.path == '/api/update-question':
+            try:
+                q_id = body.get('id')
+                with open(QUESTIONS_FILE, 'r', encoding='utf-8') as f:
+                    questions = json.load(f)
+                
+                raw_img = body.pop('image_base64', None) or body.pop('image_data', None) or body.pop('dataUrl', None)
+                if not raw_img and body.get('image', '').startswith('data:image'):
+                    raw_img = body.get('image')
+                if raw_img and len(raw_img) > 50:
+                    saved_path = save_base64_image(raw_img, prefix=f"q_upd_{q_id}")
+                    if saved_path:
+                        body['image'] = saved_path
+                        body['image_url'] = saved_path
+                        
+                for idx, q in enumerate(questions):
+                    if q.get('id') == q_id:
+                        questions[idx] = body
+                        break
+                with open(QUESTIONS_FILE, 'w', encoding='utf-8') as f:
+                    json.dump(questions, f, ensure_ascii=False, indent=2)
+                sync_question_to_db(body)
+                self.send_json_response({"success": True, "question": body})
             except Exception as e:
                 self.send_json_response({"error": str(e)}, 500)
             return

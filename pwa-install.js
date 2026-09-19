@@ -12,17 +12,41 @@
   const isWindows = /Windows/i.test(navigator.userAgent);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
-  // تسجيل Service Worker
+  // تسجيل Service Worker والتحديث التلقائي
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js')
         .then((reg) => {
           console.log('[PWA] تم تسجيل Service Worker بنجاح، النطاق:', reg.scope);
+          // طلب فحص فوري لأي تحديث جديد
+          if (reg) reg.update();
         })
         .catch((err) => {
           console.warn('[PWA] تعذر تسجيل Service Worker:', err);
         });
     });
+
+    // إعادة تحميل خفيفة لمرة واحدة فقط عند استلام تحكم الـ Service Worker الجديد
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) {
+        refreshing = true;
+        console.log('[PWA] تم تنشيط النسخة الأحدث - إعادة تحميل الصفحة لضمان 150 سؤالاً...');
+        window.location.reload();
+      }
+    });
+  }
+
+  // تنظيف مباشر لكاش المتصفح القديم
+  if ('caches' in window) {
+    caches.keys().then((names) => {
+      names.forEach((name) => {
+        if (name.startsWith('nabih-qiyas-') && name !== 'nabih-qiyas-v8-4options-cbt') {
+          console.log('[PWA] تنظيف كاش قديم من المتصفح:', name);
+          caches.delete(name);
+        }
+      });
+    }).catch(() => {});
   }
 
   // الاستماع لحدث جاهزية التثبيت (Chromium: Android, Windows, Chrome, Edge)

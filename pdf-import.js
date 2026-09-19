@@ -546,22 +546,20 @@
     // إضافة الأسئلة للمصفوفة العامة
     window.allQuestions.push(...preparedQuestions);
 
-    // الحفظ في التخزين المحلي للمتصفح
+    // الحفظ في التخزين المحلي للمتصفح وقاعدة بيانات الصور
     try {
       localStorage.setItem('qiyas_questions_override', JSON.stringify(window.allQuestions));
     } catch (storageErr) {
-      console.warn("تعذر حفظ كافة الصور في localStorage بسبب حجم البيانات، جاري حفظ النصوص الأساسية:", storageErr);
-      const lightweightQuestions = window.allQuestions.map(q => {
-        if (q.image && q.image.length > 50000) {
-          const { image, image_url, ...rest } = q;
-          return rest;
-        }
-        return q;
-      });
+      console.warn("تجاوز سعة localStorage، جاري نقل وحفظ الصور في IndexedDB:", storageErr);
+      if (window.QiyasImageStore) {
+        preparedQuestions.forEach(pq => {
+          if (pq.image) window.QiyasImageStore.saveImage(pq.id, pq.image);
+        });
+      }
       try {
-        localStorage.setItem('qiyas_questions_override', JSON.stringify(lightweightQuestions));
+        localStorage.setItem('qiyas_questions_override', JSON.stringify(window.allQuestions));
       } catch (e) {
-        console.error("Critical storage error:", e);
+        console.warn("حفظ البيانات مع الحفاظ على مسارات الصور في IndexedDB:", e);
       }
     }
 

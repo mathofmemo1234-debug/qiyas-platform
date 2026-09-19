@@ -1,4 +1,7 @@
-{
+import json
+import os
+
+enriched_foundation = {
   "quantitative": {
     "title": "مسار التأسيس الكمي الشامل",
     "description": "منهاج تدريبي متدرج لنقل الطالب من الأساسيات الرياضية إلى الإتقان الكامل وسرعة الحل الفائقة في اختبار القدرات.",
@@ -335,3 +338,9 @@
     ]
   }
 }
+
+target_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "foundation_data.json")
+with open(target_path, "w", encoding="utf-8") as f:
+    json.dump(enriched_foundation, f, ensure_ascii=False, indent=2)
+
+print("Enriched foundation data successfully written to:", target_path)

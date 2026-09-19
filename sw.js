@@ -3,7 +3,7 @@
  * يوفر إمكانية التثبيت كـ PWA والعمل دون اتصال وتخزين الملفات الأساسية
  */
 
-const CACHE_NAME = 'nabih-qiyas-v4-pdf-engine';
+const CACHE_NAME = 'nabih-qiyas-v8-4options-cbt';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -14,6 +14,8 @@ const CORE_ASSETS = [
   './firebase-service.js',
   './questions.json',
   './foundation_data.json',
+  './downloadable_pdfs.json',
+  './scanned_data.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-192.png',
@@ -22,11 +24,10 @@ const CORE_ASSETS = [
   './icons/favicon.png'
 ];
 
-// تثبيت Service Worker وتخزين الملفات الأساسية
+// تثبيت Service Worker وتخزين الملفات الأساسية فوراً
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(async (cache) => {
-      // نستخدم التخزين الفردي لضمان نجاح التثبيت حتى لو تعذر جلب ملف واحد
       for (const asset of CORE_ASSETS) {
         try {
           await cache.add(asset);
@@ -38,13 +39,13 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// تفعيل وتطهير الإصدارات القديمة من الكاش
+// تفعيل وتطهير كافة الإصدارات القديمة من الكاش فوراً
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((name) => {
-          if (name.startsWith('nabih-qiyas-') && name !== CACHE_NAME) {
+          if (name !== CACHE_NAME) {
             console.log('[SW] حذف الكاش القديم:', name);
             return caches.delete(name);
           }
@@ -64,8 +65,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // لطلبات الـ API المحلية: Network First مع كاش كبديل عند انقطاع النت
-  if (url.pathname.startsWith('/api/')) {
+  // Network First لجميع صفحات HTML والبيانات والـ APIs
+  // لضمان استلام أحدث بنك أسئلة (150 سؤالاً) والتحديثات دائماً عند توفر النت
+  const isNetworkFirst = url.pathname.endsWith('.json') ||
+                         url.pathname.endsWith('.html') ||
+                         url.pathname === '/' ||
+                         url.pathname.endsWith('/index.html') ||
+                         url.pathname.startsWith('/api/');
+
+  if (isNetworkFirst) {
     event.respondWith(
       fetch(request)
         .then((response) => {
@@ -82,7 +90,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // لباقي ملفات الواجهة والخطوط والمكتبات الخارجية (Stale While Revalidate)
+  // لباقي الأصول الثابتة (أيقونات، خطوط، مكتبات): Stale While Revalidate
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       const fetchPromise = fetch(request)
@@ -95,10 +103,7 @@ self.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         })
-        .catch((err) => {
-          // في حال كان الجهاز دون اتصال
-          return cachedResponse;
-        });
+        .catch(() => cachedResponse);
 
       return cachedResponse || fetchPromise;
     })
