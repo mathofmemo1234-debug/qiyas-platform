@@ -3200,8 +3200,8 @@
     function renderFoundation() {
       const container = document.getElementById('foundation-levels-container');
       if (!container) return;
-      const key = foundationSubTab === 'quant' ? 'quantitative' : 'verbal';
-      const data = foundationData[key];
+      const key = foundationSubTab || 'quantitative';
+      const data = foundationData[key] || foundationData['quantitative'];
       if (!data || !data.levels) {
         container.innerHTML = `<div class="p-8 bg-white rounded-3xl text-center text-slate-500">جاري تحميل بيانات التأسيس...</div>`;
         return;
