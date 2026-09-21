@@ -3119,15 +3119,19 @@
 
     async function loadFoundation() {
       try {
-        const savedFoundationOverride = localStorage.getItem('qiyas_foundation_data_override');
-        if (savedFoundationOverride) {
-          foundationData = JSON.parse(savedFoundationOverride);
-        } else {
-          const res = await fetch('foundation_data.json?t=' + Date.now());
+        const res = await fetch('foundation_data.json?t=' + Date.now());
+        if (res.ok) {
           foundationData = await res.json();
+          localStorage.setItem('qiyas_foundation_data_override', JSON.stringify(foundationData));
+        } else {
+          throw new Error('Fetch status ' + res.status);
         }
       } catch (e) {
-        console.error("Error loading foundation_data.json:", e);
+        console.warn("Could not fetch foundation_data.json, falling back to localStorage:", e);
+        const savedFoundationOverride = localStorage.getItem('qiyas_foundation_data_override');
+        if (savedFoundationOverride) {
+          try { foundationData = JSON.parse(savedFoundationOverride); } catch(err){}
+        }
       }
     }
 
@@ -3259,46 +3263,69 @@
       }
 
       data.levels.forEach(lvl => {
+        const lvlBadge = lvl.badge || (foundationSubTab === 'quant' ? 'تأسيس كمي' : 'تأسيس لفظي');
+        const levelNum = lvl.level || 1;
+        const levelTitle = lvl.title || `المستوى ${toAr(levelNum)}`;
+        const sectionTitle = data.title || '';
+
         html += `
           <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-2xl ${foundationSubTab === 'quant' ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'bg-purple-50 text-purple-600 border border-purple-200'} flex items-center justify-center font-black text-lg">
-                  ${lvl.level}
+                  ${levelNum}
                 </div>
                 <div>
-                  <h3 class="text-xl font-black text-slate-900">${lvl.title}</h3>
-                  <span class="text-xs text-slate-500">${data.title}</span>
+                  <h3 class="text-xl font-black text-slate-900">${levelTitle}</h3>
+                  <span class="text-xs text-slate-500">${sectionTitle}</span>
                 </div>
               </div>
               <span class="px-3 py-1 rounded-full text-xs font-bold ${foundationSubTab === 'quant' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-purple-50 text-purple-700 border border-purple-200'} self-start sm:self-auto">
-                ${lvl.badge}
+                ${lvlBadge}
               </span>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              ${lvl.topics.map(t => `
+              ${(lvl.topics || []).map(t => {
+                const tObj = typeof t === 'string' ? {
+                  name: t.includes(':') ? t.split(':')[0].trim() : 'موضوع تأسيسي',
+                  summary: t.includes(':') ? t.split(':').slice(1).join(':').trim() : t,
+                  example: '',
+                  rule: ''
+                } : (t || {});
+                const tName = tObj.name || tObj.title || 'موضوع تأسيسي';
+                const tSummary = tObj.summary || tObj.description || '';
+                const tExample = tObj.example || '';
+                const tRule = tObj.rule || '';
+                const tSvg = tObj.diagram_svg || '';
+
+                return `
                 <div class="p-5 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:border-sky-400 hover:bg-white transition-all space-y-3 flex flex-col justify-between">
                   <div class="space-y-2">
                     <h4 class="font-extrabold text-sm text-slate-900 flex items-center gap-2">
                       <span class="text-sky-600">📌</span>
-                      <span>${t.name}</span>
+                      <span>${tName}</span>
                     </h4>
-                    <p class="text-xs text-slate-600 leading-relaxed font-medium">${t.summary}</p>
-                    ${t.diagram_svg ? `
+                    ${tSummary ? `<p class="text-xs text-slate-600 leading-relaxed font-medium">${tSummary}</p>` : ''}
+                    ${tSvg ? `
                       <div class="my-2 p-2 bg-white rounded-xl border border-slate-200 flex items-center justify-center shadow-2xs">
-                        ${t.diagram_svg}
+                        ${tSvg}
                       </div>
                     ` : ''}
-                    <div class="bg-white p-2.5 rounded-xl border border-slate-200 text-xs text-slate-700 font-mono">
-                      <span class="font-bold text-indigo-600">مثال:</span> ${t.example}
+                    ${tExample ? `
+                      <div class="bg-white p-2.5 rounded-xl border border-slate-200 text-xs text-slate-700 font-mono">
+                        <span class="font-bold text-indigo-600">مثال:</span> ${tExample}
+                      </div>
+                    ` : ''}
+                  </div>
+                  ${tRule ? `
+                    <div class="pt-2 border-t border-slate-200/60 text-[11px] text-emerald-700 font-bold flex items-center gap-1">
+                      <span>💡 ${tRule}</span>
                     </div>
-                  </div>
-                  <div class="pt-2 border-t border-slate-200/60 text-[11px] text-emerald-700 font-bold flex items-center gap-1">
-                    <span>💡 ${t.rule}</span>
-                  </div>
+                  ` : ''}
                 </div>
-              `).join('')}
+              `;
+              }).join('')}
             </div>
 
             <!-- Mini Level Practice Launch & Admin Level Editor -->
@@ -5265,20 +5292,23 @@
 
       container.innerHTML = data.levels.map(lvl => {
         const lvlQuestions = allQuestions.filter(q => (q.section === key || (key === 'quantitative' && q.section === 'quantitative') || (key === 'verbal' && q.section === 'verbal')) && q.level === lvl.level);
+        const lvlBadge = lvl.badge || (adminFoundationSection === 'quant' ? 'تأسيس كمي' : 'تأسيس لفظي');
+        const topicsList = lvl.topics || [];
+
         return `
           <div class="p-5 rounded-2xl border border-slate-200 bg-white space-y-4 shadow-2xs">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-2xl ${adminFoundationSection === 'quant' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-purple-50 text-purple-700 border border-purple-200'} flex items-center justify-center font-black text-base">
-                  ${lvl.level}
+                  ${lvl.level || 1}
                 </div>
                 <div>
                   <div class="flex items-center gap-2">
-                    <h4 class="font-black text-slate-900 text-base">${lvl.title}</h4>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${adminFoundationSection === 'quant' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-purple-50 text-purple-700 border border-purple-200'}">${lvl.badge}</span>
+                    <h4 class="font-black text-slate-900 text-base">${lvl.title || ''}</h4>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${adminFoundationSection === 'quant' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-purple-50 text-purple-700 border border-purple-200'}">${lvlBadge}</span>
                   </div>
                   <div class="flex items-center gap-3 text-xs text-slate-500 mt-0.5">
-                    <span>📚 ${toAr(lvl.topics.length)} مواضيع وشروحات</span>
+                    <span>📚 ${toAr(topicsList.length)} مواضيع وشروحات</span>
                     <span>•</span>
                     <span>🎯 ${toAr(lvlQuestions.length)} مسائل مخصصة</span>
                   </div>
@@ -5291,12 +5321,15 @@
 
             <!-- Quick Topics Preview -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-              ${lvl.topics.map(t => `
+              ${topicsList.map(t => {
+                const tObj = typeof t === 'string' ? { name: t.includes(':') ? t.split(':')[0].trim() : t, summary: t.includes(':') ? t.split(':').slice(1).join(':').trim() : '' } : (t || {});
+                return `
                 <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs">
-                  <span class="font-bold text-slate-800 block truncate">📌 ${t.name}</span>
-                  <span class="text-[11px] text-slate-500 block truncate mt-0.5">${t.summary}</span>
+                  <span class="font-bold text-slate-800 block truncate">📌 ${tObj.name || tObj.title || 'موضوع'}</span>
+                  ${tObj.summary ? `<span class="text-[11px] text-slate-500 block truncate mt-0.5">${tObj.summary}</span>` : ''}
                 </div>
-              `).join('')}
+              `;
+              }).join('')}
             </div>
           </div>
         `;
@@ -5364,7 +5397,15 @@
       if (badge) badge.innerText = toAr(topics.length);
       if (!container) return;
 
-      container.innerHTML = topics.map((t, idx) => `
+      container.innerHTML = topics.map((t, idx) => {
+        const tObj = typeof t === 'string' ? {
+          name: t.includes(':') ? t.split(':')[0].trim() : t,
+          summary: t.includes(':') ? t.split(':').slice(1).join(':').trim() : '',
+          example: '',
+          rule: ''
+        } : (t || {});
+
+        return `
         <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 relative group" id="f-topic-card-${idx}">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-slate-800 flex items-center gap-1.5">
@@ -5378,23 +5419,24 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label class="block text-[11px] font-bold text-slate-600 mb-0.5">اسم الموضوع / المهارة:</label>
-              <input type="text" id="f-topic-name-${idx}" value="${(t.name || '').replace(/"/g, '&quot;')}" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white">
+              <input type="text" id="f-topic-name-${idx}" value="${(tObj.name || '').replace(/"/g, '&quot;')}" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white">
             </div>
             <div>
               <label class="block text-[11px] font-bold text-slate-600 mb-0.5">قانون أو استراتيجية الحل السريع:</label>
-              <input type="text" id="f-topic-rule-${idx}" value="${(t.rule || '').replace(/"/g, '&quot;')}" class="w-full p-2 rounded-xl border border-slate-200 text-xs bg-white text-emerald-800 font-bold">
+              <input type="text" id="f-topic-rule-${idx}" value="${(tObj.rule || '').replace(/"/g, '&quot;')}" class="w-full p-2 rounded-xl border border-slate-200 text-xs bg-white text-emerald-800 font-bold">
             </div>
           </div>
           <div>
             <label class="block text-[11px] font-bold text-slate-600 mb-0.5">الشرح والتأسيس النظري:</label>
-            <textarea id="f-topic-summary-${idx}" rows="2" class="w-full p-2 rounded-xl border border-slate-200 text-xs bg-white">${t.summary || ''}</textarea>
+            <textarea id="f-topic-summary-${idx}" rows="2" class="w-full p-2 rounded-xl border border-slate-200 text-xs bg-white">${tObj.summary || ''}</textarea>
           </div>
           <div>
             <label class="block text-[11px] font-bold text-slate-600 mb-0.5">مثال توضيحي محلول:</label>
-            <textarea id="f-topic-example-${idx}" rows="2" class="w-full p-2 rounded-xl border border-slate-200 text-xs bg-white font-mono">${t.example || ''}</textarea>
+            <textarea id="f-topic-example-${idx}" rows="2" class="w-full p-2 rounded-xl border border-slate-200 text-xs bg-white font-mono">${tObj.example || ''}</textarea>
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
     }
 
     function addNewFoundationTopic() {
