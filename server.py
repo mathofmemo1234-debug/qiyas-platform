@@ -62,11 +62,14 @@ def sync_question_to_db(q):
             cur.execute("ALTER TABLE questions ADD COLUMN image TEXT")
         if 'image_url' not in cols:
             cur.execute("ALTER TABLE questions ADD COLUMN image_url TEXT")
+        if 'track' not in cols:
+            cur.execute("ALTER TABLE questions ADD COLUMN track TEXT")
         
         cur.execute("""
-        INSERT INTO questions (id, section, section_ar, topic, question, diagram_svg, options_json, correct_index, explanation, speed_rule, difficulty, level, image, image_url)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO questions (id, track, section, section_ar, topic, question, diagram_svg, options_json, correct_index, explanation, speed_rule, difficulty, level, image, image_url)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
+            track=excluded.track,
             section=excluded.section,
             section_ar=excluded.section_ar,
             topic=excluded.topic,
@@ -76,13 +79,15 @@ def sync_question_to_db(q):
             correct_index=excluded.correct_index,
             explanation=excluded.explanation,
             speed_rule=excluded.speed_rule,
+            difficulty=excluded.difficulty,
             level=excluded.level,
             image=excluded.image,
             image_url=excluded.image_url
         """, (
             q.get('id'),
+            q.get('track', 'qudrat'),
             q.get('section', 'quantitative'),
-            q.get('section_ar', 'القسم الكمي' if q.get('section') == 'quantitative' else 'القسم اللفظي'),
+            q.get('section_ar', 'قسم القدرات'),
             q.get('topic', ''),
             q.get('question', ''),
             q.get('diagram_svg', ''),
@@ -90,7 +95,7 @@ def sync_question_to_db(q):
             q.get('correct_index', 0),
             q.get('explanation', ''),
             q.get('speed_rule', ''),
-            q.get('difficulty', 'متوسط'),
+            q.get('difficulty', 3),
             q.get('level', 1),
             q.get('image', ''),
             q.get('image_url', '')

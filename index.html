@@ -194,24 +194,304 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white bg-slate-50 text-slate-800">
 
+  <!-- ================= RIGHT SIDEBAR NAVIGATION (القائمة الجانبية اليمينية) ================= -->
+  <div id="sidebar-backdrop" onclick="toggleRightSidebar(false)" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden transition-opacity lg:hidden"></div>
+
+  <aside id="right-sidebar" class="fixed top-0 right-0 h-full w-72 bg-slate-900 text-slate-100 z-50 flex flex-col shadow-2xl border-l border-slate-800 transform transition-transform duration-300 translate-x-full lg:translate-x-0 overflow-hidden">
+    
+    <!-- Sidebar Header -->
+    <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/80">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 via-indigo-600 to-indigo-700 flex items-center justify-center text-white shadow-lg shadow-sky-500/20">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+        </div>
+        <div>
+          <h2 class="font-black text-lg text-white tracking-tight leading-none">نَبِـيــهْ</h2>
+          <span class="text-[10px] text-sky-400 font-extrabold">منصة الأقسام والامتحانات</span>
+        </div>
+      </div>
+      
+      <button onclick="toggleRightSidebar(false)" class="text-slate-400 hover:text-white text-2xl font-bold p-1">&times;</button>
+    </div>
+
+    <!-- Sidebar Scrollable Accordion Content -->
+    <div class="flex-1 overflow-y-auto p-3 space-y-2 custom-sidebar-scroll text-xs">
+      
+      <!-- 🏠 الرئيسية -->
+      <button onclick="switchTab('home')" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-slate-800/80 hover:bg-sky-600 text-sky-300 font-bold transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        <span>الرئيسية (Dashboard)</span>
+      </button>
+
+      <!-- 📷 الماسح الضوئي للجميع -->
+      <button onclick="openSmartOCRScannerModal()" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl bg-gradient-to-r from-sky-600/40 to-indigo-600/40 hover:from-sky-600 hover:to-indigo-600 text-white font-bold border border-sky-500/40 transition-all shadow-sm">
+        <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <span>الماسح الضوئي الذكي 📷</span>
+      </button>
+
+      <div class="pt-2 pb-1 text-[10px] font-black text-slate-400 px-2 tracking-wider uppercase">الأقسام والاختبارات المعتمدة</div>
+
+      <!-- 📘 1. القدرات العامة -->
+      <div class="sidebar-accordion rounded-2xl bg-slate-800/40 border border-slate-800 overflow-hidden">
+        <button onclick="toggleSidebarAccordion('acc-qudrat')" class="w-full flex items-center justify-between p-3 text-slate-200 hover:text-white font-bold">
+          <span class="flex items-center gap-2 text-sky-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+            اختبار القدرات العامة
+          </span>
+          <svg id="acc-qudrat-icon" class="w-3.5 h-3.5 transform transition-transform rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="acc-qudrat" class="px-3 pb-3 space-y-2 border-t border-slate-800/60 pt-2">
+          <!-- كمي -->
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-sky-300 text-[11px] mb-1.5 flex items-center justify-between">
+              <span>🔢 القسم الكمي</span>
+              <span class="text-[9px] px-1.5 py-0.2 rounded bg-sky-900/60 text-sky-300">رياضيات ومقارنات</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('qudrat', 'quantitative', 'practice')" class="py-1.5 rounded-lg bg-sky-600/30 hover:bg-sky-600 text-sky-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('qudrat', 'quantitative', 'exam')" class="py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+          <!-- لفظي -->
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-purple-300 text-[11px] mb-1.5 flex items-center justify-between">
+              <span>📝 القسم اللفظي</span>
+              <span class="text-[9px] px-1.5 py-0.2 rounded bg-purple-900/60 text-purple-300">تناظر واستيعاب</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('qudrat', 'verbal', 'practice')" class="py-1.5 rounded-lg bg-purple-600/30 hover:bg-purple-600 text-purple-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('qudrat', 'verbal', 'exam')" class="py-1.5 rounded-lg bg-pink-600/30 hover:bg-pink-600 text-pink-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🎓 2. الاختبار التحصيلي -->
+      <div class="sidebar-accordion rounded-2xl bg-slate-800/40 border border-slate-800 overflow-hidden">
+        <button onclick="toggleSidebarAccordion('acc-tahsili')" class="w-full flex items-center justify-between p-3 text-slate-200 hover:text-white font-bold">
+          <span class="flex items-center gap-2 text-emerald-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+            الاختبار التحصيلي
+          </span>
+          <svg id="acc-tahsili-icon" class="w-3.5 h-3.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="acc-tahsili" class="hidden px-3 pb-3 space-y-2 border-t border-slate-800/60 pt-2">
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-emerald-300 text-[11px] mb-1">📐 رياضيات التحصيلي</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('tahsili', 'tahsili_math', 'practice')" class="py-1.5 rounded-lg bg-emerald-600/30 hover:bg-emerald-600 text-emerald-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('tahsili', 'tahsili_math', 'exam')" class="py-1.5 rounded-lg bg-teal-600/30 hover:bg-teal-600 text-teal-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-sky-300 text-[11px] mb-1">⚡ فيزياء التحصيلي</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('tahsili', 'tahsili_physics', 'practice')" class="py-1.5 rounded-lg bg-sky-600/30 hover:bg-sky-600 text-sky-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('tahsili', 'tahsili_physics', 'exam')" class="py-1.5 rounded-lg bg-cyan-600/30 hover:bg-cyan-600 text-cyan-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-purple-300 text-[11px] mb-1">🧪 كيمياء التحصيلي</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('tahsili', 'tahsili_chemistry', 'practice')" class="py-1.5 rounded-lg bg-purple-600/30 hover:bg-purple-600 text-purple-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('tahsili', 'tahsili_chemistry', 'exam')" class="py-1.5 rounded-lg bg-fuchsia-600/30 hover:bg-fuchsia-600 text-fuchsia-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-rose-300 text-[11px] mb-1">🧬 أحياء التحصيلي</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('tahsili', 'tahsili_biology', 'practice')" class="py-1.5 rounded-lg bg-rose-600/30 hover:bg-rose-600 text-rose-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('tahsili', 'tahsili_biology', 'exam')" class="py-1.5 rounded-lg bg-pink-600/30 hover:bg-pink-600 text-pink-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 📝 3. اختبار STEP -->
+      <div class="sidebar-accordion rounded-2xl bg-slate-800/40 border border-slate-800 overflow-hidden">
+        <button onclick="toggleSidebarAccordion('acc-step')" class="w-full flex items-center justify-between p-3 text-slate-200 hover:text-white font-bold">
+          <span class="flex items-center gap-2 text-indigo-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
+            اختبار كفايات STEP
+          </span>
+          <svg id="acc-step-icon" class="w-3.5 h-3.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="acc-step" class="hidden px-3 pb-3 space-y-2 border-t border-slate-800/60 pt-2">
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-indigo-300 text-[11px] mb-1">📖 فهم القراءة (Reading)</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('step', 'step_reading', 'practice')" class="py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('step', 'step_reading', 'exam')" class="py-1.5 rounded-lg bg-blue-600/30 hover:bg-blue-600 text-blue-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-indigo-300 text-[11px] mb-1">✍️ القواعد والنحو (Grammar)</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('step', 'step_grammar', 'practice')" class="py-1.5 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('step', 'step_grammar', 'exam')" class="py-1.5 rounded-lg bg-blue-600/30 hover:bg-blue-600 text-blue-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🏢 4. اختبارات أرامكو -->
+      <div class="sidebar-accordion rounded-2xl bg-slate-800/40 border border-slate-800 overflow-hidden">
+        <button onclick="toggleSidebarAccordion('acc-aramco')" class="w-full flex items-center justify-between p-3 text-slate-200 hover:text-white font-bold">
+          <span class="flex items-center gap-2 text-amber-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m3 0h1m-1-4h.01M9 16h.01M9 12h.01M9 8h.01M15 16h.01M15 12h.01M15 8h.01"/></svg>
+            اختبارات أرامكو (Aramco)
+          </span>
+          <svg id="acc-aramco-icon" class="w-3.5 h-3.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="acc-aramco" class="hidden px-3 pb-3 space-y-2 border-t border-slate-800/60 pt-2">
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-amber-300 text-[11px] mb-1">📐 رياضيات ومنطق أرامكو</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('aramco', 'aramco_math', 'practice')" class="py-1.5 rounded-lg bg-amber-600/30 hover:bg-amber-600 text-amber-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('aramco', 'aramco_math', 'exam')" class="py-1.5 rounded-lg bg-orange-600/30 hover:bg-orange-600 text-orange-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-amber-300 text-[11px] mb-1">🔤 إنجليزي أرامكو</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('aramco', 'aramco_english', 'practice')" class="py-1.5 rounded-lg bg-amber-600/30 hover:bg-amber-600 text-amber-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('aramco', 'aramco_english', 'exam')" class="py-1.5 rounded-lg bg-orange-600/30 hover:bg-orange-600 text-orange-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🧠 5. القدرة المعرفية -->
+      <div class="sidebar-accordion rounded-2xl bg-slate-800/40 border border-slate-800 overflow-hidden">
+        <button onclick="toggleSidebarAccordion('acc-cognitive')" class="w-full flex items-center justify-between p-3 text-slate-200 hover:text-white font-bold">
+          <span class="flex items-center gap-2 text-violet-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 01-2 2h-0a2 2 0 01-2-2v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            اختبار القدرة المعرفية
+          </span>
+          <svg id="acc-cognitive-icon" class="w-3.5 h-3.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="acc-cognitive" class="hidden px-3 pb-3 space-y-2 border-t border-slate-800/60 pt-2">
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-violet-300 text-[11px] mb-1">🗣️ القدرة اللفظية والكمية</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('cognitive', 'cognitive_verbal', 'practice')" class="py-1.5 rounded-lg bg-violet-600/30 hover:bg-violet-600 text-violet-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('cognitive', 'cognitive_verbal', 'exam')" class="py-1.5 rounded-lg bg-purple-600/30 hover:bg-purple-600 text-purple-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-violet-300 text-[11px] mb-1">🧩 الاستدلالي والمكاني</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('cognitive', 'cognitive_spatial', 'practice')" class="py-1.5 rounded-lg bg-violet-600/30 hover:bg-violet-600 text-violet-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('cognitive', 'cognitive_spatial', 'exam')" class="py-1.5 rounded-lg bg-purple-600/30 hover:bg-purple-600 text-purple-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🌍 6. اختبار الأيلتس -->
+      <div class="sidebar-accordion rounded-2xl bg-slate-800/40 border border-slate-800 overflow-hidden">
+        <button onclick="toggleSidebarAccordion('acc-ielts')" class="w-full flex items-center justify-between p-3 text-slate-200 hover:text-white font-bold">
+          <span class="flex items-center gap-2 text-cyan-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 002 2h1.5a2.5 2.5 0 002.5-2.5V14.373m-2-10.428A9 9 0 0120.945 13H19a2 2 0 00-2 2v1a2 2 0 01-2 2 2 2 0 00-2 2v2.945"/></svg>
+            اختبار الأيلتس (IELTS)
+          </span>
+          <svg id="acc-ielts-icon" class="w-3.5 h-3.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="acc-ielts" class="hidden px-3 pb-3 space-y-2 border-t border-slate-800/60 pt-2">
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-cyan-300 text-[11px] mb-1">🔤 Vocabulary & Reading</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('ielts', 'ielts_vocab', 'practice')" class="py-1.5 rounded-lg bg-cyan-600/30 hover:bg-cyan-600 text-cyan-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('ielts', 'ielts_vocab', 'exam')" class="py-1.5 rounded-lg bg-teal-600/30 hover:bg-teal-600 text-teal-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 📐 7. الرياضيات المدرسية -->
+      <div class="sidebar-accordion rounded-2xl bg-slate-800/40 border border-slate-800 overflow-hidden">
+        <button onclick="toggleSidebarAccordion('acc-school')" class="w-full flex items-center justify-between p-3 text-slate-200 hover:text-white font-bold">
+          <span class="flex items-center gap-2 text-rose-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+            قسم الرياضيات المدرسية
+          </span>
+          <svg id="acc-school-icon" class="w-3.5 h-3.5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="acc-school" class="hidden px-3 pb-3 space-y-2 border-t border-slate-800/60 pt-2">
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-rose-300 text-[11px] mb-1">🏫 المرحلة الابتدائية</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('school_math', 'school_primary', 'practice')" class="py-1.5 rounded-lg bg-rose-600/30 hover:bg-rose-600 text-rose-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('school_math', 'school_primary', 'exam')" class="py-1.5 rounded-lg bg-red-600/30 hover:bg-red-600 text-red-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-rose-300 text-[11px] mb-1">🏫 المرحلة المتوسطة</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('school_math', 'school_intermediate', 'practice')" class="py-1.5 rounded-lg bg-rose-600/30 hover:bg-rose-600 text-rose-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('school_math', 'school_intermediate', 'exam')" class="py-1.5 rounded-lg bg-red-600/30 hover:bg-red-600 text-red-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-900/60 border border-slate-800/80">
+            <div class="font-bold text-rose-300 text-[11px] mb-1">🏫 المرحلة الثانوية</div>
+            <div class="grid grid-cols-2 gap-1.5">
+              <button onclick="startTrackSection('school_math', 'school_secondary', 'practice')" class="py-1.5 rounded-lg bg-rose-600/30 hover:bg-rose-600 text-rose-200 text-[11px] font-bold text-center">🎯 تدريب</button>
+              <button onclick="startTrackSection('school_math', 'school_secondary', 'exam')" class="py-1.5 rounded-lg bg-red-600/30 hover:bg-red-600 text-red-200 text-[11px] font-bold text-center">⏱️ اختبار</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-slate-800/80 space-y-1">
+        <button onclick="switchTab('simulator')" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-700 text-slate-200 font-bold transition-all">
+          <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <span>محاكي قياس المحوسب</span>
+        </button>
+
+        <button onclick="switchTab('mistakes')" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-700 text-slate-200 font-bold transition-all justify-between">
+          <span class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <span>دفتر الأخطاء</span>
+          </span>
+          <span id="sidebar-mistakes-badge" class="px-1.5 py-0.2 text-[10px] bg-rose-500 text-white rounded-full font-bold">0</span>
+        </button>
+
+        <button onclick="handleAdminNavClick()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl bg-amber-950/40 border border-amber-900/50 hover:bg-amber-900/40 text-amber-300 font-bold transition-all">
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <span>لوحة الإدارة 🔒</span>
+        </button>
+      </div>
+
+    </div>
+  </aside>
+
   <!-- ================= TOP NAVIGATION BAR ================= -->
   <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         
-        <!-- Logo & Branding -->
-        <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
-          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-sky-600 via-indigo-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-            </svg>
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h1 class="font-black text-2xl text-slate-900 tracking-tight">نَبِـيــهْ</h1>
-              <span class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">للقدرات العامة</span>
+        <!-- Logo & Branding + Right Sidebar Toggle -->
+        <div class="flex items-center gap-3">
+          <button onclick="toggleRightSidebar(true)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 text-white hover:bg-slate-800 font-bold text-xs shadow-sm transition-all border border-slate-700 cursor-pointer" title="فتح القائمة الجانبية للأقسام">
+            <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <span>القائمة الجانبية 📂</span>
+          </button>
+
+          <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-600 via-indigo-600 to-indigo-700 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+              </svg>
             </div>
-            <p class="text-xs text-slate-500 font-medium">منصة نبيه للقدرات العامة (كمي ولفظي)</p>
+            <div class="hidden sm:block">
+              <div class="flex items-center gap-2">
+                <h1 class="font-black text-xl text-slate-900 tracking-tight">نَبِـيــهْ</h1>
+                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">المنصة الشاملة</span>
+              </div>
+              <p class="text-[11px] text-slate-500 font-medium">القدرات، التحصيلي، STEP، أرامكو، القدرة المعرفية والرياضيات</p>
+            </div>
           </div>
         </div>
 
@@ -1986,18 +2266,55 @@
 
             <!-- Right: Structured Parsed & Solved Question -->
             <div class="lg:col-span-8 space-y-4 bg-slate-50/70 p-5 rounded-3xl border border-slate-200">
-              <div class="grid grid-cols-2 gap-3">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">القسم:</label>
-                  <select id="ocr-field-section" dir="rtl" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none" onchange="updateOcrSectionBadge()">
-                    <option value="quantitative">القسم الكمي (الرياضي)</option>
-                    <option value="verbal">القسم اللفظي (اللغوي)</option>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">المسار الرئيسي:</label>
+                  <select id="ocr-field-track" dir="rtl" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
+                    <option value="qudrat">القدرات العامة</option>
+                    <option value="tahsili">الاختبار التحصيلي</option>
+                    <option value="step">اختبار STEP</option>
+                    <option value="aramco">اختبارات أرامكو</option>
+                    <option value="cognitive">القدرة المعرفية</option>
+                    <option value="ielts">اختبار الأيلتس</option>
+                    <option value="school_math">الرياضيات المدرسية</option>
                   </select>
                 </div>
                 <div>
-                  <label class="block text-xs font-bold text-slate-700 mb-1">الموضوع الفرعي:</label>
-                  <input type="text" id="ocr-field-topic" dir="rtl" style="direction: rtl; text-align: right; font-family: 'Cairo', sans-serif;" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
+                  <label class="block text-xs font-bold text-slate-700 mb-1">القسم الفرعي:</label>
+                  <select id="ocr-field-section" dir="rtl" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none" onchange="updateOcrSectionBadge()">
+                    <option value="quantitative">القسم الكمي (الرياضي)</option>
+                    <option value="verbal">القسم اللفظي (اللغوي)</option>
+                    <option value="tahsili_math">تحصيلي - رياضيات</option>
+                    <option value="tahsili_physics">تحصيلي - فيزياء</option>
+                    <option value="tahsili_chemistry">تحصيلي - كيمياء</option>
+                    <option value="tahsili_biology">تحصيلي - أحياء</option>
+                    <option value="step_reading">STEP - قراءة</option>
+                    <option value="step_grammar">STEP - قواعد ونحو</option>
+                    <option value="aramco_math">أرامكو - رياضيات ومنطق</option>
+                    <option value="aramco_english">أرامكو - إنجليزي</option>
+                    <option value="cognitive_verbal">قدرة معرفية - لفظية</option>
+                    <option value="cognitive_spatial">قدرة معرفية - مكاني واستدلال</option>
+                    <option value="ielts_vocab">أيلتس - مفردات وقواعد</option>
+                    <option value="school_primary">رياضيات - ابتدائي</option>
+                    <option value="school_intermediate">رياضيات - متوسط</option>
+                    <option value="school_secondary">رياضيات - ثانوي</option>
+                  </select>
                 </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">عامل الصعوبة (1-5):</label>
+                  <select id="ocr-field-difficulty" dir="rtl" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
+                    <option value="1">⭐ 1 - سهل / مبتدئ</option>
+                    <option value="2">⭐⭐ 2 - بسيط</option>
+                    <option value="3" selected>⭐⭐⭐ 3 - متوسط</option>
+                    <option value="4">⭐⭐⭐⭐ 4 - متقدم</option>
+                    <option value="5">⭐⭐⭐⭐⭐ 5 - صلب / تحدي الفرسان</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">الموضوع الفرعي والدقيق:</label>
+                <input type="text" id="ocr-field-topic" dir="rtl" placeholder="مثال: هندسة، تفاضل، كيمياء عضوية، تناظر لفظي..." style="direction: rtl; text-align: right; font-family: 'Cairo', sans-serif;" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none">
               </div>
 
               <div>
@@ -2598,6 +2915,115 @@
       }
     }
 
+    // ================= RIGHT SIDEBAR & TRACK NAVIGATION ENGINE =================
+    function toggleRightSidebar(show) {
+      const sidebar = document.getElementById('right-sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+      if (!sidebar) return;
+
+      const isHidden = sidebar.classList.contains('translate-x-full');
+      const shouldOpen = (show !== undefined) ? show : isHidden;
+
+      if (shouldOpen) {
+        sidebar.classList.remove('translate-x-full');
+        if (backdrop) backdrop.classList.remove('hidden');
+      } else {
+        sidebar.classList.add('translate-x-full');
+        if (backdrop) backdrop.classList.add('hidden');
+      }
+    }
+
+    function toggleSidebarAccordion(id) {
+      const content = document.getElementById(id);
+      const icon = document.getElementById(id + '-icon');
+      if (!content) return;
+
+      const isClosed = content.classList.contains('hidden');
+      if (isClosed) {
+        content.classList.remove('hidden');
+        if (icon) icon.classList.add('rotate-180');
+      } else {
+        content.classList.add('hidden');
+        if (icon) icon.classList.remove('rotate-180');
+      }
+    }
+
+    // Global Track Section Launcher
+    function startTrackSection(track, sectionKey, mode = 'practice', difficultyLevel = null) {
+      toggleRightSidebar(false);
+
+      // Filter pool
+      let filtered = allQuestions.filter(q => {
+        if (track && q.track && q.track !== track) {
+          if (!(track === 'qudrat' && (q.section === 'quantitative' || q.section === 'verbal'))) {
+            return false;
+          }
+        }
+        if (sectionKey && q.section && q.section !== sectionKey) {
+          return false;
+        }
+        if (difficultyLevel !== null && difficultyLevel !== undefined && difficultyLevel !== 'all') {
+          if (parseInt(q.difficulty) !== parseInt(difficultyLevel)) {
+            return false;
+          }
+        }
+        return true;
+      });
+
+      // Fallback to broader track if specific section filter is too narrow
+      if (filtered.length === 0) {
+        filtered = allQuestions.filter(q => {
+          if (track === 'qudrat') return q.section === 'quantitative' || q.section === 'verbal' || q.track === 'qudrat';
+          return q.track === track || q.section === sectionKey;
+        });
+      }
+
+      // Fallback to all questions if still empty
+      if (filtered.length === 0) {
+        filtered = [...allQuestions];
+      }
+
+      // Shuffle & Launch
+      const pool = [...filtered].sort(() => 0.5 - Math.random()).slice(0, 15);
+      
+      // Set tab to custom-test or active view
+      launchTest(pool, mode);
+      
+      // Update header or title indicator
+      const secTitleMap = {
+        'quantitative': 'القدرات - القسم الكمي',
+        'verbal': 'القدرات - القسم اللفظي',
+        'tahsili_math': 'التحصيلي - الرياضيات',
+        'tahsili_physics': 'التحصيلي - الفيزياء',
+        'tahsili_chemistry': 'التحصيلي - الكيمياء',
+        'tahsili_biology': 'التحصيلي - الأحياء',
+        'step_reading': 'اختبار STEP - فهم القراءة',
+        'step_grammar': 'اختبار STEP - القواعد والنحو',
+        'aramco_math': 'اختبارات أرامكو - الرياضيات والمنطق',
+        'aramco_english': 'اختبارات أرامكو - اللغة الإنجليزية',
+        'cognitive_verbal': 'القدرة المعرفية - القدرة اللفظية',
+        'cognitive_spatial': 'القدرة المعرفية - القدرة المكانية والبديهة',
+        'ielts_vocab': 'الأيلتس - المفردات والقواعد',
+        'school_primary': 'الرياضيات المدرسية - الابتدائي',
+        'school_intermediate': 'الرياضيات المدرسية - المتوسط',
+        'school_secondary': 'الرياضيات المدرسية - الثانوي'
+      };
+
+      const trackName = secTitleMap[sectionKey] || 'القسم المفضل';
+      const modeText = mode === 'exam' ? 'محتوى الاختبار المحاكي' : 'محتوى التدريب التفاعلي';
+      
+      // Smooth alert toast / status text
+      const statusEl = document.getElementById('test-running-title');
+      if (statusEl) {
+        statusEl.innerHTML = `<span>🎯 ${trackName} (${modeText})</span>`;
+      }
+    }
+
+    function openSmartOCRScannerModal() {
+      toggleRightSidebar(false);
+      openOcrModal();
+    }
+
     // 1. Initial Load
     async function initApp() {
       await loadQuestions();
@@ -2615,7 +3041,7 @@
 
     async function loadQuestions() {
       try {
-        const Q_VERSION = 'v6_full_150q_bank';
+        const Q_VERSION = 'v7_full_241q_bank';
         const savedVer = localStorage.getItem('qiyas_q_version');
         if (savedVer !== Q_VERSION) {
           localStorage.removeItem('qiyas_questions_override');
@@ -8450,7 +8876,9 @@ ${questionStem}
 
     async function saveOcrQuestionToBank() {
       const qText = document.getElementById('ocr-field-question').value.trim();
+      const track = document.getElementById('ocr-field-track') ? document.getElementById('ocr-field-track').value : 'qudrat';
       const sec = document.getElementById('ocr-field-section').value;
+      const diffVal = document.getElementById('ocr-field-difficulty') ? parseInt(document.getElementById('ocr-field-difficulty').value) : 3;
       const topic = document.getElementById('ocr-field-topic').value.trim() || 'عام';
       const expl = document.getElementById('ocr-field-explanation').value.trim();
       const speed = document.getElementById('ocr-field-speed-rule').value.trim();
@@ -8487,9 +8915,28 @@ ${questionStem}
         optimizedImage = await compressAndOptimizeImage(window.currentOcrDataUrl, 900, 0.82);
       }
 
+      const secTitleMap = {
+        'quantitative': 'القسم الكمي',
+        'verbal': 'القسم اللفظي',
+        'tahsili_math': 'تحصيلي - رياضيات',
+        'tahsili_physics': 'تحصيلي - فيزياء',
+        'tahsili_chemistry': 'تحصيلي - كيمياء',
+        'tahsili_biology': 'تحصيلي - أحياء',
+        'step_reading': 'STEP - قراءة',
+        'step_grammar': 'STEP - قواعد',
+        'aramco_math': 'أرامكو - رياضيات ومنطق',
+        'cognitive_verbal': 'قدرة معرفية - لفظي',
+        'cognitive_spatial': 'قدرة معرفية - مكاني',
+        'ielts_vocab': 'أيلتس - مفردات وقواعد',
+        'school_primary': 'رياضيات مدرسية - ابتدائي',
+        'school_intermediate': 'رياضيات مدرسية - متوسط',
+        'school_secondary': 'رياضيات مدرسية - ثانوي'
+      };
+
       const savePayload = {
+        track: track,
         section: sec,
-        section_ar: sec === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي',
+        section_ar: secTitleMap[sec] || 'القسم المخصص',
         topic: topic,
         question: qText,
         options: opts,
@@ -8497,7 +8944,7 @@ ${questionStem}
         explanation: expl || 'شرح نموذجي للمسألة.',
         speed_rule: speed || 'استراتيجية الحل السريع.',
         level: assignedLevel,
-        difficulty: 'متوسط',
+        difficulty: diffVal,
         has_visual: isGeom || !!optimizedImage
       };
 
