@@ -132,26 +132,26 @@
       }
     }
     /* ==================== PREVENT OVERLAPPING & ENHANCE PERFORMANCE ==================== */
-    /* 1. Strict Tab Isolation */
+    /* 1. Strict Tab Isolation - عزل تام بين الأقسام */
     .tab-pane.hidden {
       display: none !important;
-      visibility: hidden !important;
-      height: 0 !important;
-      overflow: hidden !important;
     }
     .tab-pane {
       width: 100%;
       position: relative;
       clear: both;
+      /* عزل layout داخل القسم النشط فقط */
+      contain: layout style paint;
     }
 
-    /* 2. Prevent CSS Grid Items from expanding out of column boundaries & overlapping */
+
+    /* 2. Prevent CSS Grid Items from expanding out of column boundaries */
     .grid > * {
-      min-width: 0 !important;
-      max-width: 100% !important;
+      min-width: 0;
+      max-width: 100%;
     }
 
-    /* 3. Constrain MathJax equations so long formulas scroll smoothly inside cards */
+    /* 3. Constrain MathJax equations so long formulas scroll inside cards */
     mjx-container {
       display: inline-block !important;
       margin: 0 4px !important;
@@ -161,7 +161,6 @@
       max-width: 100% !important;
       overflow-x: auto !important;
       overflow-y: hidden !important;
-      text-align: center !important;
     }
     mjx-container[jax="CHTML"][display="true"] {
       display: block !important;
@@ -171,12 +170,8 @@
       overflow-x: auto !important;
     }
 
-    /* 4. GPU Acceleration & Fast Rendering */
-    .tab-pane {
-      content-visibility: auto;
-    }
-
     /* Custom Scrollbar */
+
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
@@ -3655,9 +3650,23 @@
       }
     }
 
+    // تحويل الأرقام الإنجليزية إلى عربية خارج نطاق معادلات LaTeX ($...$)
+    // يُطبَّق فقط على: quantitative, school_primary, school_intermediate
+    const ARABIC_SECTIONS = ['quantitative', 'school_primary', 'school_intermediate'];
+    function arabicizeNums(text, section) {
+      if (!section || !ARABIC_SECTIONS.includes(section)) return text;
+      // نقسّم على أجزاء $...$ ونحوّل الأرقام فقط في الأجزاء غير-المعادلات
+      return text.replace(/(\$[^$]*\$|[0-9])/g, (m) => {
+        if (m.startsWith('$')) return m; // معادلة MathJax — اتركها كما هي
+        return '٠١٢٣٤٥٦٧٨٩'[parseInt(m)];
+      });
+    }
+
     // تنسيق ذكي لأسئلة المقارنات والمسائل الرياضية للفصل التام بين القيمتين وعرض الرسوم الهندسية
     function renderQuestionDisplay(q) {
-      const text = q.question || '';
+      const section = q.section || 'quantitative';
+      const rawText = q.question || '';
+      const text = arabicizeNums(rawText, section);
       let textHtml = '';
 
       if (text.includes('القيمة الأولى') && text.includes('القيمة الثانية')) {
@@ -3783,7 +3792,7 @@
           <button onclick="handleAnswerSelect(${idx})" class="${btnClass}">
             <div class="flex items-center gap-3">
               <span class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-black text-slate-600">${letters[idx]}</span>
-              <span class="text-base">${opt}</span>
+              <span class="text-base">${arabicizeNums(opt, q.section)}</span>
             </div>
             ${(activeTest.mode === 'practice' && answered && idx === q.correct_index) ? '<span class="text-emerald-600 font-bold text-xs">✓ إجابة صحيحة</span>' : ''}
             ${(activeTest.mode === 'practice' && answered && idx === userChoice && idx !== q.correct_index) ? '<span class="text-rose-600 font-bold text-xs">✕ إجابة خاطئة</span>' : ''}
@@ -4483,7 +4492,7 @@
           <button onclick="handleSimulatorAnswer(${idx})" class="w-full text-right p-4 rounded-2xl border transition-all text-sm font-bold flex items-center justify-between ${isSelected ? 'bg-sky-50 border-sky-600 text-sky-900 ring-2 ring-sky-500/30' : 'bg-white border-slate-200 text-slate-800 hover:border-sky-300 hover:bg-slate-50/60'}">
             <div class="flex items-center gap-3">
               <span class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-black text-slate-700">${letters[idx]}</span>
-              <span class="text-base">${opt}</span>
+              <span class="text-base">${arabicizeNums(opt, q.section)}</span>
             </div>
             ${isSelected ? '<span class="text-sky-600 font-bold text-xs">✓ اختيارك</span>' : ''}
           </button>
