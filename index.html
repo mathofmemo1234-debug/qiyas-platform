@@ -136,50 +136,13 @@
       display: inline-block !important;
       margin: 0 4px !important;
       vertical-align: middle;
+      direction: ltr !important;
       text-align: center !important;
     }
     mjx-container[jax="CHTML"][display="true"] {
       display: block !important;
       text-align: center !important;
       margin: 0.8em auto !important;
-    }
-
-    /* ==================== RADICAL DIRECTION: ARABIC (RTL) vs ENGLISH (LTR) ==================== */
-    /* Arabic Math Radical (Right-to-Left Root Symbol for Quantitative & Primary/Intermediate Math) */
-    .arabic-math mjx-sqrt,
-    .section-quantitative mjx-sqrt,
-    .section-school_primary mjx-sqrt,
-    .section-school_intermediate mjx-sqrt,
-    #foundation-levels-container mjx-sqrt,
-    #admin-foundation-levels-container mjx-sqrt {
-      transform: scaleX(-1);
-      display: inline-block;
-      direction: ltr;
-    }
-
-    .arabic-math mjx-sqrt > *,
-    .section-quantitative mjx-sqrt > *,
-    .section-school_primary mjx-sqrt > *,
-    .section-school_intermediate mjx-sqrt > *,
-    #foundation-levels-container mjx-sqrt > *,
-    #admin-foundation-levels-container mjx-sqrt > * {
-      transform: scaleX(-1);
-      display: inline-block;
-    }
-
-    /* English / Tahsili / Secondary Math Radical (Left-to-Right Root Symbol) */
-    .english-math mjx-sqrt,
-    .section-tahsili_math mjx-sqrt,
-    .section-school_secondary mjx-sqrt,
-    .section-aramco_math mjx-sqrt {
-      transform: none !important;
-    }
-
-    .english-math mjx-sqrt > *,
-    .section-tahsili_math mjx-sqrt > *,
-    .section-school_secondary mjx-sqrt > *,
-    .section-aramco_math mjx-sqrt > * {
-      transform: none !important;
     }
 
     /* Custom Scrollbar */
