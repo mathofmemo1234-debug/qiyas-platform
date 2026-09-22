@@ -3203,6 +3203,13 @@
       setFoundationSubTab(section === 'quantitative' ? 'quant' : 'verb');
     }
 
+    function formatArabicMathText(str) {
+      if (!str || typeof str !== 'string') return str || '';
+      return str.replace(/\$([^\$]+)\$/g, (m, math) => {
+        return `<span dir="ltr" class="inline-math-box" style="display:inline-block; unicode-bidi:isolate; direction:ltr;">$${math}$</span>`;
+      });
+    }
+
     function renderFoundation() {
       const container = document.getElementById('foundation-levels-container');
       if (!container) return;
@@ -3296,9 +3303,9 @@
                   rule: ''
                 } : (t || {});
                 const tName = tObj.name || tObj.title || 'موضوع تأسيسي';
-                const tSummary = tObj.summary || tObj.description || '';
-                const tExample = tObj.example || '';
-                const tRule = tObj.rule || '';
+                const tSummary = formatArabicMathText(tObj.summary || tObj.description || '');
+                const tExample = formatArabicMathText(tObj.example || '');
+                const tRule = formatArabicMathText(tObj.rule || '');
                 const tSvg = tObj.diagram_svg || '';
 
                 return `
