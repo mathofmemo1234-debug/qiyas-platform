@@ -131,18 +131,49 @@
         user-select: text;
       }
     }
-    /* توجيه الرياضيات والمعادلات بشكل سليم هندسياً داخل النص العربي */
+    /* ==================== PREVENT OVERLAPPING & ENHANCE PERFORMANCE ==================== */
+    /* 1. Strict Tab Isolation */
+    .tab-pane.hidden {
+      display: none !important;
+      visibility: hidden !important;
+      height: 0 !important;
+      overflow: hidden !important;
+    }
+    .tab-pane {
+      width: 100%;
+      position: relative;
+      clear: both;
+    }
+
+    /* 2. Prevent CSS Grid Items from expanding out of column boundaries & overlapping */
+    .grid > * {
+      min-width: 0 !important;
+      max-width: 100% !important;
+    }
+
+    /* 3. Constrain MathJax equations so long formulas scroll smoothly inside cards */
     mjx-container {
       display: inline-block !important;
       margin: 0 4px !important;
       vertical-align: middle;
       direction: ltr !important;
+      unicode-bidi: isolate !important;
+      max-width: 100% !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
       text-align: center !important;
     }
     mjx-container[jax="CHTML"][display="true"] {
       display: block !important;
       text-align: center !important;
       margin: 0.8em auto !important;
+      max-width: 100% !important;
+      overflow-x: auto !important;
+    }
+
+    /* 4. GPU Acceleration & Fast Rendering */
+    .tab-pane {
+      content-visibility: auto;
     }
 
     /* Custom Scrollbar */
@@ -3357,9 +3388,22 @@
       });
 
       container.innerHTML = html;
-      if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise([container]);
-      }
+      safeTypesetMath(container);
+    }
+
+    let _mathjaxTypesetTimer = null;
+    function safeTypesetMath(container) {
+      if (!window.MathJax || !MathJax.typesetPromise) return;
+      const target = container || document.body;
+      if (_mathjaxTypesetTimer) clearTimeout(_mathjaxTypesetTimer);
+      _mathjaxTypesetTimer = setTimeout(() => {
+        try {
+          const html = target.innerHTML || '';
+          if (html.includes('$') || (target.querySelector && target.querySelector('mjx-container'))) {
+            MathJax.typesetPromise([target]).catch(() => {});
+          }
+        } catch(e) {}
+      }, 30);
     }
 
     function startLevelPractice(section, level) {
@@ -3885,9 +3929,7 @@
       `;
 
       if (activeTest.mode === 'exam') updateTimerDisplay();
-      if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise([container]);
-      }
+      safeTypesetMath(container);
     }
 
     function handleAnswerSelect(idx) {
@@ -4604,9 +4646,7 @@
       `;
 
       updateTimerDisplay();
-      if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise([container]);
-      }
+      safeTypesetMath(container);
     }
 
     function handleSimulatorAnswer(idx) {
@@ -4948,9 +4988,7 @@
         </div>
       `;
 
-      if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise([container]);
-      }
+      safeTypesetMath(container);
     }
 
     // ================= MISTAKES NOTEBOOK =================
@@ -5017,9 +5055,7 @@
         </div>
       `).join('');
 
-      if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise([container]);
-      }
+      safeTypesetMath(container);
     }
 
     function removeMistake(id) {
@@ -6420,9 +6456,7 @@
         </div>
       `).join('');
 
-      if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise([container]);
-      }
+      safeTypesetMath(container);
     }
 
     function filterAdminQuestions() {
@@ -6529,9 +6563,7 @@
       `;
 
       document.getElementById('preview-modal').classList.remove('hidden');
-      if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise([content]);
-      }
+      safeTypesetMath(content);
     }
 
     async function saveNewQuestionFromModal() {
@@ -6771,9 +6803,7 @@
       `;
 
       document.getElementById('preview-modal').classList.remove('hidden');
-      if (window.MathJax && MathJax.typesetPromise) {
-        MathJax.typesetPromise([content]);
-      }
+      safeTypesetMath(content);
     }
 
     function closePreviewModal() {
