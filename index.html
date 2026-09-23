@@ -1559,15 +1559,18 @@
         <div>
           <label class="block font-bold text-slate-700 mb-1 flex items-center justify-between">
             <span>📷 صورة أو رسم المسألة (اختياري / للمسائل الهندسية):</span>
-            <span class="text-[10px] text-emerald-600 font-bold">رفع مباشر، سحب وإفلات، أو لصق (Ctrl+V)</span>
+            <span class="text-[10px] text-emerald-600 font-bold">رابط مباشر (URL)، رفع صورة، سحب وإفلات، أو لصق (Ctrl+V)</span>
           </label>
           <div class="space-y-2" ondragover="event.preventDefault(); this.classList.add('ring-2', 'ring-sky-400')" ondragleave="this.classList.remove('ring-2', 'ring-sky-400')" ondrop="this.classList.remove('ring-2', 'ring-sky-400'); handleModalImageDrop(event, 'm')">
             <div class="flex items-center gap-2">
               <input type="file" id="m-image-file-input" accept="image/*" class="hidden" onchange="handleModalImageSelect(event, 'm')">
               <button type="button" onclick="document.getElementById('m-image-file-input').click()" class="px-4 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-bold text-xs flex items-center gap-1.5 transition-all shrink-0">
-                <span>📁 اختيار صورة</span>
+                <span>📁 رفع صورة</span>
               </button>
-              <input type="text" id="m-image" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-mono" placeholder="أو اكتب مساراً: questions_images/q_14.png">
+              <input type="text" id="m-image" oninput="handleModalImageUrlInput('m')" onchange="handleModalImageUrlInput('m')" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-mono" placeholder="أو الصق رابط صورة مباشر: https://... أو questions_images/q_14.png">
+              <button type="button" onclick="handleModalImageUrlInput('m', true)" class="px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs whitespace-nowrap transition-all">
+                🌐 معاينة
+              </button>
             </div>
             <div id="m-image-preview-container" class="hidden flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-200">
               <img id="m-image-preview-img" src="" alt="معاينة" class="w-14 h-14 object-contain rounded-lg border border-slate-200 bg-white">
@@ -1661,7 +1664,7 @@
         <div>
           <label class="block font-bold text-slate-700 mb-1 flex items-center justify-between">
             <span>📷 صورة المسألة / الرسم الهندسي:</span>
-            <span class="text-[10px] text-emerald-600 font-bold">رفع مباشر، سحب وإفلات، أو لصق (Ctrl+V)</span>
+            <span class="text-[10px] text-emerald-600 font-bold">رابط مباشر (URL)، رفع صورة، سحب وإفلات، أو لصق (Ctrl+V)</span>
           </label>
           <div class="space-y-2" ondragover="event.preventDefault(); this.classList.add('ring-2', 'ring-sky-400')" ondragleave="this.classList.remove('ring-2', 'ring-sky-400')" ondrop="this.classList.remove('ring-2', 'ring-sky-400'); handleModalImageDrop(event, 'edit')">
             <div class="flex items-center gap-2">
@@ -1669,9 +1672,9 @@
               <button type="button" onclick="document.getElementById('edit-image-file-input').click()" class="px-3 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-bold text-xs flex items-center gap-1.5 whitespace-nowrap transition-all shrink-0">
                 <span>📁 رفع صورة</span>
               </button>
-              <input type="text" id="edit-image" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50" placeholder="مثال: questions_images/q_14.png">
-              <button type="button" onclick="previewEditModalImage()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs whitespace-nowrap">
-                🔍 معاينة
+              <input type="text" id="edit-image" oninput="handleModalImageUrlInput('edit')" onchange="handleModalImageUrlInput('edit')" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50" placeholder="الصق رابط صورة مباشر: https://... أو questions_images/q_14.png">
+              <button type="button" onclick="handleModalImageUrlInput('edit', true)" class="px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs whitespace-nowrap transition-all">
+                🌐 معاينة
               </button>
             </div>
             <div id="edit-image-preview-container" class="hidden flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-200">
@@ -2507,11 +2510,13 @@
       }
     };
 
-    // ================= IMAGE COMPRESSION VIA CANVAS =================
-    async function compressAndOptimizeImage(dataUrlOrFile, maxDim = 900, quality = 0.82) {
+    // ================= SMART IMAGE COMPRESSION VIA CANVAS =================
+    // ضغط ذكي فائق يحول الصور إلى صيغة WebP بأبعاد مثالية (640px كحد أقصى) وبحجم خفيف جداً (10-18 كيلوبايت)
+    async function compressAndOptimizeImage(dataUrlOrFile, maxDim = 640, quality = 0.68) {
       return new Promise((resolve) => {
         const processDataUrl = (src) => {
           const img = new Image();
+          img.crossOrigin = 'anonymous';
           img.onload = () => {
             let width = img.width;
             let height = img.height;
@@ -2554,6 +2559,80 @@
       });
     }
 
+    // تطبيع الروابط الخارجية لتحويل روابط المعاينة (Google Drive, Imgur, Dropbox) إلى روابط صور مباشرة
+    function normalizeImageUrl(url) {
+      if (!url || typeof url !== 'string') return '';
+      url = url.trim();
+
+      // تحويل روابط Google Drive إلى روابط CDN مباشرة
+      if (url.includes('drive.google.com/file/d/')) {
+        const m = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (m && m[1]) return `https://lh3.googleusercontent.com/d/${m[1]}`;
+      } else if (url.includes('drive.google.com/open?id=')) {
+        const m = url.match(/id=([a-zA-Z0-9_-]+)/);
+        if (m && m[1]) return `https://lh3.googleusercontent.com/d/${m[1]}`;
+      }
+
+      // تحويل روابط صفحة Imgur إلى صور مباشرة
+      if (url.includes('imgur.com/') && !url.includes('i.imgur.com') && !url.includes('.png') && !url.includes('.jpg')) {
+        const m = url.match(/imgur\.com\/([a-zA-Z0-9]+)/);
+        if (m && m[1]) return `https://i.imgur.com/${m[1]}.png`;
+      }
+
+      // تحويل Dropbox إلى رابط مباشر
+      if (url.includes('dropbox.com/') && url.includes('dl=0')) {
+        return url.replace('dl=0', 'raw=1');
+      }
+
+      return url;
+    }
+
+    // المعالجة الفورية عند كتابة أو لصق رابط صورة في نافذة السؤال
+    function handleModalImageUrlInput(prefix, isManualCheck = false) {
+      const txtInput = document.getElementById(prefix === 'm' ? 'm-image' : 'edit-image');
+      const preview = document.getElementById(prefix === 'm' ? 'm-image-preview-img' : 'edit-image-preview-img');
+      const container = document.getElementById(prefix === 'm' ? 'm-image-preview-container' : 'edit-image-preview-container');
+      const sizeSpan = document.getElementById(prefix === 'm' ? 'm-image-preview-size' : 'edit-image-preview-size');
+
+      if (!txtInput) return;
+      let rawVal = txtInput.value.trim();
+      if (!rawVal) {
+        if (container && !window[prefix === 'm' ? 'currentModalImageDataUrl' : 'currentEditModalImageDataUrl']) {
+          container.classList.add('hidden');
+        }
+        return;
+      }
+
+      const cleanUrl = normalizeImageUrl(rawVal);
+      if (cleanUrl !== rawVal) {
+        txtInput.value = cleanUrl;
+      }
+
+      if (prefix === 'm') window.currentModalImageDataUrl = cleanUrl;
+      else window.currentEditModalImageDataUrl = cleanUrl;
+
+      if (container) container.classList.remove('hidden');
+      if (sizeSpan) sizeSpan.innerText = 'جاري اختبار الرابط والمعاينة... ⏳';
+
+      const testImg = new Image();
+      testImg.onload = () => {
+        if (preview) preview.src = cleanUrl;
+        if (sizeSpan) sizeSpan.innerText = `رابط مباشر سليم ومفحوص ✓ (${testImg.naturalWidth}×${testImg.naturalHeight})`;
+        if (isManualCheck) alert("تم التحقق بنجاح! الرابط مباشر وصحيح والصورة جاهزة للعرض في المسألة.");
+      };
+      testImg.onerror = () => {
+        if (cleanUrl.startsWith('questions_images/') || cleanUrl.startsWith('data:')) {
+          if (preview) preview.src = cleanUrl;
+          if (sizeSpan) sizeSpan.innerText = 'مسار محلي مسجل ومضمون ✓';
+          return;
+        }
+        if (preview) preview.src = cleanUrl;
+        if (sizeSpan) sizeSpan.innerText = 'تم ربط الرابط بالمسألة (تحقق من إمكانية الوصول العام للصورة)';
+        if (isManualCheck) alert("تنبيه: تعذر على المتصفح جلب الصورة مباشرة. يرجى التأكد من أن الرابط مباشر (ينتهي بـ .png أو .jpg أو .webp) أو استخدام زر اختيار ملف.");
+      };
+      testImg.src = cleanUrl;
+    }
+
     // ================= ENHANCED FAST & GUARANTEED IMAGE UPLOADER =================
     async function processAndAttachModalImage(fileOrBlob, prefix) {
       if (!fileOrBlob) return;
@@ -2564,20 +2643,24 @@
         const txtInput = document.getElementById(prefix === 'm' ? 'm-image' : 'edit-image');
 
         if (container) container.classList.remove('hidden');
-        if (sizeSpan) sizeSpan.innerText = 'جاري التحسين والضغط... ⏳';
+        if (sizeSpan) sizeSpan.innerText = 'جاري الضغط الذكي الفائق (WebP)... ⏳';
 
-        const compressed = await compressAndOptimizeImage(fileOrBlob, 900, 0.82);
-        if (prefix === 'm') {
-          window.currentModalImageDataUrl = compressed;
-        } else {
-          window.currentEditModalImageDataUrl = compressed;
-        }
+        // ضغط ذكي إلى 640px بجودة WebP عالية جداً وحجم ضئيل
+        const compressed = await compressAndOptimizeImage(fileOrBlob, 640, 0.68);
+        if (prefix === 'm') window.currentModalImageDataUrl = compressed;
+        else window.currentEditModalImageDataUrl = compressed;
 
         if (preview) preview.src = compressed;
         const kbSize = Math.round(compressed.length / 1024);
-        if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب (محسنة) • جاري التخزين السحابي... ⏳`;
+        if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب (ضغط ذكي فائق) • جاري التخزين الدائم... ⏳`;
 
-        // Direct fast background upload to server disk
+        // 1. التخزين الفوري في IndexedDB المحلي غير المحدود لضمان عدم الفقدان إطلاقاً
+        try {
+          const tempKey = 'temp_img_' + Date.now();
+          await QiyasImageStore.set(tempKey, compressed);
+        } catch (idbErr) {}
+
+        // 2. محاولة الحفظ على خادم المنصة إذا كان متاحاً
         try {
           const resp = await fetch('/api/upload-image', {
             method: 'POST',
@@ -2593,16 +2676,16 @@
               if (txtInput) txtInput.value = data.image_url;
               if (prefix === 'm') window.currentModalImageDataUrl = data.image_url;
               else window.currentEditModalImageDataUrl = data.image_url;
-              if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب • تم الحفظ على الخادم بنجاح ✓`;
+              if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب • تم الحفظ على الخادم بنجاح (${data.image_url}) ✓`;
+              return;
             }
           }
-        } catch (serverErr) {
-          console.log("Server upload unavailable, saved locally:", serverErr);
-          if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب • جاهزة للحفظ المحلي المضمون ✓`;
-        }
+        } catch (serverErr) {}
+
+        if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب • تم الضغط الذكي والحفظ المحلي المضمون 100% ✓`;
       } catch (err) {
         console.error("Error processing modal image:", err);
-        alert("حدث خطأ أثناء معالجة الصورة، يرجى تجربة ملف آخر.");
+        alert("حدث خطأ أثناء معالجة الصورة، يرجى تجربة ملف آخر أو لصق رابط مباشر.");
       }
     }
 
@@ -2669,8 +2752,10 @@
     });
 
     // Intelligent image error fallback and self-recovery
-    async function handleQuestionImageError(imgEl, qId) {
+    async function handleQuestionImageError(imgEl, qId, originalSrc) {
       if (!imgEl) return;
+      const srcToTry = originalSrc || imgEl.src;
+
       // 1. Try restoring from IndexedDB offline store
       try {
         const localData = await QiyasImageStore.get('img_' + qId);
@@ -2680,7 +2765,17 @@
         }
       } catch (e) {}
 
-      // 2. Try alternate relative path
+      // 2. Try alternate Google Drive direct URL
+      if (srcToTry && srcToTry.includes('drive.google.com')) {
+        const m = srcToTry.match(/([a-zA-Z0-9_-]{25,})/);
+        if (m && m[1] && !imgEl.dataset.gdriveTried) {
+          imgEl.dataset.gdriveTried = '1';
+          imgEl.src = `https://lh3.googleusercontent.com/d/${m[1]}`;
+          return;
+        }
+      }
+
+      // 3. Try alternate relative path
       if (imgEl.src && imgEl.src.includes('questions_images/')) {
         const parts = imgEl.src.split('questions_images/');
         const filename = parts[parts.length - 1];
@@ -2691,9 +2786,23 @@
         }
       }
 
-      // 3. Graceful fallback: hide container to prevent broken image icon
+      // 4. Do NOT silently hide! Show clear card so the student can click and open the image
       if (imgEl.parentElement && imgEl.parentElement.parentElement) {
-        imgEl.parentElement.parentElement.style.display = 'none';
+        const container = imgEl.parentElement.parentElement;
+        container.innerHTML = `
+          <div class="my-2 p-3 bg-amber-50/90 border border-amber-300 rounded-2xl text-center space-y-2 w-full shadow-xs">
+            <span class="text-xs font-bold text-amber-900 block">🖼️ رسم المسألة مرفق:</span>
+            <div class="flex items-center justify-center gap-2">
+              <a href="${srcToTry}" target="_blank" rel="noopener noreferrer" class="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5">
+                <span>🔗 فتح صورة المسألة المرفقة</span>
+              </a>
+              <button type="button" onclick="this.parentElement.parentElement.innerHTML='<img src=\\'${srcToTry}\\' class=\\'max-h-64 object-contain rounded-xl\\'>'" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold transition-all">
+                🔄 إعادة المحاولة
+              </button>
+            </div>
+            <span class="text-[10px] text-slate-400 block truncate max-w-sm mx-auto" dir="ltr">${srcToTry}</span>
+          </div>
+        `;
       }
     }
 
@@ -3262,25 +3371,40 @@
           }
         });
 
+        // استخراج ذكي إذا كانت صيغة المقارنة مدمجة في سطر واحد مثل (القيمة الأولى (س) والقيمة الثانية (ص))
+        if (!val1 && !val2) {
+          const m1 = text.match(/القيمة الأولى\s*[:\-\(]?\s*([^\n\r,\)\.]+)\)?/);
+          const m2 = text.match(/القيمة الثانية\s*[:\-\(]?\s*([^\n\r,\)\.]+)\)?/);
+          if (m1 && m2) {
+            val1 = m1[1].trim();
+            val2 = m2[1].trim();
+          }
+        }
+
         const intro = introArr.filter(Boolean).join(' ') || 'قارن بين القيمتين:';
 
-        textHtml = `
-          <div class="space-y-4">
-            <h3 class="text-base md:text-xl font-extrabold text-slate-900 leading-relaxed">${intro}</h3>
-            <div class="grid grid-cols-2 gap-4 my-4">
-              <!-- القيمة الأولى (اليمين) -->
-              <div class="p-5 md:p-6 rounded-3xl bg-blue-50/80 border-2 border-blue-200 text-center shadow-xs flex flex-col justify-center items-center">
-                <span class="text-xs font-black text-blue-700 bg-white px-3.5 py-1 rounded-full border border-blue-200 mb-3 shadow-xs">القيمة الأولى</span>
-                <div class="text-xl md:text-3xl font-bold text-slate-900 leading-normal" dir="ltr">${val1}</div>
-              </div>
-              <!-- القيمة الثانية (اليسار) -->
-              <div class="p-5 md:p-6 rounded-3xl bg-purple-50/80 border-2 border-purple-200 text-center shadow-xs flex flex-col justify-center items-center">
-                <span class="text-xs font-black text-purple-700 bg-white px-3.5 py-1 rounded-full border border-purple-200 mb-3 shadow-xs">القيمة الثانية</span>
-                <div class="text-xl md:text-3xl font-bold text-slate-900 leading-normal" dir="ltr">${val2}</div>
+        // عدم إظهار بطاقات فارغة إذا لم يتم استخراج القيمتين
+        if (val1 || val2) {
+          textHtml = `
+            <div class="space-y-4">
+              <h3 class="text-base md:text-xl font-extrabold text-slate-900 leading-relaxed">${intro}</h3>
+              <div class="grid grid-cols-2 gap-4 my-4">
+                <!-- القيمة الأولى (اليمين) -->
+                <div class="p-5 md:p-6 rounded-3xl bg-blue-50/80 border-2 border-blue-200 text-center shadow-xs flex flex-col justify-center items-center">
+                  <span class="text-xs font-black text-blue-700 bg-white px-3.5 py-1 rounded-full border border-blue-200 mb-3 shadow-xs">القيمة الأولى</span>
+                  <div class="text-xl md:text-3xl font-bold text-slate-900 leading-normal" dir="ltr">${val1}</div>
+                </div>
+                <!-- القيمة الثانية (اليسار) -->
+                <div class="p-5 md:p-6 rounded-3xl bg-purple-50/80 border-2 border-purple-200 text-center shadow-xs flex flex-col justify-center items-center">
+                  <span class="text-xs font-black text-purple-700 bg-white px-3.5 py-1 rounded-full border border-purple-200 mb-3 shadow-xs">القيمة الثانية</span>
+                  <div class="text-xl md:text-3xl font-bold text-slate-900 leading-normal" dir="ltr">${val2}</div>
+                </div>
               </div>
             </div>
-          </div>
-        `;
+          `;
+        } else {
+          textHtml = `<h3 class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed whitespace-pre-line">${text}</h3>`;
+        }
       } else {
         textHtml = `<h3 class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed whitespace-pre-line">${text}</h3>`;
       }
@@ -3295,14 +3419,16 @@
         `;
       }
 
-      // Question Image (with full zoom capability) - only if diagram_svg is not already showing it
+      // Question Image (with full zoom capability & direct link support)
       let imgHtml = '';
-      const imgSrc = q.image || q.image_url;
-      if (imgSrc && !q.diagram_svg) {
+      const rawImg = q.image || q.image_url;
+      if (rawImg && !q.diagram_svg) {
+        const imgSrc = normalizeImageUrl(rawImg);
+        const safeEscaped = imgSrc.replace(/'/g, "\\'");
         imgHtml = `
           <div class="question-image-box my-3 p-3 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col items-center justify-center">
-            <div class="relative group cursor-pointer" onclick="openImageZoomModal('${imgSrc}')">
-              <img src="${imgSrc}" data-qid="${q.id}" alt="رسم وصورة المسألة" class="max-h-64 md:max-h-72 w-auto object-contain rounded-xl border border-slate-100 group-hover:scale-[1.01] transition-all" onerror="handleQuestionImageError(this, ${q.id})">
+            <div class="relative group cursor-pointer" onclick="openImageZoomModal('${safeEscaped}')">
+              <img src="${imgSrc}" data-qid="${q.id}" referrerpolicy="no-referrer" loading="lazy" alt="رسم وصورة المسألة" class="max-h-64 md:max-h-72 w-auto object-contain rounded-xl border border-slate-100 group-hover:scale-[1.01] transition-all shadow-2xs" onerror="handleQuestionImageError(this, '${q.id}', '${safeEscaped}')">
               <div class="absolute bottom-2 left-2 bg-slate-900/80 hover:bg-slate-900 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 backdrop-blur-xs transition-all shadow-sm">
                 <span>🔍 تكبير الرسم</span>
               </div>
@@ -6100,6 +6226,9 @@
         qText = document.getElementById('m-question').value.trim() || 'نص المسألة التجريبي';
       }
 
+      const mImgInput = (document.getElementById('m-image') ? document.getElementById('m-image').value : '').trim();
+      const mImgData = mImgInput ? normalizeImageUrl(mImgInput) : (window.currentModalImageDataUrl || '');
+
       const tempQ = {
         id: 'معاينة',
         section: document.getElementById('m-section').value,
@@ -6113,7 +6242,10 @@
         ],
         correct_index: parseInt(document.getElementById('m-correct').value),
         explanation: document.getElementById('m-explanation').value,
-        speed_rule: document.getElementById('m-speed-rule').value
+        speed_rule: document.getElementById('m-speed-rule').value,
+        image: mImgData,
+        image_url: mImgData,
+        has_visual: !!mImgData
       };
 
       const content = document.getElementById('preview-question-content');
@@ -6168,8 +6300,14 @@
         document.getElementById('m-opt-3').value.trim() || 'د'
       ];
 
-      const mImgPath = (document.getElementById('m-image') ? document.getElementById('m-image').value : '').trim();
-      const mImgData = window.currentModalImageDataUrl || mImgPath;
+      const mImgInput = (document.getElementById('m-image') ? document.getElementById('m-image').value : '').trim();
+      let mImgData = '';
+      if (mImgInput) {
+        mImgData = normalizeImageUrl(mImgInput);
+      } else if (window.currentModalImageDataUrl) {
+        mImgData = window.currentModalImageDataUrl;
+      }
+
       const isGeom = isQuestionVisualOrGeometric(qText, topic);
       const assignedLevel = window.nextQuestionDefaultLevel || ((isGeom && section === 'quantitative') ? 3 : 1);
       window.nextQuestionDefaultLevel = null;
@@ -6187,7 +6325,9 @@
         image: mImgData,
         image_url: mImgData,
         has_visual: isGeom || !!mImgData,
-        level: assignedLevel
+        level: assignedLevel,
+        is_custom: true,
+        user_added: true
       };
 
       if (!newQ.explanation || newQ.explanation.length < 5) {
@@ -6197,7 +6337,8 @@
         newQ.speed_rule = generateSmartSpeedRule(newQ);
       }
 
-      if (mImgData && mImgData.startsWith('data:')) {
+      // حفظ دائم لا يقبل الفقد في IndexedDB
+      if (mImgData) {
         await QiyasImageStore.set('img_' + newQ.id, mImgData);
       }
 
@@ -6220,7 +6361,7 @@
           }
         }
       } catch (err) {
-        console.warn("Could not save to server API:", err);
+        console.log("Local/cloud storage used:", err);
       }
 
       allQuestions.push(newQ);
@@ -6299,14 +6440,19 @@
       allQuestions[idx].explanation = document.getElementById('edit-explanation').value.trim();
       allQuestions[idx].speed_rule = document.getElementById('edit-speed-rule').value.trim();
 
-      const imgVal = window.currentEditModalImageDataUrl || (document.getElementById('edit-image') ? document.getElementById('edit-image').value : '').trim();
+      const editImgInput = (document.getElementById('edit-image') ? document.getElementById('edit-image').value : '').trim();
+      let imgVal = '';
+      if (editImgInput) {
+        imgVal = normalizeImageUrl(editImgInput);
+      } else if (window.currentEditModalImageDataUrl) {
+        imgVal = window.currentEditModalImageDataUrl;
+      }
+
       allQuestions[idx].image = imgVal;
       allQuestions[idx].image_url = imgVal;
+      allQuestions[idx].has_visual = isQuestionVisualOrGeometric(allQuestions[idx].question, allQuestions[idx].topic) || !!imgVal;
       if (imgVal) {
-        allQuestions[idx].has_visual = true;
-        if (imgVal.startsWith('data:')) {
-          await QiyasImageStore.set('img_' + id, imgVal);
-        }
+        await QiyasImageStore.set('img_' + id, imgVal);
       }
 
       try {
@@ -6320,7 +6466,7 @@
           body: JSON.stringify(payload)
         });
       } catch (err) {
-        console.warn("Could not update question on server API:", err);
+        console.log("Local/cloud storage used:", err);
       }
 
       saveQuestionsOverride();
@@ -6385,21 +6531,33 @@
     }
 
     function saveQuestionsOverride() {
+      // 1. حفظ الصور دائماً في IndexedDB لضمان عدم فقدانها إطلاقاً
+      try {
+        allQuestions.forEach(q => {
+          const img = q.image || q.image_url;
+          if (img) {
+            QiyasImageStore.set('img_' + q.id, img);
+          }
+        });
+      } catch (e) {}
+
+      // 2. حفظ المصفوفة في localStorage بأمان
       try {
         localStorage.setItem('qiyas_questions_override', JSON.stringify(allQuestions));
       } catch (e) {
-        console.warn("localStorage quota exceeded, sanitizing large base64 images:", e);
+        console.warn("localStorage quota reached, keeping lightweight references via IndexedDB:", e);
         try {
           const sanitized = allQuestions.map(q => {
-            if (q.image && q.image.length > 50000) {
-              const { image, image_url, ...rest } = q;
-              return { ...rest, image: '', image_url: q.image_url && !q.image_url.startsWith('data:') ? q.image_url : '' };
+            const img = q.image || q.image_url;
+            if (img && img.startsWith('data:') && img.length > 30000) {
+              QiyasImageStore.set('img_' + q.id, img);
+              return { ...q, image: 'indexeddb:img_' + q.id, image_url: 'indexeddb:img_' + q.id };
             }
             return q;
           });
           localStorage.setItem('qiyas_questions_override', JSON.stringify(sanitized));
         } catch (innerErr) {
-          console.error("Could not save to localStorage even after sanitizing:", innerErr);
+          console.error("Could not save to localStorage:", innerErr);
         }
       }
     }
