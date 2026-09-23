@@ -35,6 +35,7 @@ def save_base64_image(b64_str, prefix="q_img"):
     else:
         raw_b64 = b64_str
     try:
+        raw_b64 = raw_b64.strip()
         img_bytes = base64.b64decode(raw_b64)
         filename = f"{prefix}_{int(time.time()*1000)}{ext}"
         save_path = os.path.join(IMAGES_DIR, filename)
@@ -201,7 +202,28 @@ class QiyasHandler(SimpleHTTPRequestHandler):
         except Exception:
             body = {}
 
-        if parsed.path == '/api/save-question':
+        if parsed.path == '/api/upload-image':
+            try:
+                img_data = body.get('image_base64') or body.get('dataUrl') or body.get('image_data') or body.get('image')
+                prefix = body.get('prefix', 'q_img')
+                if not img_data:
+                    self.send_json_response({"error": "لم يتم إرسال بيانات الصورة"}, 400)
+                    return
+                saved_rel_path = save_base64_image(img_data, prefix=prefix)
+                if not saved_rel_path:
+                    self.send_json_response({"error": "فشل حفظ الصورة على القرص"}, 500)
+                    return
+                self.send_json_response({
+                    "success": True,
+                    "image_url": saved_rel_path,
+                    "image": saved_rel_path,
+                    "message": "تم حفظ الصورة بنجاح على الخادم في مجلد questions_images"
+                })
+            except Exception as e:
+                self.send_json_response({"error": str(e)}, 500)
+            return
+
+        elif parsed.path == '/api/save-question':
             try:
                 with open(QUESTIONS_FILE, 'r', encoding='utf-8') as f:
                     questions = json.load(f)

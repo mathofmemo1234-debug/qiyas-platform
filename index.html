@@ -1559,9 +1559,9 @@
         <div>
           <label class="block font-bold text-slate-700 mb-1 flex items-center justify-between">
             <span>📷 صورة أو رسم المسألة (اختياري / للمسائل الهندسية):</span>
-            <span class="text-[10px] text-slate-400 font-normal">رفع مباشر من الجهاز أو إدخال مسار</span>
+            <span class="text-[10px] text-emerald-600 font-bold">رفع مباشر، سحب وإفلات، أو لصق (Ctrl+V)</span>
           </label>
-          <div class="space-y-2">
+          <div class="space-y-2" ondragover="event.preventDefault(); this.classList.add('ring-2', 'ring-sky-400')" ondragleave="this.classList.remove('ring-2', 'ring-sky-400')" ondrop="this.classList.remove('ring-2', 'ring-sky-400'); handleModalImageDrop(event, 'm')">
             <div class="flex items-center gap-2">
               <input type="file" id="m-image-file-input" accept="image/*" class="hidden" onchange="handleModalImageSelect(event, 'm')">
               <button type="button" onclick="document.getElementById('m-image-file-input').click()" class="px-4 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-bold text-xs flex items-center gap-1.5 transition-all shrink-0">
@@ -1661,9 +1661,9 @@
         <div>
           <label class="block font-bold text-slate-700 mb-1 flex items-center justify-between">
             <span>📷 صورة المسألة / الرسم الهندسي:</span>
-            <span class="text-[10px] text-slate-400 font-normal">يضمن ظهور الرسم في بنك الأسئلة والاختبارات</span>
+            <span class="text-[10px] text-emerald-600 font-bold">رفع مباشر، سحب وإفلات، أو لصق (Ctrl+V)</span>
           </label>
-          <div class="space-y-2">
+          <div class="space-y-2" ondragover="event.preventDefault(); this.classList.add('ring-2', 'ring-sky-400')" ondragleave="this.classList.remove('ring-2', 'ring-sky-400')" ondrop="this.classList.remove('ring-2', 'ring-sky-400'); handleModalImageDrop(event, 'edit')">
             <div class="flex items-center gap-2">
               <input type="file" id="edit-image-file-input" accept="image/*" class="hidden" onchange="handleModalImageSelect(event, 'edit')">
               <button type="button" onclick="document.getElementById('edit-image-file-input').click()" class="px-3 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-bold text-xs flex items-center gap-1.5 whitespace-nowrap transition-all shrink-0">
@@ -2554,27 +2554,74 @@
       });
     }
 
+    // ================= ENHANCED FAST & GUARANTEED IMAGE UPLOADER =================
+    async function processAndAttachModalImage(fileOrBlob, prefix) {
+      if (!fileOrBlob) return;
+      try {
+        const preview = document.getElementById(prefix === 'm' ? 'm-image-preview-img' : 'edit-image-preview-img');
+        const container = document.getElementById(prefix === 'm' ? 'm-image-preview-container' : 'edit-image-preview-container');
+        const sizeSpan = document.getElementById(prefix === 'm' ? 'm-image-preview-size' : 'edit-image-preview-size');
+        const txtInput = document.getElementById(prefix === 'm' ? 'm-image' : 'edit-image');
+
+        if (container) container.classList.remove('hidden');
+        if (sizeSpan) sizeSpan.innerText = 'جاري التحسين والضغط... ⏳';
+
+        const compressed = await compressAndOptimizeImage(fileOrBlob, 900, 0.82);
+        if (prefix === 'm') {
+          window.currentModalImageDataUrl = compressed;
+        } else {
+          window.currentEditModalImageDataUrl = compressed;
+        }
+
+        if (preview) preview.src = compressed;
+        const kbSize = Math.round(compressed.length / 1024);
+        if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب (محسنة) • جاري التخزين السحابي... ⏳`;
+
+        // Direct fast background upload to server disk
+        try {
+          const resp = await fetch('/api/upload-image', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              image_base64: compressed,
+              prefix: prefix === 'm' ? 'q_new' : 'q_edit'
+            })
+          });
+          if (resp.ok) {
+            const data = await resp.json();
+            if (data.success && data.image_url) {
+              if (txtInput) txtInput.value = data.image_url;
+              if (prefix === 'm') window.currentModalImageDataUrl = data.image_url;
+              else window.currentEditModalImageDataUrl = data.image_url;
+              if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب • تم الحفظ على الخادم بنجاح ✓`;
+            }
+          }
+        } catch (serverErr) {
+          console.log("Server upload unavailable, saved locally:", serverErr);
+          if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب • جاهزة للحفظ المحلي المضمون ✓`;
+        }
+      } catch (err) {
+        console.error("Error processing modal image:", err);
+        alert("حدث خطأ أثناء معالجة الصورة، يرجى تجربة ملف آخر.");
+      }
+    }
+
     // Modal Image Selection Handler (for Add and Edit question modals)
     async function handleModalImageSelect(event, prefix) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const compressed = await compressAndOptimizeImage(file, 900, 0.82);
-      if (prefix === 'm') {
-        window.currentModalImageDataUrl = compressed;
-        const preview = document.getElementById('m-image-preview-img');
-        const container = document.getElementById('m-image-preview-container');
-        const sizeSpan = document.getElementById('m-image-preview-size');
-        if (preview) preview.src = compressed;
-        if (container) container.classList.remove('hidden');
-        if (sizeSpan) sizeSpan.innerText = `${Math.round(compressed.length / 1024)} كيلوبايت (محسنة)`;
-      } else if (prefix === 'edit') {
-        window.currentEditModalImageDataUrl = compressed;
-        const preview = document.getElementById('edit-image-preview-img');
-        const container = document.getElementById('edit-image-preview-container');
-        const sizeSpan = document.getElementById('edit-image-preview-size');
-        if (preview) preview.src = compressed;
-        if (container) container.classList.remove('hidden');
-        if (sizeSpan) sizeSpan.innerText = `${Math.round(compressed.length / 1024)} كيلوبايت (محسنة)`;
+      const file = event.target.files && event.target.files[0];
+      if (file) await processAndAttachModalImage(file, prefix);
+    }
+
+    // Drag and drop handlers
+    function handleModalImageDrop(event, prefix) {
+      event.preventDefault();
+      event.stopPropagation();
+      const dt = event.dataTransfer;
+      if (dt && dt.files && dt.files.length > 0) {
+        const file = dt.files[0];
+        if (file.type && file.type.startsWith('image/')) {
+          processAndAttachModalImage(file, prefix);
+        }
       }
     }
 
@@ -2598,6 +2645,58 @@
       }
     }
 
+    // Direct Clipboard Paste (Ctrl+V) for instant screenshot pasting
+    document.addEventListener('paste', async (e) => {
+      const addModal = document.getElementById('add-modal');
+      const editModal = document.getElementById('edit-modal');
+      const addOpen = addModal && !addModal.classList.contains('hidden');
+      const editOpen = editModal && !editModal.classList.contains('hidden');
+      if (!addOpen && !editOpen) return;
+      const prefix = addOpen ? 'm' : 'edit';
+
+      const items = (e.clipboardData || window.clipboardData)?.items;
+      if (!items) return;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type && items[i].type.startsWith('image/')) {
+          const file = items[i].getAsFile();
+          if (file) {
+            e.preventDefault();
+            await processAndAttachModalImage(file, prefix);
+            break;
+          }
+        }
+      }
+    });
+
+    // Intelligent image error fallback and self-recovery
+    async function handleQuestionImageError(imgEl, qId) {
+      if (!imgEl) return;
+      // 1. Try restoring from IndexedDB offline store
+      try {
+        const localData = await QiyasImageStore.get('img_' + qId);
+        if (localData && imgEl.src !== localData) {
+          imgEl.src = localData;
+          return;
+        }
+      } catch (e) {}
+
+      // 2. Try alternate relative path
+      if (imgEl.src && imgEl.src.includes('questions_images/')) {
+        const parts = imgEl.src.split('questions_images/');
+        const filename = parts[parts.length - 1];
+        if (!imgEl.dataset.retried) {
+          imgEl.dataset.retried = '1';
+          imgEl.src = 'questions_images/' + filename;
+          return;
+        }
+      }
+
+      // 3. Graceful fallback: hide container to prevent broken image icon
+      if (imgEl.parentElement && imgEl.parentElement.parentElement) {
+        imgEl.parentElement.parentElement.style.display = 'none';
+      }
+    }
+
     // 1. Initial Load
     async function initApp() {
       await loadQuestions();
@@ -2615,7 +2714,7 @@
 
     async function loadQuestions() {
       try {
-        const Q_VERSION = 'v6_full_150q_bank';
+        const Q_VERSION = 'v8_verified_core_bank';
         const savedVer = localStorage.getItem('qiyas_q_version');
         if (savedVer !== Q_VERSION) {
           localStorage.removeItem('qiyas_questions_override');
@@ -3203,7 +3302,7 @@
         imgHtml = `
           <div class="question-image-box my-3 p-3 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col items-center justify-center">
             <div class="relative group cursor-pointer" onclick="openImageZoomModal('${imgSrc}')">
-              <img src="${imgSrc}" alt="رسم وصورة المسألة" class="max-h-64 md:max-h-72 w-auto object-contain rounded-xl border border-slate-100 group-hover:scale-[1.01] transition-all" onerror="this.parentElement.parentElement.style.display='none'">
+              <img src="${imgSrc}" data-qid="${q.id}" alt="رسم وصورة المسألة" class="max-h-64 md:max-h-72 w-auto object-contain rounded-xl border border-slate-100 group-hover:scale-[1.01] transition-all" onerror="handleQuestionImageError(this, ${q.id})">
               <div class="absolute bottom-2 left-2 bg-slate-900/80 hover:bg-slate-900 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 backdrop-blur-xs transition-all shadow-sm">
                 <span>🔍 تكبير الرسم</span>
               </div>
