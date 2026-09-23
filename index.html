@@ -194,6 +194,10 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white bg-slate-50 text-slate-800">
 
+  <!-- ================= TOP FLASH TOAST NOTIFICATION CONTAINER ================= -->
+  <div id="qiyas-flash-toast" class="fixed top-5 inset-x-0 mx-auto z-[9999] pointer-events-none transition-all duration-300 transform -translate-y-16 opacity-0 flex flex-col items-center justify-center px-4">
+  </div>
+
   <!-- ================= TOP NAVIGATION BAR ================= -->
   <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -2751,6 +2755,84 @@
       }
     });
 
+    // ================= FLASH TOAST NOTIFICATION SYSTEM =================
+    function showFlashToast({
+      title = "تم حفظ المسألة بنجاح!",
+      message = "",
+      type = "success", // success, warning, info
+      imageSrc = "",
+      storageType = "خادم المنصة وقاعدة البيانات",
+      duration = 4500
+    } = {}) {
+      const container = document.getElementById('qiyas-flash-toast');
+      if (!container) return;
+
+      const isSuccess = type === 'success';
+      const icon = isSuccess ? '✅' : (type === 'warning' ? '⚠️' : 'ℹ️');
+      const borderCol = isSuccess ? 'border-emerald-500/80 shadow-emerald-500/10' : 'border-amber-500/80 shadow-amber-500/10';
+
+      let imgThumbnailHtml = '';
+      if (imageSrc) {
+        const cleanImg = normalizeImageUrl(imageSrc);
+        imgThumbnailHtml = `
+          <div class="relative shrink-0 w-13 h-13 rounded-xl overflow-hidden border border-emerald-400/50 bg-white/10 flex items-center justify-center shadow-inner cursor-pointer" onclick="openImageZoomModal('${cleanImg.replace(/'/g, "\\'")}')" title="انقر لتكبير الصورة">
+            <img src="${cleanImg}" class="w-full h-full object-contain" onerror="this.style.display='none'">
+            <span class="absolute bottom-0 inset-x-0 bg-emerald-600/90 text-[8px] font-bold text-center text-white py-0.5">معاينة</span>
+          </div>
+        `;
+      }
+
+      container.innerHTML = `
+        <div class="pointer-events-auto flex items-center gap-3.5 p-3.5 px-5 rounded-2xl bg-slate-900/95 text-white border-2 ${borderCol} shadow-2xl backdrop-blur-md max-w-lg w-[92vw] sm:w-auto transition-all animate-bounce-short">
+          ${imgThumbnailHtml}
+          <div class="flex-1 text-right min-w-[200px]">
+            <div class="flex items-center gap-1.5 text-sm font-black text-emerald-400">
+              <span>${icon}</span>
+              <span>${title}</span>
+            </div>
+            ${message ? `<p class="text-xs text-slate-200 font-medium mt-0.5 leading-snug">${message}</p>` : ''}
+            <div class="flex items-center gap-2 mt-1 text-[10px] text-slate-400">
+              <span>💾 التخزين: <strong class="text-emerald-300 font-bold">${storageType}</strong></span>
+              ${imageSrc ? `<span>• <strong class="text-sky-300 font-bold">🖼️ تم تثبيت الصورة</strong></span>` : ''}
+            </div>
+          </div>
+          <button type="button" onclick="hideFlashToast()" class="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-all text-xs font-bold shrink-0">
+            ✕
+          </button>
+        </div>
+      `;
+
+      container.classList.remove('-translate-y-16', 'opacity-0');
+      container.classList.add('translate-y-0', 'opacity-100');
+
+      if (window._flashToastTimeout) clearTimeout(window._flashToastTimeout);
+      window._flashToastTimeout = setTimeout(() => {
+        hideFlashToast();
+      }, duration);
+    }
+
+    function hideFlashToast() {
+      const container = document.getElementById('qiyas-flash-toast');
+      if (!container) return;
+      container.classList.remove('translate-y-0', 'opacity-100');
+      container.classList.add('-translate-y-16', 'opacity-0');
+    }
+
+    // فتح صورة المسألة بالتكبير الآمن بالاعتماد على رقم المسألة دون تلويث وسوم HTML
+    async function openImageZoomByQId(qId) {
+      const q = allQuestions.find(item => String(item.id) === String(qId));
+      let imgSrc = (q && (q.image || q.image_url)) || '';
+      if (!imgSrc || imgSrc.startsWith('indexeddb:')) {
+        try {
+          const key = imgSrc ? imgSrc.replace('indexeddb:', '') : ('img_' + qId);
+          imgSrc = (await QiyasImageStore.get(key)) || imgSrc;
+        } catch(e) {}
+      }
+      if (imgSrc) {
+        openImageZoomModal(imgSrc);
+      }
+    }
+
     // Intelligent image error fallback and self-recovery
     async function handleQuestionImageError(imgEl, qId, originalSrc) {
       if (!imgEl) return;
@@ -2761,6 +2843,11 @@
         const localData = await QiyasImageStore.get('img_' + qId);
         if (localData && imgEl.src !== localData) {
           imgEl.src = localData;
+          const targetQ = allQuestions.find(it => String(it.id) === String(qId));
+          if (targetQ) {
+            targetQ.image = localData;
+            targetQ.image_url = localData;
+          }
           return;
         }
       } catch (e) {}
@@ -2789,18 +2876,23 @@
       // 4. Do NOT silently hide! Show clear card so the student can click and open the image
       if (imgEl.parentElement && imgEl.parentElement.parentElement) {
         const container = imgEl.parentElement.parentElement;
+        const isIndexedRef = srcToTry && srcToTry.startsWith('indexeddb:');
         container.innerHTML = `
           <div class="my-2 p-3 bg-amber-50/90 border border-amber-300 rounded-2xl text-center space-y-2 w-full shadow-xs">
             <span class="text-xs font-bold text-amber-900 block">🖼️ رسم المسألة مرفق:</span>
             <div class="flex items-center justify-center gap-2">
-              <a href="${srcToTry}" target="_blank" rel="noopener noreferrer" class="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5">
-                <span>🔗 فتح صورة المسألة المرفقة</span>
-              </a>
+              ${!isIndexedRef ? `
+                <a href="${srcToTry}" target="_blank" rel="noopener noreferrer" class="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5">
+                  <span>🔗 فتح صورة المسألة المرفقة</span>
+                </a>
+              ` : `
+                <span class="text-xs text-amber-800 font-bold">جاري المزامنة من التخزين الدائم...</span>
+              `}
               <button type="button" onclick="this.parentElement.parentElement.innerHTML='<img src=\\'${srcToTry}\\' class=\\'max-h-64 object-contain rounded-xl\\'>'" class="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold transition-all">
                 🔄 إعادة المحاولة
               </button>
             </div>
-            <span class="text-[10px] text-slate-400 block truncate max-w-sm mx-auto" dir="ltr">${srcToTry}</span>
+            ${!isIndexedRef ? `<span class="text-[10px] text-slate-400 block truncate max-w-sm mx-auto" dir="ltr">${srcToTry}</span>` : ''}
           </div>
         `;
       }
@@ -2823,10 +2915,9 @@
 
     async function loadQuestions() {
       try {
-        const Q_VERSION = 'v8_verified_core_bank';
+        const Q_VERSION = 'v9_verified_bank_with_flash_and_visuals';
         const savedVer = localStorage.getItem('qiyas_q_version');
         if (savedVer !== Q_VERSION) {
-          localStorage.removeItem('qiyas_questions_override');
           localStorage.setItem('qiyas_q_version', Q_VERSION);
         }
 
@@ -2848,7 +2939,7 @@
           allQuestions = [];
         }
 
-        // Build questionMap starting with all official questions from questions.json (150 questions)
+        // Build questionMap starting with all official questions from questions.json
         const questionMap = new Map();
         allQuestions.forEach(q => {
           if (q && q.id) questionMap.set(q.id, q);
@@ -2857,22 +2948,63 @@
         // Overlay any custom or scanned questions or specific edits from localStorage
         const savedOverride = JSON.parse(localStorage.getItem('qiyas_questions_override') || 'null');
         if (savedOverride && Array.isArray(savedOverride)) {
-          savedOverride.forEach(sq => {
+          for (const sq of savedOverride) {
             if (sq && sq.id) {
-              if (sq.id > 150 || sq.is_custom || sq.is_scanned) {
+              // استعادة الصورة الدائمة من IndexedDB إذا كانت مرجعاً
+              const imgVal = sq.image || sq.image_url || '';
+              if (imgVal.startsWith('indexeddb:')) {
+                try {
+                  const stored = await QiyasImageStore.get(imgVal.replace('indexeddb:', ''));
+                  if (stored) {
+                    sq.image = stored;
+                    sq.image_url = stored;
+                  }
+                } catch(e) {}
+              } else if (!imgVal && (sq.has_visual || sq.is_custom || sq.user_added)) {
+                try {
+                  const stored = await QiyasImageStore.get('img_' + sq.id);
+                  if (stored) {
+                    sq.image = stored;
+                    sq.image_url = stored;
+                    sq.has_visual = true;
+                  }
+                } catch(e) {}
+              }
+
+              if (sq.id > 277 || sq.is_custom || sq.is_scanned || sq.user_added) {
                 questionMap.set(sq.id, sq);
               } else if (questionMap.has(sq.id)) {
                 questionMap.set(sq.id, { ...questionMap.get(sq.id), ...sq });
               }
             }
-          });
+          }
         }
 
         const customQ = JSON.parse(localStorage.getItem('qiyas_custom_questions') || '[]');
         if (customQ && Array.isArray(customQ)) {
-          customQ.forEach(cq => {
-            if (cq && cq.id) questionMap.set(cq.id, cq);
-          });
+          for (const cq of customQ) {
+            if (cq && cq.id) {
+              const imgVal = cq.image || cq.image_url || '';
+              if (imgVal.startsWith('indexeddb:')) {
+                try {
+                  const stored = await QiyasImageStore.get(imgVal.replace('indexeddb:', ''));
+                  if (stored) {
+                    cq.image = stored;
+                    cq.image_url = stored;
+                  }
+                } catch(e) {}
+              } else if (!imgVal) {
+                try {
+                  const stored = await QiyasImageStore.get('img_' + cq.id);
+                  if (stored) {
+                    cq.image = stored;
+                    cq.image_url = stored;
+                  }
+                } catch(e) {}
+              }
+              questionMap.set(cq.id, cq);
+            }
+          }
         }
 
         allQuestions = Array.from(questionMap.values()).sort((a, b) => (a.id || 0) - (b.id || 0));
@@ -3425,10 +3557,12 @@
       if (rawImg && !q.diagram_svg) {
         const imgSrc = normalizeImageUrl(rawImg);
         const safeEscaped = imgSrc.replace(/'/g, "\\'");
+        const isIndexed = imgSrc.startsWith('indexeddb:');
+        const initialSrc = isIndexed ? 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="70"><text x="100" y="40" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#94a3b8">جاري استرجاع الصورة... ⏳</text></svg>' : imgSrc;
         imgHtml = `
-          <div class="question-image-box my-3 p-3 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col items-center justify-center">
-            <div class="relative group cursor-pointer" onclick="openImageZoomModal('${safeEscaped}')">
-              <img src="${imgSrc}" data-qid="${q.id}" referrerpolicy="no-referrer" loading="lazy" alt="رسم وصورة المسألة" class="max-h-64 md:max-h-72 w-auto object-contain rounded-xl border border-slate-100 group-hover:scale-[1.01] transition-all shadow-2xs" onerror="handleQuestionImageError(this, '${q.id}', '${safeEscaped}')">
+          <div id="q-img-wrap-${q.id}" class="question-image-box my-3 p-3 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col items-center justify-center">
+            <div class="relative group cursor-pointer" onclick="openImageZoomByQId('${q.id}')">
+              <img id="q-rendered-img-${q.id}" src="${initialSrc}" data-qid="${q.id}" referrerpolicy="no-referrer" loading="lazy" alt="رسم وصورة المسألة" class="max-h-64 md:max-h-72 w-auto object-contain rounded-xl border border-slate-100 group-hover:scale-[1.01] transition-all shadow-2xs" onerror="handleQuestionImageError(this, '${q.id}', '${safeEscaped}')">
               <div class="absolute bottom-2 left-2 bg-slate-900/80 hover:bg-slate-900 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 backdrop-blur-xs transition-all shadow-sm">
                 <span>🔍 تكبير الرسم</span>
               </div>
@@ -3436,6 +3570,48 @@
             <span class="text-[10px] text-slate-400 mt-1 font-bold">انقر على الرسم لمعاينته بوضوح كامل</span>
           </div>
         `;
+        if (isIndexed) {
+          setTimeout(async () => {
+            try {
+              const key = imgSrc.replace('indexeddb:', '');
+              const data = await QiyasImageStore.get(key);
+              if (data) {
+                const el = document.getElementById('q-rendered-img-' + q.id);
+                if (el) el.src = data;
+                q.image = data;
+                q.image_url = data;
+              }
+            } catch(e) {}
+          }, 10);
+        }
+      } else if (!rawImg && (q.has_visual || isQuestionVisualOrGeometric(q.question, q.topic)) && !q.diagram_svg) {
+        // فحص تلقائي في IndexedDB في حال كانت الصورة مخزنة محلياً برقم المسألة
+        imgHtml = `
+          <div id="q-lazy-wrap-${q.id}" class="hidden question-image-box my-3 p-3 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col items-center justify-center">
+            <div class="relative group cursor-pointer" onclick="openImageZoomByQId('${q.id}')">
+              <img id="q-lazy-img-${q.id}" src="" data-qid="${q.id}" class="max-h-64 md:max-h-72 w-auto object-contain rounded-xl border border-slate-100 group-hover:scale-[1.01] transition-all shadow-2xs">
+              <div class="absolute bottom-2 left-2 bg-slate-900/80 hover:bg-slate-900 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 backdrop-blur-xs transition-all shadow-sm">
+                <span>🔍 تكبير الرسم</span>
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-400 mt-1 font-bold">انقر على الرسم لمعاينته بوضوح كامل</span>
+          </div>
+        `;
+        setTimeout(async () => {
+          try {
+            const data = await QiyasImageStore.get('img_' + q.id);
+            if (data) {
+              q.image = data;
+              q.image_url = data;
+              const wrap = document.getElementById('q-lazy-wrap-' + q.id);
+              const imgEl = document.getElementById('q-lazy-img-' + q.id);
+              if (wrap && imgEl) {
+                imgEl.src = data;
+                wrap.classList.remove('hidden');
+              }
+            }
+          } catch(e) {}
+        }, 30);
       }
 
       return `
@@ -6107,7 +6283,7 @@
               <span class="${q.section === 'quantitative' ? 'text-blue-700' : 'text-purple-700'}">${q.section_ar || q.section}</span>
               <span class="text-slate-400">•</span>
               <span class="text-slate-600">${q.topic}</span>
-              ${(q.image || q.image_url) ? `<button type="button" onclick="openImageZoomModal('${q.image || q.image_url}')" class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-bold flex items-center gap-1 transition-all"><span>📷 صورة مرفقة</span></button>` : ''}
+              ${(q.image || q.image_url) ? `<button type="button" onclick="openImageZoomByQId('${q.id}')" class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-bold flex items-center gap-1 transition-all"><span>📷 صورة مرفقة ومثبتة</span></button>` : ''}
               ${q.diagram_svg ? `<span class="px-2 py-0.5 rounded-full text-[10px] bg-sky-50 text-sky-700 border border-sky-200 font-bold">📐 مخطط هندسي</span>` : ''}
               ${q.level ? `<span class="px-2 py-0.5 rounded-full text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 font-bold">المستوى ${toAr(q.level)}</span>` : ''}
             </div>
@@ -6125,6 +6301,21 @@
               </button>
             </div>
           </div>
+
+          ${(q.image || q.image_url) ? `
+            <div class="flex items-center justify-between p-2.5 bg-emerald-50/80 rounded-xl border border-emerald-200/90 my-1 text-xs">
+              <div class="flex items-center gap-2.5">
+                <img src="${normalizeImageUrl(q.image || q.image_url)}" class="w-11 h-11 object-contain rounded-lg border border-emerald-300 bg-white cursor-pointer hover:scale-105 transition-all shadow-2xs" onclick="openImageZoomByQId('${q.id}')" title="انقر لتكبير الرسم">
+                <div>
+                  <span class="font-bold text-emerald-950 block">🖼️ رسم المسألة محفوظ ومثبت بنجاح</span>
+                  <span class="text-[10px] text-slate-500">مربوط بالمسألة ويظهر تلقائياً للطالب في الاختبارات والتدريب</span>
+                </div>
+              </div>
+              <button type="button" onclick="openImageZoomByQId('${q.id}')" class="px-2.5 py-1 bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-lg font-bold text-[10px] transition-all shrink-0">
+                🔍 تكبير الرسم
+              </button>
+            </div>
+          ` : ''}
 
           <div class="text-slate-900 font-medium">${renderQuestionDisplay(q)}</div>
 
@@ -6342,6 +6533,9 @@
         await QiyasImageStore.set('img_' + newQ.id, mImgData);
       }
 
+      let serverSaved = false;
+      let storageLocation = "قاعدة المتصفح الدائمة (IndexedDB)";
+
       try {
         const payload = { ...newQ };
         if (mImgData && mImgData.startsWith('data:')) {
@@ -6355,9 +6549,15 @@
         if (resp.ok) {
           const resData = await resp.json();
           if (resData.success && resData.question) {
+            serverSaved = true;
+            storageLocation = "خادم المنصة (questions.json) وقاعدة SQLite";
+            const oldId = newQ.id;
             newQ.id = resData.question.id;
             newQ.image = resData.question.image || newQ.image;
             newQ.image_url = resData.question.image_url || newQ.image_url;
+            if (newQ.id !== oldId && mImgData) {
+              await QiyasImageStore.set('img_' + newQ.id, mImgData);
+            }
           }
         }
       } catch (err) {
@@ -6370,11 +6570,20 @@
       clearModalImage('m');
       const totalBadge = document.getElementById('header-total-q');
       if (totalBadge) totalBadge.innerText = toAr(allQuestions.length) + ' سؤالاً';
-      alert("تم بنجاح حفظ المسألة وإضافتها إلى بنك الأسئلة!");
+      
       closeAddQuestionModal();
       renderAdminQuestionsList();
       renderAdminDashboardStats();
       populateTopicCheckboxes();
+
+      // إظهار الرسالة الفلاشية مع صورة المسألة وحالة الحفظ التامة
+      showFlashToast({
+        title: "تم حفظ المسألة وإضافتها بنجاح!",
+        message: `المسألة رقم #${newQ.id} في موضوع (${newQ.topic}) جاهزة ومتاحة الآن في بنك الأسئلة والاختبارات.`,
+        imageSrc: newQ.image || newQ.image_url,
+        storageType: storageLocation,
+        type: "success"
+      });
     }
 
     function openEditQuestionModal(id) {
@@ -6474,8 +6683,12 @@
       closeEditQuestionModal();
       renderAdminQuestionsList();
       renderAdminDashboardStats();
-      populateTopicCheckboxes();
-      alert("تم حفظ التعديلات بنجاح ومزامنتها!");
+      showFlashToast({
+        title: "تم حفظ التعديلات بنجاح!",
+        message: `تم تحديث بيانات ورسم المسألة رقم #${id} بنجاح.`,
+        imageSrc: allQuestions[idx].image || allQuestions[idx].image_url,
+        type: "success"
+      });
     }
 
     async function deleteQuestion(id) {
@@ -8599,7 +8812,8 @@ ${questionStem}
         'مثلث', 'دائرة', 'مستطيل', 'مربع', 'زاوية', 'نصف قطر', 'قطر', 'وتر', 'مضلع', 
         'متوازي', 'شبه منحرف', 'أسطوانة', 'مكعب', 'مخروط', 'هرم', 'سطح', 'حجم', 
         'محيط', 'مساحة', 'مظلل', 'غير مظلل', 'متوازيين', 'قاطع', 'مماس', 'مركز الدائرة',
-        'في الشكل', 'المجاور', 'الرسم البياني', 'القطاع الدائري', 'الأعمدة البيانية', 'المستوى الإحداثي', 'انعكاس', 'تناظر'
+        'في الشكل', 'المجاور', 'الرسم البياني', 'القطاع الدائري', 'الأعمدة البيانية', 'المستوى الإحداثي', 'انعكاس', 'تناظر',
+        'الرسم الدائري', 'الرسم المرفق', 'الشكل المرفق', 'الصورة المرفقة', 'القطاعات الدائرية', 'بيانات الرسم', 'مخطط'
       ];
       return geomKeywords.some(k => combined.includes(k));
     }
@@ -8656,11 +8870,21 @@ ${questionStem}
       updateOcrSectionBadge();
     }
 
-    function openImageZoomModal(imgSrc) {
+    async function openImageZoomModal(imgSrc) {
       const modal = document.getElementById('image-zoom-modal');
       const img = document.getElementById('image-zoom-modal-img');
       if (!modal || !img) return;
-      img.src = imgSrc;
+      if (imgSrc && imgSrc.startsWith('indexeddb:')) {
+        try {
+          const key = imgSrc.replace('indexeddb:', '');
+          const data = await QiyasImageStore.get(key);
+          img.src = data || imgSrc;
+        } catch(e) {
+          img.src = imgSrc;
+        }
+      } else {
+        img.src = imgSrc;
+      }
       modal.classList.remove('hidden');
     }
 
@@ -8831,9 +9055,13 @@ ${questionStem}
         FirebaseService.syncQuestion(savedRecord);
       }
 
-      const visualMsg = savedRecord.image ? '\n📷 تم حفظ الصورة وتصغير حجمها وربطها بالمسألة بنجاح.' : '';
-      alert(`✓ تم بنجاح حفظ السؤال الجديد (رقم #${savedRecord.id}) وإضافته إلى بنك الأسئلة وقائمة المراجعة!${visualMsg}`);
       closeOcrModal();
+      showFlashToast({
+        title: "تم اعتماد وحفظ السؤال بنجاح!",
+        message: `تمت إضافة السؤال رقم #${savedRecord.id} إلى بنك الأسئلة وقائمة المراجعة.`,
+        imageSrc: savedRecord.image || savedRecord.image_url,
+        type: "success"
+      });
     }
 
     function testCurrentOcrQuestionNow() {
