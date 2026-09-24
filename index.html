@@ -2228,8 +2228,94 @@
                 <textarea id="ocr-field-question" rows="2" dir="rtl" style="direction: rtl; text-align: right; unicode-bidi: plaintext; white-space: pre-wrap; font-family: 'Cairo', sans-serif;" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-bold bg-white outline-none" oninput="checkOcrVisualRequirement()"></textarea>
               </div>
 
-              <!-- 📐 Visual / Geometric Requirement Banner & Image Retention Switch -->
-              <div id="ocr-visual-detection-banner" class="p-3.5 rounded-2xl border transition-all space-y-2.5 bg-blue-50/70 border-blue-200">
+              <!-- 📷 مربع إرفاق ولصق صورة السؤال (Ctrl+V) لضمان وجود الصورة مباشرة مع صيغة المسألة -->
+              <div id="ocr-question-image-box" class="p-3.5 rounded-2xl border transition-all space-y-2.5 bg-indigo-50/50 border-indigo-200 shadow-2xs">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                  <div class="flex items-center gap-2">
+                    <span class="text-base">📷</span>
+                    <span class="text-xs font-black text-slate-900">مربع صورة ورسم السؤال (مرتبطة مباشرة بصيغة المسألة):</span>
+                  </div>
+                  <div class="flex items-center gap-1.5 text-[10px] font-bold">
+                    <span class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full border border-indigo-200">لصق مباشر (Ctrl+V)</span>
+                    <span class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full border border-indigo-200">سحب وإفلات</span>
+                    <span class="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full border border-indigo-200">رفع ملف</span>
+                  </div>
+                </div>
+
+                <input type="file" id="ocr-attached-file-input" accept="image/*" class="hidden" onchange="handleModalImageSelect(event, 'ocr')">
+
+                <!-- 1. Active Image Attached View (When image is present/scanned) -->
+                <div id="ocr-attached-preview-container" class="p-3 bg-white rounded-2xl border-2 border-emerald-400 shadow-xs flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3">
+                    <div class="relative group cursor-pointer" onclick="previewCurrentOcrImageModal()">
+                      <img id="ocr-attached-preview-img" src="" alt="صورة المسألة المرفقة" class="w-16 h-16 object-contain rounded-xl border border-slate-200 bg-slate-50 shadow-2xs group-hover:scale-105 transition-transform">
+                      <span class="absolute inset-0 bg-slate-900/40 rounded-xl flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity font-bold">🔍</span>
+                    </div>
+                    <div class="text-xs">
+                      <span class="font-extrabold text-emerald-800 flex items-center gap-1">
+                        <span>✅</span>
+                        <span>صورة المسألة مرفقة ومضمونة مع صيغة السؤال 100%</span>
+                      </span>
+                      <span id="ocr-attached-preview-size" class="text-[11px] text-slate-500 font-mono block mt-0.5">جاهزة للاختبار والحفظ</span>
+                      <span class="text-[10px] text-slate-400 block">ستظهر هذه الصورة للطالب مباشرة في التدريب والاختبارات وبنك الأسئلة</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-1.5 shrink-0 flex-wrap">
+                    <button type="button" onclick="previewCurrentOcrImageModal()" class="px-2.5 py-1.5 rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100 font-bold text-xs border border-sky-200 flex items-center gap-1 shadow-2xs">
+                      <span>🔍 معاينة وتكبير</span>
+                    </button>
+                    <button type="button" onclick="pasteImageFromClipboardForOcr()" class="px-2.5 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-xs border border-indigo-200 flex items-center gap-1 shadow-2xs" title="لصق صورة من الحافظة (Ctrl+V)">
+                      <span>📋 لصق (Ctrl+V)</span>
+                    </button>
+                    <button type="button" onclick="document.getElementById('ocr-attached-file-input').click()" class="px-2.5 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold text-xs border border-indigo-200 flex items-center gap-1 shadow-2xs" title="رفع أو استبدال ملف الصورة من جهازك">
+                      <span>📁 رفع / استبدال الصورة</span>
+                    </button>
+                    <button type="button" onclick="clearOcrAttachedImage()" class="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold text-xs border border-rose-200 flex items-center gap-1 shadow-2xs">
+                      <span>✕ إزالة</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 2. Empty Dropzone View (when no image is attached or removed) -->
+                <div id="ocr-attached-dropzone" 
+                     onclick="document.getElementById('ocr-attached-file-input').click()"
+                     ondragover="event.preventDefault(); this.classList.add('border-indigo-500', 'bg-indigo-100/70', 'ring-2', 'ring-indigo-400')" 
+                     ondragleave="this.classList.remove('border-indigo-500', 'bg-indigo-100/70', 'ring-2', 'ring-indigo-400')" 
+                     ondrop="event.preventDefault(); this.classList.remove('border-indigo-500', 'bg-indigo-100/70', 'ring-2', 'ring-indigo-400'); handleModalImageDrop(event, 'ocr')"
+                     class="hidden border-2 border-dashed border-indigo-300 hover:border-indigo-500 bg-white hover:bg-indigo-50/50 transition-all rounded-2xl p-4 text-center cursor-pointer shadow-2xs group">
+                  <div class="flex flex-col items-center justify-center gap-1.5">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                      🖼️
+                    </div>
+                    <div>
+                      <p class="font-extrabold text-xs text-slate-800">الصق صورة المسألة هنا مباشرة بالضغط على <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono text-[10px] text-slate-800 shadow-2xs">Ctrl + V</kbd> أو اسحبها هنا</p>
+                      <p class="text-[11px] text-slate-500 mt-0.5">أو انقر هنا لرفع واختيار ملف من جهازك لضمان ربط الرسم الهندسي بصيغة السؤال</p>
+                    </div>
+                    <div class="flex items-center gap-2 mt-1" onclick="event.stopPropagation()">
+                      <button type="button" onclick="document.getElementById('ocr-attached-file-input').click()" class="px-4 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs">
+                        <span>📁 رفع صورة من الجهاز</span>
+                      </button>
+                      <button type="button" onclick="pasteImageFromClipboardForOcr()" class="px-4 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1 shadow-2xs">
+                        <span>📋 لصق من الحافظة (Ctrl+V)</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Retention checkbox -->
+                <div class="pt-1.5 border-t border-indigo-200/50 flex items-center justify-between flex-wrap gap-2">
+                  <label class="flex items-center gap-2 cursor-pointer select-none">
+                    <input type="checkbox" id="ocr-keep-image-check" checked class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500" onchange="syncOcrKeepImage(this.checked)">
+                    <span class="text-xs font-black text-slate-800">تضمين وربط الصورة المرفقة دائماً مع السؤال عند الحفظ أو التجربة</span>
+                  </label>
+                  <span id="ocr-image-status-pill" class="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    جاهزة ومعتمدة ✓
+                  </span>
+                </div>
+              </div>
+
+              <!-- 📐 Visual / Geometric Requirement Banner -->
+              <div id="ocr-visual-detection-banner" class="p-3 rounded-2xl border transition-all space-y-1.5 bg-blue-50/70 border-blue-200">
                 <div class="flex items-center justify-between gap-2 flex-wrap">
                   <div class="flex items-center gap-2">
                     <span id="ocr-visual-status-icon" class="text-base">📐</span>
@@ -2242,15 +2328,6 @@
                 <p id="ocr-visual-status-desc" class="text-[11px] text-slate-600 leading-relaxed font-medium">
                   يقوم النظام بالتحقق التلقائي عما إذا كان السؤال يحتوي على عناصر هندسية (مثلثات، دوائر، زوايا) أو رسوم بيانية لضمان إرفاق الصورة الأصلية.
                 </p>
-                <div class="pt-2 border-t border-blue-200/60 flex items-center justify-between flex-wrap gap-2">
-                  <label class="flex items-center gap-2 cursor-pointer select-none">
-                    <input type="checkbox" id="ocr-keep-image-check" checked class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500">
-                    <span class="text-xs font-black text-slate-800">الحفاظ على الصورة المرفقة وربطها بسجل السؤال في بنك الأسئلة</span>
-                  </label>
-                  <button type="button" onclick="previewCurrentOcrImageModal()" class="text-[11px] text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1">
-                    <span>🔍 معاينة وتكبير الرسم</span>
-                  </button>
-                </div>
               </div>
 
               <!-- Options -->
@@ -2864,6 +2941,46 @@
     // ================= ENHANCED FAST & GUARANTEED IMAGE UPLOADER =================
     async function processAndAttachModalImage(fileOrBlob, prefix) {
       if (!fileOrBlob) return;
+      
+      // Handle OCR modal image attachment directly
+      if (prefix === 'ocr') {
+        try {
+          const compressed = await compressAndOptimizeImage(fileOrBlob, 1200, 0.82);
+          window.currentOcrDataUrl = compressed;
+          updateOcrAttachedImageUI(compressed);
+          const ocrMainPreview = document.getElementById('ocr-image-preview');
+          if (ocrMainPreview) ocrMainPreview.src = compressed;
+          checkOcrVisualRequirement();
+          
+          try {
+            await QiyasImageStore.set('temp_ocr_img', compressed);
+          } catch(e) {}
+
+          try {
+            await fetch('/api/upload-image', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                image_base64: compressed,
+                prefix: 'q_ocr'
+              })
+            });
+          } catch(e) {}
+
+          showFlashToast({
+            title: "تم ربط صورة المسألة بنجاح!",
+            message: "تم تحديث وربط صورة السؤال بصيغة المسألة وستظهر في التدريب والاختبارات.",
+            imageSrc: compressed,
+            type: "success"
+          });
+          return;
+        } catch(err) {
+          console.error("Error attaching OCR image:", err);
+          alert("تعذر معالجة الصورة، يرجى اختيار ملف صالح.");
+          return;
+        }
+      }
+
       const isM = (prefix === 'm' || prefix === 'add');
       try {
         const preview = document.getElementById(isM ? 'm-image-preview-img' : 'edit-image-preview-img');
@@ -2918,7 +3035,7 @@
       }
     }
 
-    // Modal Image Selection Handler (for Add and Edit question modals)
+    // Modal Image Selection Handler (for Add, Edit, and OCR question modals)
     async function handleModalImageSelect(event, prefix) {
       const file = event.target.files && event.target.files[0];
       if (file) {
@@ -2940,7 +3057,80 @@
       }
     }
 
+    function updateOcrAttachedImageUI(dataUrl) {
+      const container = document.getElementById('ocr-attached-preview-container');
+      const dropzone = document.getElementById('ocr-attached-dropzone');
+      const previewImg = document.getElementById('ocr-attached-preview-img');
+      const sizeSpan = document.getElementById('ocr-attached-preview-size');
+      const keepCheck = document.getElementById('ocr-keep-image-check');
+      const statusPill = document.getElementById('ocr-image-status-pill');
+
+      if (dataUrl) {
+        window.currentOcrDataUrl = dataUrl;
+        if (container) container.classList.remove('hidden');
+        if (dropzone) dropzone.classList.add('hidden');
+        if (previewImg) previewImg.src = dataUrl;
+        if (keepCheck) keepCheck.checked = true;
+        if (statusPill) {
+          statusPill.innerText = "جاهزة ومعتمدة ✓";
+          statusPill.className = "text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200";
+        }
+        const kbSize = Math.round(dataUrl.length / 1024);
+        if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب • مرتبطة ومضمونة مع صيغة السؤال ✓`;
+      } else {
+        window.currentOcrDataUrl = null;
+        if (container) container.classList.add('hidden');
+        if (dropzone) dropzone.classList.remove('hidden');
+        if (previewImg) previewImg.src = '';
+        if (keepCheck) keepCheck.checked = false;
+        if (statusPill) {
+          statusPill.innerText = "بدون صورة";
+          statusPill.className = "text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200";
+        }
+      }
+      checkOcrVisualRequirement();
+      updateOcrSectionBadge();
+    }
+
+    function clearOcrAttachedImage() {
+      updateOcrAttachedImageUI(null);
+      const fileInput = document.getElementById('ocr-attached-file-input');
+      if (fileInput) fileInput.value = '';
+    }
+
+    function syncOcrKeepImage(isChecked) {
+      if (!isChecked) {
+        window.currentOcrDataUrl = null;
+        updateOcrAttachedImageUI(null);
+      }
+    }
+
+    async function pasteImageFromClipboardForOcr() {
+      try {
+        if (!navigator.clipboard || !navigator.clipboard.read) {
+          alert("يرجى الضغط على مفتاحي (Ctrl + V) للصق الصورة مباشرة من الحافظة.");
+          return;
+        }
+        const items = await navigator.clipboard.read();
+        for (const item of items) {
+          const imageType = item.types.find(type => type.startsWith('image/'));
+          if (imageType) {
+            const blob = await item.getType(imageType);
+            await processAndAttachModalImage(blob, 'ocr');
+            return;
+          }
+        }
+        alert("لم يتم العثور على صورة في الحافظة. انسخ أي صورة أو لقطة شاشة ثم اضغط Ctrl+V.");
+      } catch (err) {
+        alert("يرجى الضغط على (Ctrl + V) للصق صورة السؤال من الحافظة مباشرة.");
+      }
+    }
+
     function previewModalImageZoom(prefix) {
+      if (prefix === 'ocr') {
+        previewCurrentOcrImageModal();
+        return;
+      }
       const isM = (prefix === 'm' || prefix === 'add');
       const preview = document.getElementById(isM ? 'm-image-preview-img' : 'edit-image-preview-img');
       const val = (preview && preview.src && !preview.src.endsWith('/')) 
@@ -2955,6 +3145,10 @@
     }
 
     function clearModalImage(prefix) {
+      if (prefix === 'ocr') {
+        clearOcrAttachedImage();
+        return;
+      }
       const isM = (prefix === 'm' || prefix === 'add');
       if (isM) {
         window.currentModalImageDataUrl = '';
@@ -2979,28 +3173,49 @@
       }
     }
 
-    // Direct Clipboard Paste (Ctrl+V) for instant screenshot pasting
+    // Unified Direct Clipboard Paste (Ctrl+V) for instant screenshot pasting across all modals
     document.addEventListener('paste', async (e) => {
       const addModal = document.getElementById('add-modal');
       const editModal = document.getElementById('edit-modal');
+      const ocrModal = document.getElementById('ocr-modal');
       const addOpen = addModal && !addModal.classList.contains('hidden');
       const editOpen = editModal && !editModal.classList.contains('hidden');
-      if (!addOpen && !editOpen) return;
-      const prefix = addOpen ? 'm' : 'edit';
+      const ocrOpen = ocrModal && !ocrModal.classList.contains('hidden');
 
       const items = (e.clipboardData || window.clipboardData)?.items;
       if (!items) return;
+      
+      let imageFile = null;
       for (let i = 0; i < items.length; i++) {
         if (items[i].type && items[i].type.startsWith('image/')) {
-          const file = items[i].getAsFile();
-          if (file) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-            await processAndAttachModalImage(file, prefix);
-            break;
-          }
+          imageFile = items[i].getAsFile();
+          break;
         }
+      }
+      if (!imageFile) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+
+      if (addOpen) {
+        await processAndAttachModalImage(imageFile, 'm');
+      } else if (editOpen) {
+        await processAndAttachModalImage(imageFile, 'edit');
+      } else if (ocrOpen) {
+        const rContainer = document.getElementById('ocr-result-container');
+        const isResultVisible = rContainer && !rContainer.classList.contains('hidden');
+        if (isResultVisible) {
+          // Attached directly to the question image box without resetting the form!
+          await processAndAttachModalImage(imageFile, 'ocr');
+        } else {
+          // Initial OCR scanning screen
+          processOcrImage(imageFile);
+        }
+      } else {
+        // No modal is currently open: open OCR modal and start analysis
+        openOcrModal();
+        processOcrImage(imageFile);
       }
     }, true);
 
@@ -3164,7 +3379,7 @@
 
     async function loadQuestions() {
       try {
-        const Q_VERSION = 'v10_guaranteed_image_upload_and_math_engine';
+        const Q_VERSION = 'v11_guaranteed_ocr_image_paste_and_diagrams';
         const savedVer = localStorage.getItem('qiyas_q_version');
         if (savedVer !== Q_VERSION) {
           localStorage.setItem('qiyas_q_version', Q_VERSION);
@@ -3979,49 +4194,21 @@
     // تنسيق ذكي لأسئلة المقارنات والمسائل الرياضية للفصل التام بين القيمتين وعرض الرسوم الهندسية
     function renderQuestionDisplay(q) {
       const text = q.question || '';
-      let textHtml = '';
-
       const isComparison = (text.includes('القيمة الأولى') && text.includes('القيمة الثانية')) || 
                            (text.includes('قارن بين') && (text.includes('القيمة') || text.includes('الطرف'))) ||
                            (q.topic === 'مقارنات' && text.includes('القيمة'));
-
-      if (isComparison) {
-        const comp = parseComparisonText(text);
-        if (comp && (comp.val1 || comp.val2)) {
-          textHtml = `
-            <div class="space-y-4">
-              <h3 class="text-base md:text-xl font-extrabold text-slate-900 leading-relaxed">${comp.intro}</h3>
-              <div class="grid grid-cols-2 gap-4 my-4">
-                <!-- القيمة الأولى (اليمين في RTL) -->
-                <div class="p-5 md:p-6 rounded-3xl bg-blue-50/80 border-2 border-blue-200 text-center shadow-xs flex flex-col justify-center items-center">
-                  <span class="text-xs font-black text-blue-700 bg-white px-3.5 py-1 rounded-full border border-blue-200 mb-3 shadow-xs">القيمة الأولى</span>
-                  <div class="text-xl md:text-3xl font-extrabold text-slate-900 leading-normal" dir="ltr">
-                    <bdi dir="ltr" class="font-bold select-all inline-block">${formatMathArabic(comp.val1)}</bdi>
-                  </div>
-                </div>
-                <!-- القيمة الثانية (اليسار في RTL) -->
-                <div class="p-5 md:p-6 rounded-3xl bg-purple-50/80 border-2 border-purple-200 text-center shadow-xs flex flex-col justify-center items-center">
-                  <span class="text-xs font-black text-purple-700 bg-white px-3.5 py-1 rounded-full border border-purple-200 mb-3 shadow-xs">القيمة الثانية</span>
-                  <div class="text-xl md:text-3xl font-extrabold text-slate-900 leading-normal" dir="ltr">
-                    <bdi dir="ltr" class="font-bold select-all inline-block">${formatMathArabic(comp.val2)}</bdi>
-                  </div>
-                </div>
-              </div>
-            </div>
-          `;
-        } else {
-          textHtml = `<h3 class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed whitespace-pre-line">${formatMathArabic(text)}</h3>`;
-        }
-      } else {
-        textHtml = `<h3 class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed whitespace-pre-line">${formatMathArabic(text)}</h3>`;
-      }
 
       // Visual / SVG Diagram
       let svgHtml = '';
       if (q.diagram_svg) {
         svgHtml = `
-          <div class="my-3 bg-white p-3 md:p-4 rounded-2xl border border-slate-200 flex items-center justify-center max-h-72 overflow-hidden shadow-2xs">
+          <div class="my-3 bg-white p-3 md:p-4 rounded-2xl border border-slate-200 flex flex-col items-center justify-center max-h-72 overflow-hidden shadow-2xs">
             ${q.diagram_svg}
+            ${(q.image || q.image_url) ? `
+              <button type="button" onclick="openImageZoomByQId('${q.id}')" class="mt-2 text-[11px] text-slate-500 hover:text-indigo-600 font-bold flex items-center gap-1">
+                <span>🔍 عرض صورة / لقطة المسألة الأصلية</span>
+              </button>
+            ` : ''}
           </div>
         `;
       }
@@ -4034,7 +4221,7 @@
         const isDataUrl = rawImg.startsWith('data:');
         const imgSrc = isDataUrl ? rawImg : normalizeImageUrl(rawImg);
         const initialSrc = isIndexed 
-          ? 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="70"><text x="100" y="40" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#94a3b8">جاري استرجاع الصورة... ⏳</text></svg>' 
+          ? 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="70"><text x="100" y="40" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#94a3b8">جاري استرجاع الصورة... ⏳</text></svg>')
           : imgSrc;
 
         imgHtml = `
@@ -4093,9 +4280,38 @@
         }, 20);
       }
 
+      if (isComparison) {
+        const comp = parseComparisonText(text);
+        if (comp && (comp.val1 || comp.val2)) {
+          return `
+            <div class="space-y-4">
+              <h3 class="text-base md:text-xl font-extrabold text-slate-900 leading-relaxed">${comp.intro}</h3>
+              ${svgHtml}
+              ${imgHtml}
+              <div class="grid grid-cols-2 gap-4 my-4">
+                <!-- القيمة الأولى (اليمين في RTL) -->
+                <div class="p-5 md:p-6 rounded-3xl bg-blue-50/80 border-2 border-blue-200 text-center shadow-xs flex flex-col justify-center items-center">
+                  <span class="text-xs font-black text-blue-700 bg-white px-3.5 py-1 rounded-full border border-blue-200 mb-3 shadow-xs">القيمة الأولى</span>
+                  <div class="text-xl md:text-3xl font-extrabold text-slate-900 leading-normal" dir="ltr">
+                    <bdi dir="ltr" class="font-bold select-all inline-block">${formatMathArabic(comp.val1)}</bdi>
+                  </div>
+                </div>
+                <!-- القيمة الثانية (اليسار في RTL) -->
+                <div class="p-5 md:p-6 rounded-3xl bg-purple-50/80 border-2 border-purple-200 text-center shadow-xs flex flex-col justify-center items-center">
+                  <span class="text-xs font-black text-purple-700 bg-white px-3.5 py-1 rounded-full border border-purple-200 mb-3 shadow-xs">القيمة الثانية</span>
+                  <div class="text-xl md:text-3xl font-extrabold text-slate-900 leading-normal" dir="ltr">
+                    <bdi dir="ltr" class="font-bold select-all inline-block">${formatMathArabic(comp.val2)}</bdi>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      }
+
       return `
         <div class="space-y-3">
-          ${textHtml}
+          <h3 class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed whitespace-pre-line">${formatMathArabic(text)}</h3>
           ${svgHtml}
           ${imgHtml}
         </div>
@@ -7745,26 +7961,6 @@
       }
     }
 
-    // Global Paste Listener for convenience (only when modals are closed)
-    window.addEventListener('paste', function(e) {
-      const addModal = document.getElementById('add-modal');
-      const editModal = document.getElementById('edit-modal');
-      const addOpen = addModal && !addModal.classList.contains('hidden');
-      const editOpen = editModal && !editModal.classList.contains('hidden');
-      if (addOpen || editOpen) return; // Add and Edit modals handle their own image paste
-
-      const items = (e.clipboardData || (e.originalEvent && e.originalEvent.clipboardData))?.items;
-      if (!items) return;
-      for (let index in items) {
-        const item = items[index];
-        if (item.kind === 'file' && item.type.indexOf('image/') !== -1) {
-          const blob = item.getAsFile();
-          openOcrModal();
-          processOcrImage(blob);
-          break;
-        }
-      }
-    });
 
     // Drag & Drop Setup
     window.addEventListener('DOMContentLoaded', () => {
@@ -7822,6 +8018,7 @@
         window.currentOcrDataUrl = dataUrl;
         const preview = document.getElementById('ocr-image-preview');
         if (preview) preview.src = dataUrl;
+        updateOcrAttachedImageUI(dataUrl);
         checkOcrVisualRequirement();
 
         // If user has saved or default Gemini API Key, analyze image directly with Gemini Vision!
@@ -9410,6 +9607,20 @@ ${questionStem}
         }
       }
       
+      const attachedCont = document.getElementById('ocr-attached-preview-container');
+      const attachedDrop = document.getElementById('ocr-attached-dropzone');
+      const attachedImg = document.getElementById('ocr-attached-preview-img');
+      if (hasImage && attachedCont && attachedDrop && attachedImg) {
+        if (!attachedImg.src || attachedImg.src !== window.currentOcrDataUrl) {
+          attachedImg.src = window.currentOcrDataUrl;
+        }
+        attachedCont.classList.remove('hidden');
+        attachedDrop.classList.add('hidden');
+      } else if (!hasImage && attachedCont && attachedDrop) {
+        attachedCont.classList.add('hidden');
+        attachedDrop.classList.remove('hidden');
+      }
+      
       updateOcrSectionBadge();
     }
 
@@ -9554,6 +9765,9 @@ ${questionStem}
           image: optimizedImage || '',
           image_url: optimizedImage || ''
         };
+      } else {
+        if (!savedRecord.image && optimizedImage) savedRecord.image = optimizedImage;
+        if (!savedRecord.image_url && optimizedImage) savedRecord.image_url = optimizedImage;
       }
 
       // Store image in IndexedDB for unlimited offline access
@@ -9607,12 +9821,16 @@ ${questionStem}
       });
     }
 
-    function testCurrentOcrQuestionNow() {
+    async function testCurrentOcrQuestionNow() {
       const qText = document.getElementById('ocr-field-question').value.trim() || 'مسألة تجريبية';
       const sec = document.getElementById('ocr-field-section').value;
       const topic = document.getElementById('ocr-field-topic').value.trim() || 'عام';
       const expl = document.getElementById('ocr-field-explanation').value.trim();
       const speed = document.getElementById('ocr-field-speed-rule').value.trim();
+      const keepImageCheck = document.getElementById('ocr-keep-image-check');
+      const keepImage = keepImageCheck ? keepImageCheck.checked : true;
+      const currentImg = (keepImage && window.currentOcrDataUrl) ? window.currentOcrDataUrl : '';
+
       const opts = [
         document.getElementById('ocr-opt-0').value.trim() || 'أ',
         document.getElementById('ocr-opt-1').value.trim() || 'ب',
@@ -9627,17 +9845,29 @@ ${questionStem}
         }
       }
 
+      const isGeom = isQuestionVisualOrGeometric(qText, topic);
+
       const testQ = {
         id: 9999,
         section: sec,
         section_ar: sec === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي',
-        topic,
+        topic: topic,
         question: qText,
         options: opts,
         correct_index: correctIdx,
-        explanation: expl,
-        speed_rule: speed
+        explanation: expl || 'شرح تفصيلي للمسألة.',
+        speed_rule: speed || 'استراتيجية الحل السريع.',
+        image: currentImg,
+        image_url: currentImg,
+        has_visual: !!currentImg || isGeom,
+        level: (isGeom && sec === 'quantitative') ? 3 : 1
       };
+
+      if (currentImg) {
+        try {
+          await QiyasImageStore.set('img_9999', currentImg);
+        } catch(e) {}
+      }
 
       closeOcrModal();
       launchTest([testQ], 'practice');
@@ -9678,6 +9908,7 @@ ${questionStem}
         preview.src = dUrl;
         window.currentOcrDataUrl = dUrl;
         window.currentOcrMimeType = 'image/png';
+        updateOcrAttachedImageUI(dUrl);
       }
 
       autoAnalyzeAndSolveQuestion(sampleText);
