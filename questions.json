@@ -7108,8 +7108,31 @@
     "speed_rule": "في الرسوم والقطاعات الدائرية: ابحث مباشرة عن أصغر قطاع أو أصغر نسبة مئوية دون الحاجة لإجراء أي حسابات.",
     "difficulty": 2,
     "level": 2,
-    "image": "",
-    "image_url": "",
+    "image": "questions_images/q_277_fuel_chart.png",
+    "image_url": "questions_images/q_277_fuel_chart.png",
+    "has_visual": true
+  },
+  {
+    "id": 278,
+    "track": "qudrat",
+    "section": "quantitative",
+    "section_ar": "القسم الكمي",
+    "topic": "مقارنات",
+    "question": "إذا كان الشكل مربعاً، بناءً على الرسم المرفق الذي يوضح قطراً مرسوماً في المربع تقسمه زاويتان متطابقتان، قارن بين:\nالقيمة الأولى: س\nالقيمة الثانية: ص",
+    "diagram_svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 460 260\" width=\"100%\" height=\"220\" class=\"mx-auto select-none\">\n  <defs>\n    <filter id=\"sq-shadow\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\">\n      <feDropShadow dx=\"0\" dy=\"3\" stdDeviation=\"3\" flood-color=\"#000000\" flood-opacity=\"0.08\"/>\n    </filter>\n  </defs>\n  <rect x=\"5\" y=\"5\" width=\"450\" height=\"250\" rx=\"16\" fill=\"#ffffff\" stroke=\"#e2e8f0\" stroke-width=\"1.5\"/>\n  <text x=\"230\" y=\"28\" text-anchor=\"middle\" font-family=\"'Cairo', sans-serif\" font-size=\"13\" font-weight=\"bold\" fill=\"#1e293b\">الشكل المجاور مربع أ ب ج د، وقطره أ ج يقسم الزاويتين إلى س و ص</text>\n  \n  <g transform=\"translate(130, 45)\" filter=\"url(#sq-shadow)\">\n    <rect x=\"0\" y=\"0\" width=\"170\" height=\"170\" fill=\"#f8fafc\" stroke=\"#1e293b\" stroke-width=\"3\" rx=\"2\"/>\n    <line x1=\"0\" y1=\"0\" x2=\"170\" y2=\"170\" stroke=\"#2563eb\" stroke-width=\"2.5\"/>\n    <path d=\"M 0 155 L 15 155 L 15 170\" fill=\"none\" stroke=\"#64748b\" stroke-width=\"1.5\"/>\n    <path d=\"M 155 0 L 155 15 L 170 15\" fill=\"none\" stroke=\"#64748b\" stroke-width=\"1.5\"/>\n    <path d=\"M 0 25 A 25 25 0 0 1 18 18\" fill=\"none\" stroke=\"#ef4444\" stroke-width=\"2.5\"/>\n    <text x=\"22\" y=\"38\" font-family=\"'Cairo', sans-serif\" font-size=\"14\" font-weight=\"bold\" fill=\"#ef4444\">س</text>\n    <path d=\"M 170 145 A 25 25 0 0 1 152 152\" fill=\"none\" stroke=\"#8b5cf6\" stroke-width=\"2.5\"/>\n    <text x=\"140\" y=\"145\" font-family=\"'Cairo', sans-serif\" font-size=\"14\" font-weight=\"bold\" fill=\"#8b5cf6\">ص</text>\n    <text x=\"-12\" y=\"-4\" font-family=\"'Cairo', sans-serif\" font-size=\"13\" font-weight=\"bold\" fill=\"#475569\">أ</text>\n    <text x=\"176\" y=\"-4\" font-family=\"'Cairo', sans-serif\" font-size=\"13\" font-weight=\"bold\" fill=\"#475569\">ب</text>\n    <text x=\"176\" y=\"180\" font-family=\"'Cairo', sans-serif\" font-size=\"13\" font-weight=\"bold\" fill=\"#475569\">ج</text>\n    <text x=\"-12\" y=\"180\" font-family=\"'Cairo', sans-serif\" font-size=\"13\" font-weight=\"bold\" fill=\"#475569\">د</text>\n  </g>\n  \n  <g transform=\"translate(325, 80)\">\n    <rect x=\"0\" y=\"0\" width=\"115\" height=\"100\" rx=\"12\" fill=\"#eff6ff\" stroke=\"#bfdbfe\" stroke-width=\"1.5\"/>\n    <text x=\"57\" y=\"24\" text-anchor=\"middle\" font-family=\"'Cairo', sans-serif\" font-size=\"11\" font-weight=\"bold\" fill=\"#1e40af\">خواص المربع:</text>\n    <text x=\"57\" y=\"46\" text-anchor=\"middle\" font-family=\"'Cairo', sans-serif\" font-size=\"10\" fill=\"#1e3a8a\">جميع الزوايا 90°</text>\n    <text x=\"57\" y=\"66\" text-anchor=\"middle\" font-family=\"'Cairo', sans-serif\" font-size=\"10\" fill=\"#1e3a8a\">القطر ينصف الزاوية</text>\n    <text x=\"57\" y=\"86\" text-anchor=\"middle\" font-family=\"'Cairo', sans-serif\" font-size=\"10\" font-weight=\"bold\" fill=\"#2563eb\">س = 45° ، ص = 45°</text>\n  </g>\n</svg>",
+    "options": [
+      "القيمة الأولى أكبر",
+      "القيمة الثانية أكبر",
+      "القيمتان متساويتان",
+      "المعطيات غير كافية"
+    ],
+    "correct_index": 2,
+    "explanation": "في المربع: جميع الزوايا قائمة وتساوي 90°، وقطر المربع ينصف زاويتي الرأس المتقابلتين اللتين يمر بهما إلى زاويتين قياس كل منهما 45°. وبما أن الزاوية س = 45° والزاوية ص = 45°، فإن القيمتين متساويتان.",
+    "speed_rule": "قاعدة هندسية ثابتة: قطر المربع دائماً ينصف زاويتي الرأس إلى 45° و 45°، وبالتالي أي زاويتين ناتجتين عن تنصيف القطر متساويتان تماماً.",
+    "difficulty": 2,
+    "level": 2,
+    "image": "questions_images/q_square_diagonal.png",
+    "image_url": "questions_images/q_square_diagonal.png",
     "has_visual": true
   }
 ]

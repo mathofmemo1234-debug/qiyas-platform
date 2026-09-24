@@ -24,3 +24,7 @@ cropped_question_1.png
 # System / OS
 Thumbs.db
 .DS_Store
+
+# Scratch & Content folders
+scratch/
+content/

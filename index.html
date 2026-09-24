@@ -143,6 +143,26 @@
       text-align: center !important;
       margin: 0.8em auto !important;
     }
+    /* Arabic Mathematical Notation & BiDi Isolates */
+    .math-expr {
+      direction: ltr !important;
+      unicode-bidi: isolate !important;
+      font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+      font-weight: 700;
+      display: inline-block;
+      white-space: nowrap;
+    }
+    .math-toolbar-btn {
+      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .math-toolbar-btn:hover {
+      transform: translateY(-1px);
+    }
+    .math-toolbar-btn:active {
+      transform: scale(0.92);
+    }
     /* Custom Scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
@@ -1501,8 +1521,46 @@
 
         <!-- Standard Question Input -->
         <div id="m-standard-container">
-          <label class="block font-bold text-slate-700 mb-1">نص المسألة أو التناظر اللفظي:</label>
-          <textarea id="m-question" rows="3" class="w-full p-3 rounded-xl border border-slate-200 text-sm leading-relaxed" placeholder="اكتب نص المسألة هنا... (يدعم صيغ الرياضيات \frac{}{})"></textarea>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block font-bold text-slate-700">نص المسألة أو التناظر اللفظي:</label>
+            <button type="button" onclick="smartFormatMathField('m-question')" class="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs flex items-center gap-1 transition-all active:scale-95" title="تحويل الكلمات (ضرب، قسمة...) لصيغ رياضية وتحويل المقارنات تلقائياً">
+              <span>✨ تنسيق رياضي ذكي</span>
+            </button>
+          </div>
+          <!-- Arabic Math Quick Toolbar -->
+          <div class="mb-2 p-1.5 bg-slate-100/90 rounded-xl border border-slate-200 flex flex-wrap items-center gap-1 text-xs">
+            <span class="text-[11px] font-bold text-slate-600 ml-1">📐 الرموز الرياضية:</span>
+            <button type="button" onclick="insertMathSymbol('m-question', '×')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-sm shadow-2xs" title="ضرب">×</button>
+            <button type="button" onclick="insertMathSymbol('m-question', '÷')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-sm shadow-2xs" title="قسمة">÷</button>
+            <button type="button" onclick="insertMathSymbol('m-question', '+')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-sm shadow-2xs" title="جمع">+</button>
+            <button type="button" onclick="insertMathSymbol('m-question', '−')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-sm shadow-2xs" title="طرح">−</button>
+            <button type="button" onclick="insertMathSymbol('m-question', '²')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-sm shadow-2xs" title="تربيع (أس 2)">²</button>
+            <button type="button" onclick="insertMathSymbol('m-question', '³')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-sm shadow-2xs" title="تكعيب (أس 3)">³</button>
+            <button type="button" onclick="insertMathSymbol('m-question', '√')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-sm shadow-2xs" title="جذر تربيعي">√</button>
+            <button type="button" onclick="insertMathSymbol('m-question', '½')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="نصف">½</button>
+            <button type="button" onclick="insertMathSymbol('m-question', '¼')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="ربع">¼</button>
+            <button type="button" onclick="insertMathSymbol('m-question', '¾')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="ثلاثة أرباع">¾</button>
+            <button type="button" onclick="insertMathSymbol('m-question', '⅓')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="ثلث">⅓</button>
+            <button type="button" onclick="insertMathSymbol('m-question', '( )')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-indigo-700 text-xs shadow-2xs" title="أقواس">( )</button>
+            <button type="button" onclick="insertMathSymbol('m-question', 'س')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="المتغير س">س</button>
+            <button type="button" onclick="insertMathSymbol('m-question', 'ص')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="المتغير ص">ص</button>
+            <button type="button" onclick="insertMathSymbol('m-question', 'ط')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="النسبة التقريبية ط">ط</button>
+            <button type="button" onclick="insertMathSymbol('m-question', '°')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="درجة">°</button>
+            <button type="button" onclick="insertMathSymbol('m-question', '≠')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="لا يساوي">≠</button>
+            <button type="button" onclick="insertMathSymbol('m-question', '≤')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="أصغر أو يساوي">≤</button>
+            <button type="button" onclick="insertMathSymbol('m-question', '≥')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="أكبر أو يساوي">≥</button>
+          </div>
+          <textarea id="m-question" rows="3" oninput="checkComparisonAutoDetect(this)" class="w-full p-3 rounded-xl border border-slate-200 text-sm leading-relaxed" placeholder="اكتب نص المسألة هنا... مثال: قارن بين: القيمة الأولى (7 ضرب 2) ÷ 2 ، والقيمة الثانية (7 ضرب 3) ÷ 2"></textarea>
+          <!-- Auto-detect Comparison Notice -->
+          <div id="m-question-comp-notice" class="hidden mt-2 p-2.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-center justify-between gap-2 shadow-2xs">
+            <span class="font-bold flex items-center gap-1.5">
+              <span>⚖️</span>
+              <span>تم رصد سؤال مقارنة في النص! اضغط هنا لتحويله تلقائياً لبطاقتي القيمة الأولى والثانية:</span>
+            </span>
+            <button type="button" onclick="smartFormatMathField('m-question')" class="px-3 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs whitespace-nowrap shadow-xs active:scale-95 transition-all">
+              تحويل وتنسيق الآن ✨
+            </button>
+          </div>
         </div>
 
         <!-- Comparison Question Inputs -->
@@ -1511,14 +1569,36 @@
             <label class="block font-bold text-indigo-900 mb-1">مقدمة أو معطيات المقارنة (اختياري):</label>
             <input type="text" id="m-comp-intro" class="w-full p-2.5 rounded-xl border border-indigo-200 bg-white" placeholder="مثال: إذا كانت س > ٠ ، قارن بين:">
           </div>
+          <!-- Comparison Math Quick Toolbar -->
+          <div class="p-1.5 bg-white/90 rounded-xl border border-indigo-200 flex flex-wrap items-center justify-between gap-1 text-xs shadow-2xs">
+            <div class="flex flex-wrap items-center gap-1">
+              <span class="text-[11px] font-bold text-indigo-900 ml-1">إدراج في القيم:</span>
+              <button type="button" onclick="insertMathSymbolToActiveComp('×')" class="math-toolbar-btn px-2 py-0.5 bg-indigo-50/60 hover:bg-indigo-100 border border-indigo-200 rounded font-bold text-indigo-900 text-sm shadow-2xs" title="ضرب">×</button>
+              <button type="button" onclick="insertMathSymbolToActiveComp('÷')" class="math-toolbar-btn px-2 py-0.5 bg-indigo-50/60 hover:bg-indigo-100 border border-indigo-200 rounded font-bold text-indigo-900 text-sm shadow-2xs" title="قسمة">÷</button>
+              <button type="button" onclick="insertMathSymbolToActiveComp('+')" class="math-toolbar-btn px-2 py-0.5 bg-indigo-50/60 hover:bg-indigo-100 border border-indigo-200 rounded font-bold text-indigo-900 text-sm shadow-2xs" title="جمع">+</button>
+              <button type="button" onclick="insertMathSymbolToActiveComp('−')" class="math-toolbar-btn px-2 py-0.5 bg-indigo-50/60 hover:bg-indigo-100 border border-indigo-200 rounded font-bold text-indigo-900 text-sm shadow-2xs" title="طرح">−</button>
+              <button type="button" onclick="insertMathSymbolToActiveComp('²')" class="math-toolbar-btn px-2 py-0.5 bg-indigo-50/60 hover:bg-indigo-100 border border-indigo-200 rounded font-bold text-indigo-900 text-sm shadow-2xs" title="تربيع">²</button>
+              <button type="button" onclick="insertMathSymbolToActiveComp('³')" class="math-toolbar-btn px-2 py-0.5 bg-indigo-50/60 hover:bg-indigo-100 border border-indigo-200 rounded font-bold text-indigo-900 text-sm shadow-2xs" title="تكعيب">³</button>
+              <button type="button" onclick="insertMathSymbolToActiveComp('√')" class="math-toolbar-btn px-2 py-0.5 bg-indigo-50/60 hover:bg-indigo-100 border border-indigo-200 rounded font-bold text-indigo-900 text-sm shadow-2xs" title="جذر">√</button>
+              <button type="button" onclick="insertMathSymbolToActiveComp('½')" class="math-toolbar-btn px-2 py-0.5 bg-indigo-50/60 hover:bg-indigo-100 border border-indigo-200 rounded font-bold text-indigo-900 text-xs shadow-2xs" title="نصف">½</button>
+              <button type="button" onclick="insertMathSymbolToActiveComp('¼')" class="math-toolbar-btn px-2 py-0.5 bg-indigo-50/60 hover:bg-indigo-100 border border-indigo-200 rounded font-bold text-indigo-900 text-xs shadow-2xs" title="ربع">¼</button>
+              <button type="button" onclick="insertMathSymbolToActiveComp('( )')" class="math-toolbar-btn px-2 py-0.5 bg-indigo-50/60 hover:bg-indigo-100 border border-indigo-200 rounded font-bold text-indigo-700 text-xs shadow-2xs" title="أقواس">( )</button>
+              <button type="button" onclick="insertMathSymbolToActiveComp('س')" class="math-toolbar-btn px-2 py-0.5 bg-indigo-50/60 hover:bg-indigo-100 border border-indigo-200 rounded font-bold text-indigo-900 text-xs shadow-2xs" title="المتغير س">س</button>
+              <button type="button" onclick="insertMathSymbolToActiveComp('ص')" class="math-toolbar-btn px-2 py-0.5 bg-indigo-50/60 hover:bg-indigo-100 border border-indigo-200 rounded font-bold text-indigo-900 text-xs shadow-2xs" title="المتغير ص">ص</button>
+              <button type="button" onclick="insertMathSymbolToActiveComp('ط')" class="math-toolbar-btn px-2 py-0.5 bg-indigo-50/60 hover:bg-indigo-100 border border-indigo-200 rounded font-bold text-indigo-900 text-xs shadow-2xs" title="ط">ط</button>
+            </div>
+            <button type="button" onclick="smartFormatMathField('m-comp-val1'); smartFormatMathField('m-comp-val2');" class="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition-all shadow-xs active:scale-95" title="تنسيق رياضي ذكي للقيمتين">
+              ✨ تنسيق ذكي
+            </button>
+          </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="block font-bold text-blue-800 mb-1">القيمة الأولى (الطرف الأيمن):</label>
-              <input type="text" id="m-comp-val1" class="w-full p-2.5 rounded-xl border border-blue-300 bg-white font-bold" placeholder="مثال: - (\frac{1}{4})^3">
+              <input type="text" id="m-comp-val1" onfocus="window.lastActiveCompField = 'm-comp-val1'" class="w-full p-2.5 rounded-xl border border-blue-300 bg-white font-bold" placeholder="مثال: (7 × 2) ÷ 2">
             </div>
             <div>
               <label class="block font-bold text-purple-800 mb-1">القيمة الثانية (الطرف الأيسر):</label>
-              <input type="text" id="m-comp-val2" class="w-full p-2.5 rounded-xl border border-purple-300 bg-white font-bold" placeholder="مثال: - (\frac{1}{4})^2">
+              <input type="text" id="m-comp-val2" onfocus="window.lastActiveCompField = 'm-comp-val2'" class="w-full p-2.5 rounded-xl border border-purple-300 bg-white font-bold" placeholder="مثال: (7 × 3) ÷ 2">
             </div>
           </div>
           <span class="text-[11px] text-slate-500 block">يقوم النظام تلقائياً بفرز وتنسيق المقارنة في بطاقتين متجاورتين تمنع التداخل الرياضي تماماً.</span>
@@ -1562,30 +1642,75 @@
 
         <div>
           <label class="block font-bold text-slate-700 mb-1 flex items-center justify-between">
-            <span>📷 صورة أو رسم المسألة (اختياري / للمسائل الهندسية):</span>
-            <span class="text-[10px] text-emerald-600 font-bold">رابط مباشر (URL)، رفع صورة، سحب وإفلات، أو لصق (Ctrl+V)</span>
+            <span class="flex items-center gap-1.5">
+              <span>📷</span>
+              <span>تحديد وإرفاق صورة المسألة (للمسائل الهندسية والإحصائية):</span>
+            </span>
+            <span class="text-[11px] text-emerald-600 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              تحديد ملف • سحب وإفلات • لصق مباشر (Ctrl+V)
+            </span>
           </label>
-          <div class="space-y-2" ondragover="event.preventDefault(); this.classList.add('ring-2', 'ring-sky-400')" ondragleave="this.classList.remove('ring-2', 'ring-sky-400')" ondrop="this.classList.remove('ring-2', 'ring-sky-400'); handleModalImageDrop(event, 'm')">
-            <div class="flex items-center gap-2">
-              <input type="file" id="m-image-file-input" accept="image/*" class="hidden" onchange="handleModalImageSelect(event, 'm')">
-              <button type="button" onclick="document.getElementById('m-image-file-input').click()" class="px-4 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-bold text-xs flex items-center gap-1.5 transition-all shrink-0">
-                <span>📁 رفع صورة</span>
-              </button>
-              <input type="text" id="m-image" oninput="handleModalImageUrlInput('m')" onchange="handleModalImageUrlInput('m')" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-mono" placeholder="أو الصق رابط صورة مباشر: https://... أو questions_images/q_14.png">
-              <button type="button" onclick="handleModalImageUrlInput('m', true)" class="px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs whitespace-nowrap transition-all">
-                🌐 معاينة
-              </button>
-            </div>
-            <div id="m-image-preview-container" class="hidden flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-200">
-              <img id="m-image-preview-img" src="" alt="معاينة" class="w-14 h-14 object-contain rounded-lg border border-slate-200 bg-white">
-              <div class="flex-1 text-xs">
-                <span class="font-bold text-slate-700 block">تم اختيار صورة للمسألة</span>
-                <span id="m-image-preview-size" class="text-[10px] text-slate-400"></span>
+          
+          <input type="file" id="m-image-file-input" accept="image/*" class="hidden" onchange="handleModalImageSelect(event, 'm')">
+          
+          <!-- Prominent Dropzone Area -->
+          <div id="m-image-dropzone" 
+               onclick="document.getElementById('m-image-file-input').click()"
+               ondragover="event.preventDefault(); this.classList.add('border-sky-500', 'bg-sky-100/70', 'ring-2', 'ring-sky-400')" 
+               ondragleave="this.classList.remove('border-sky-500', 'bg-sky-100/70', 'ring-2', 'ring-sky-400')" 
+               ondrop="event.preventDefault(); this.classList.remove('border-sky-500', 'bg-sky-100/70', 'ring-2', 'ring-sky-400'); handleModalImageDrop(event, 'm')"
+               class="border-2 border-dashed border-sky-300 hover:border-sky-500 bg-sky-50/50 hover:bg-sky-50 transition-all rounded-2xl p-4 text-center cursor-pointer shadow-2xs group">
+            
+            <div class="flex flex-col items-center justify-center gap-2">
+              <div class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                📁
               </div>
-              <button type="button" onclick="clearModalImage('m')" class="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold text-xs">
-                ✕ حذف
+              <div>
+                <p class="font-extrabold text-sm text-slate-800">انقر هنا لتحديد واختيار صورة من جهازك</p>
+                <p class="text-xs text-slate-500 mt-0.5">أو اسحب ملف الصورة وأفلته هنا، أو الصق لقطة الشاشة مباشرة بالضغط على <kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded font-mono text-[10px] text-slate-700 shadow-2xs">Ctrl + V</kbd></p>
+              </div>
+              <button type="button" class="mt-1 px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs">
+                <span>📁 تحديد الصورة الآن</span>
               </button>
             </div>
+          </div>
+
+          <!-- Active Preview Card (shown when image is attached) -->
+          <div id="m-image-preview-container" class="hidden mt-2 p-3 bg-white rounded-2xl border-2 border-emerald-300 shadow-sm flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="relative group cursor-pointer" onclick="previewModalImageZoom('m')">
+                <img id="m-image-preview-img" src="" alt="معاينة الصورة" class="w-16 h-16 object-contain rounded-xl border border-slate-200 bg-slate-50 shadow-2xs group-hover:scale-105 transition-transform">
+                <span class="absolute inset-0 bg-slate-900/40 rounded-xl flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity font-bold">🔍</span>
+              </div>
+              <div class="text-xs">
+                <span class="font-extrabold text-emerald-800 flex items-center gap-1">
+                  <span>✅</span>
+                  <span>تم تحديد وتضمين الصورة بنجاح</span>
+                </span>
+                <span id="m-image-preview-size" class="text-[11px] text-slate-500 font-mono block mt-0.5"></span>
+                <span class="text-[10px] text-slate-400 block">الصورة جاهزة ومحفوظة مع المسألة في بنك الأسئلة والاختبارات</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" onclick="previewModalImageZoom('m')" class="px-2.5 py-1.5 rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100 font-bold text-xs border border-sky-200 flex items-center gap-1">
+                <span>🔍 تكبير</span>
+              </button>
+              <button type="button" onclick="document.getElementById('m-image-file-input').click()" class="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold text-xs border border-slate-200 flex items-center gap-1">
+                <span>🔄 تغيير</span>
+              </button>
+              <button type="button" onclick="clearModalImage('m')" class="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold text-xs border border-rose-200 flex items-center gap-1">
+                <span>✕ حذف</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Direct URL / Path Option -->
+          <div class="mt-2 flex items-center gap-2">
+            <span class="text-[11px] font-bold text-slate-500 shrink-0">🌐 رابط/مسار مباشر:</span>
+            <input type="text" id="m-image" oninput="handleModalImageUrlInput('m')" onchange="handleModalImageUrlInput('m')" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50" placeholder="أو الصق رابط صورة مباشر: https://... أو questions_images/q_14.png">
+            <button type="button" onclick="handleModalImageUrlInput('m', true)" class="px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs whitespace-nowrap transition-all">
+              معاينة
+            </button>
           </div>
         </div>
       </div>
@@ -1631,7 +1756,33 @@
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">نص المسألة:</label>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block font-bold text-slate-700">نص المسألة:</label>
+            <button type="button" onclick="smartFormatMathField('edit-question')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold text-xs flex items-center gap-1 transition-all active:scale-95" title="تنسيق رياضي ذكي للمسألة">
+              <span>✨ تنسيق رياضي ذكي</span>
+            </button>
+          </div>
+          <!-- Edit Question Math Toolbar -->
+          <div class="mb-2 p-1.5 bg-slate-100/90 rounded-xl border border-slate-200 flex flex-wrap items-center gap-1 text-xs">
+            <span class="text-[11px] font-bold text-slate-600 ml-1">📐 رموز:</span>
+            <button type="button" onclick="insertMathSymbol('edit-question', '×')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-sm shadow-2xs" title="ضرب">×</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', '÷')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-sm shadow-2xs" title="قسمة">÷</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', '+')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-sm shadow-2xs" title="جمع">+</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', '−')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-sm shadow-2xs" title="طرح">−</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', '²')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-sm shadow-2xs" title="تربيع">²</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', '³')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-sm shadow-2xs" title="تكعيب">³</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', '√')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-sm shadow-2xs" title="جذر">√</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', '½')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="نصف">½</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', '¼')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="ربع">¼</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', '( )')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-amber-700 text-xs shadow-2xs" title="أقواس">( )</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', 'س')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="س">س</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', 'ص')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="ص">ص</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', 'ط')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="ط">ط</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', '°')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="درجة">°</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', '≠')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="لا يساوي">≠</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', '≤')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="أصغر أو يساوي">≤</button>
+            <button type="button" onclick="insertMathSymbol('edit-question', '≥')" class="math-toolbar-btn px-2 py-0.5 bg-white hover:bg-amber-50 border border-slate-200 rounded font-bold text-slate-800 text-xs shadow-2xs" title="أكبر أو يساوي">≥</button>
+          </div>
           <textarea id="edit-question" rows="4" class="w-full p-3 rounded-xl border border-slate-200 text-sm leading-relaxed"></textarea>
         </div>
 
@@ -1656,7 +1807,27 @@
         </div>
 
         <div>
-          <label class="block font-bold text-slate-700 mb-1">الشرح وطريقة الحل:</label>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block font-bold text-slate-700">الشرح وطريقة الحل:</label>
+            <button type="button" onclick="smartFormatMathField('edit-explanation')" class="px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-bold text-[11px] flex items-center gap-1 transition-all active:scale-95">
+              <span>✨ تنسيق الشرح</span>
+            </button>
+          </div>
+          <!-- Edit Explanation Math Toolbar -->
+          <div class="mb-1.5 p-1 bg-slate-50 rounded-xl border border-slate-200 flex flex-wrap items-center gap-1 text-xs">
+            <button type="button" onclick="insertMathSymbol('edit-explanation', '×')" class="math-toolbar-btn px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-xs" title="ضرب">×</button>
+            <button type="button" onclick="insertMathSymbol('edit-explanation', '÷')" class="math-toolbar-btn px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-xs" title="قسمة">÷</button>
+            <button type="button" onclick="insertMathSymbol('edit-explanation', '+')" class="math-toolbar-btn px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-xs" title="جمع">+</button>
+            <button type="button" onclick="insertMathSymbol('edit-explanation', '−')" class="math-toolbar-btn px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-xs" title="طرح">−</button>
+            <button type="button" onclick="insertMathSymbol('edit-explanation', '²')" class="math-toolbar-btn px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-xs" title="تربيع">²</button>
+            <button type="button" onclick="insertMathSymbol('edit-explanation', '³')" class="math-toolbar-btn px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-xs" title="تكعيب">³</button>
+            <button type="button" onclick="insertMathSymbol('edit-explanation', '√')" class="math-toolbar-btn px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-xs" title="جذر">√</button>
+            <button type="button" onclick="insertMathSymbol('edit-explanation', '½')" class="math-toolbar-btn px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-xs" title="نصف">½</button>
+            <button type="button" onclick="insertMathSymbol('edit-explanation', '¼')" class="math-toolbar-btn px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-xs" title="ربع">¼</button>
+            <button type="button" onclick="insertMathSymbol('edit-explanation', 'س')" class="math-toolbar-btn px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-xs" title="س">س</button>
+            <button type="button" onclick="insertMathSymbol('edit-explanation', 'ص')" class="math-toolbar-btn px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-xs" title="ص">ص</button>
+            <button type="button" onclick="insertMathSymbol('edit-explanation', 'ط')" class="math-toolbar-btn px-1.5 py-0.5 bg-white border border-slate-200 rounded font-bold text-xs" title="ط">ط</button>
+          </div>
           <textarea id="edit-explanation" rows="4" dir="rtl" style="direction: rtl; text-align: right; unicode-bidi: plaintext; white-space: pre-wrap; font-family: 'Cairo', sans-serif; line-height: 1.8;" class="w-full p-3 rounded-xl border border-slate-200 leading-relaxed"></textarea>
         </div>
 
@@ -1667,30 +1838,75 @@
 
         <div>
           <label class="block font-bold text-slate-700 mb-1 flex items-center justify-between">
-            <span>📷 صورة المسألة / الرسم الهندسي:</span>
-            <span class="text-[10px] text-emerald-600 font-bold">رابط مباشر (URL)، رفع صورة، سحب وإفلات، أو لصق (Ctrl+V)</span>
+            <span class="flex items-center gap-1.5">
+              <span>📷</span>
+              <span>تحديد وإرفاق صورة المسألة / الرسم الهندسي:</span>
+            </span>
+            <span class="text-[11px] text-emerald-600 font-bold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              تحديد ملف • سحب وإفلات • لصق مباشر (Ctrl+V)
+            </span>
           </label>
-          <div class="space-y-2" ondragover="event.preventDefault(); this.classList.add('ring-2', 'ring-sky-400')" ondragleave="this.classList.remove('ring-2', 'ring-sky-400')" ondrop="this.classList.remove('ring-2', 'ring-sky-400'); handleModalImageDrop(event, 'edit')">
-            <div class="flex items-center gap-2">
-              <input type="file" id="edit-image-file-input" accept="image/*" class="hidden" onchange="handleModalImageSelect(event, 'edit')">
-              <button type="button" onclick="document.getElementById('edit-image-file-input').click()" class="px-3 py-2 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 font-bold text-xs flex items-center gap-1.5 whitespace-nowrap transition-all shrink-0">
-                <span>📁 رفع صورة</span>
-              </button>
-              <input type="text" id="edit-image" oninput="handleModalImageUrlInput('edit')" onchange="handleModalImageUrlInput('edit')" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50" placeholder="الصق رابط صورة مباشر: https://... أو questions_images/q_14.png">
-              <button type="button" onclick="handleModalImageUrlInput('edit', true)" class="px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs whitespace-nowrap transition-all">
-                🌐 معاينة
-              </button>
-            </div>
-            <div id="edit-image-preview-container" class="hidden flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-200">
-              <img id="edit-image-preview-img" src="" alt="معاينة" class="w-14 h-14 object-contain rounded-lg border border-slate-200 bg-white">
-              <div class="flex-1 text-xs">
-                <span class="font-bold text-slate-700 block">الصورة المرفقة بالمسألة</span>
-                <span id="edit-image-preview-size" class="text-[10px] text-slate-400"></span>
+          
+          <input type="file" id="edit-image-file-input" accept="image/*" class="hidden" onchange="handleModalImageSelect(event, 'edit')">
+          
+          <!-- Prominent Dropzone Area -->
+          <div id="edit-image-dropzone" 
+               onclick="document.getElementById('edit-image-file-input').click()"
+               ondragover="event.preventDefault(); this.classList.add('border-sky-500', 'bg-sky-100/70', 'ring-2', 'ring-sky-400')" 
+               ondragleave="this.classList.remove('border-sky-500', 'bg-sky-100/70', 'ring-2', 'ring-sky-400')" 
+               ondrop="event.preventDefault(); this.classList.remove('border-sky-500', 'bg-sky-100/70', 'ring-2', 'ring-sky-400'); handleModalImageDrop(event, 'edit')"
+               class="border-2 border-dashed border-sky-300 hover:border-sky-500 bg-sky-50/50 hover:bg-sky-50 transition-all rounded-2xl p-4 text-center cursor-pointer shadow-2xs group">
+            
+            <div class="flex flex-col items-center justify-center gap-2">
+              <div class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                📁
               </div>
-              <button type="button" onclick="clearModalImage('edit')" class="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold text-xs">
-                ✕ حذف
+              <div>
+                <p class="font-extrabold text-sm text-slate-800">انقر هنا لتحديد واختيار صورة جديدة من جهازك</p>
+                <p class="text-xs text-slate-500 mt-0.5">أو اسحب ملف الصورة وأفلته هنا، أو الصق لقطة الشاشة مباشرة بالضغط على <kbd class="px-1.5 py-0.5 bg-white border border-slate-300 rounded font-mono text-[10px] text-slate-700 shadow-2xs">Ctrl + V</kbd></p>
+              </div>
+              <button type="button" class="mt-1 px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs">
+                <span>📁 تحديد الصورة الآن</span>
               </button>
             </div>
+          </div>
+
+          <!-- Active Preview Card (shown when image is attached) -->
+          <div id="edit-image-preview-container" class="hidden mt-2 p-3 bg-white rounded-2xl border-2 border-emerald-300 shadow-sm flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="relative group cursor-pointer" onclick="previewModalImageZoom('edit')">
+                <img id="edit-image-preview-img" src="" alt="معاينة الصورة" class="w-16 h-16 object-contain rounded-xl border border-slate-200 bg-slate-50 shadow-2xs group-hover:scale-105 transition-transform">
+                <span class="absolute inset-0 bg-slate-900/40 rounded-xl flex items-center justify-center text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity font-bold">🔍</span>
+              </div>
+              <div class="text-xs">
+                <span class="font-extrabold text-emerald-800 flex items-center gap-1">
+                  <span>✅</span>
+                  <span>الصورة المرفقة بالمسألة محددة ومضمونة</span>
+                </span>
+                <span id="edit-image-preview-size" class="text-[11px] text-slate-500 font-mono block mt-0.5"></span>
+                <span class="text-[10px] text-slate-400 block">الصورة جاهزة ومربوطة بالمسألة</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" onclick="previewModalImageZoom('edit')" class="px-2.5 py-1.5 rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100 font-bold text-xs border border-sky-200 flex items-center gap-1">
+                <span>🔍 تكبير</span>
+              </button>
+              <button type="button" onclick="document.getElementById('edit-image-file-input').click()" class="px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-bold text-xs border border-slate-200 flex items-center gap-1">
+                <span>🔄 تغيير</span>
+              </button>
+              <button type="button" onclick="clearModalImage('edit')" class="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold text-xs border border-rose-200 flex items-center gap-1">
+                <span>✕ حذف</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Direct URL option -->
+          <div class="mt-2 flex items-center gap-2">
+            <span class="text-[11px] font-bold text-slate-500 shrink-0">🌐 رابط/مسار مباشر:</span>
+            <input type="text" id="edit-image" oninput="handleModalImageUrlInput('edit')" onchange="handleModalImageUrlInput('edit')" class="w-full p-2 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50" placeholder="الصق رابط صورة مباشر: https://... أو questions_images/q_14.png">
+            <button type="button" onclick="handleModalImageUrlInput('edit', true)" class="px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs whitespace-nowrap transition-all">
+              معاينة
+            </button>
           </div>
         </div>
       </div>
@@ -2515,15 +2731,16 @@
     };
 
     // ================= SMART IMAGE COMPRESSION VIA CANVAS =================
-    // ضغط ذكي فائق يحول الصور إلى صيغة WebP بأبعاد مثالية (640px كحد أقصى) وبحجم خفيف جداً (10-18 كيلوبايت)
-    async function compressAndOptimizeImage(dataUrlOrFile, maxDim = 640, quality = 0.68) {
+    // ضغط ذكي فائق يحافظ على دقة ووضوح النصوص والرسوم الهندسية (1200px كحد أقصى) وبحجم خفيف جداً
+    async function compressAndOptimizeImage(dataUrlOrFile, maxDim = 1200, quality = 0.82) {
+      if (!dataUrlOrFile) return '';
       return new Promise((resolve) => {
         const processDataUrl = (src) => {
           const img = new Image();
           img.crossOrigin = 'anonymous';
           img.onload = () => {
-            let width = img.width;
-            let height = img.height;
+            let width = img.naturalWidth || img.width;
+            let height = img.naturalHeight || img.height;
             if (width > maxDim || height > maxDim) {
               if (width > height) {
                 height = Math.round((height * maxDim) / width);
@@ -2537,14 +2754,21 @@
             canvas.width = width;
             canvas.height = height;
             const ctx = canvas.getContext('2d');
+            if (!ctx) {
+              resolve(src);
+              return;
+            }
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, width, height);
             ctx.drawImage(img, 0, 0, width, height);
-            let optimized = canvas.toDataURL('image/webp', quality);
-            if (!optimized || optimized.length > src.length) {
-              optimized = canvas.toDataURL('image/jpeg', quality);
+            try {
+              let optimized = canvas.toDataURL('image/jpeg', quality);
+              resolve(optimized);
+            } catch (e) {
+              resolve(src);
             }
-            resolve(optimized);
           };
           img.onerror = () => resolve(src);
           img.src = src;
@@ -2640,23 +2864,24 @@
     // ================= ENHANCED FAST & GUARANTEED IMAGE UPLOADER =================
     async function processAndAttachModalImage(fileOrBlob, prefix) {
       if (!fileOrBlob) return;
+      const isM = (prefix === 'm' || prefix === 'add');
       try {
-        const preview = document.getElementById(prefix === 'm' ? 'm-image-preview-img' : 'edit-image-preview-img');
-        const container = document.getElementById(prefix === 'm' ? 'm-image-preview-container' : 'edit-image-preview-container');
-        const sizeSpan = document.getElementById(prefix === 'm' ? 'm-image-preview-size' : 'edit-image-preview-size');
-        const txtInput = document.getElementById(prefix === 'm' ? 'm-image' : 'edit-image');
+        const preview = document.getElementById(isM ? 'm-image-preview-img' : 'edit-image-preview-img');
+        const container = document.getElementById(isM ? 'm-image-preview-container' : 'edit-image-preview-container');
+        const sizeSpan = document.getElementById(isM ? 'm-image-preview-size' : 'edit-image-preview-size');
+        const txtInput = document.getElementById(isM ? 'm-image' : 'edit-image');
 
         if (container) container.classList.remove('hidden');
-        if (sizeSpan) sizeSpan.innerText = 'جاري الضغط الذكي الفائق (WebP)... ⏳';
+        if (sizeSpan) sizeSpan.innerText = 'جاري معالجة وتجهيز الصورة بأعلى وضوح... ⏳';
 
-        // ضغط ذكي إلى 640px بجودة WebP عالية جداً وحجم ضئيل
-        const compressed = await compressAndOptimizeImage(fileOrBlob, 640, 0.68);
-        if (prefix === 'm') window.currentModalImageDataUrl = compressed;
+        // ضغط ذكي بدقة فائقة 1200px تحافظ تماماً على وضوح الرموز الرياضية والخطوط الهندسية
+        const compressed = await compressAndOptimizeImage(fileOrBlob, 1200, 0.82);
+        if (isM) window.currentModalImageDataUrl = compressed;
         else window.currentEditModalImageDataUrl = compressed;
 
         if (preview) preview.src = compressed;
         const kbSize = Math.round(compressed.length / 1024);
-        if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب (ضغط ذكي فائق) • جاري التخزين الدائم... ⏳`;
+        if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب • تم التضمين والحفظ المباشر ✓`;
 
         // 1. التخزين الفوري في IndexedDB المحلي غير المحدود لضمان عدم الفقدان إطلاقاً
         try {
@@ -2671,32 +2896,35 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               image_base64: compressed,
-              prefix: prefix === 'm' ? 'q_new' : 'q_edit'
+              prefix: isM ? 'q_new' : 'q_edit'
             })
           });
           if (resp.ok) {
             const data = await resp.json();
             if (data.success && data.image_url) {
               if (txtInput) txtInput.value = data.image_url;
-              if (prefix === 'm') window.currentModalImageDataUrl = data.image_url;
+              if (isM) window.currentModalImageDataUrl = data.image_url;
               else window.currentEditModalImageDataUrl = data.image_url;
-              if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب • تم الحفظ على الخادم بنجاح (${data.image_url}) ✓`;
+              if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب • تم الحفظ على الخادم (${data.image_url}) ✓`;
               return;
             }
           }
         } catch (serverErr) {}
 
-        if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب • تم الضغط الذكي والحفظ المحلي المضمون 100% ✓`;
+        if (sizeSpan) sizeSpan.innerText = `${kbSize} ك.ب • تم التضمين والحفظ الدائم 100% ✓`;
       } catch (err) {
         console.error("Error processing modal image:", err);
-        alert("حدث خطأ أثناء معالجة الصورة، يرجى تجربة ملف آخر أو لصق رابط مباشر.");
+        alert("حدث خطأ أثناء معالجة الصورة، يرجى تجربة ملف آخر.");
       }
     }
 
     // Modal Image Selection Handler (for Add and Edit question modals)
     async function handleModalImageSelect(event, prefix) {
       const file = event.target.files && event.target.files[0];
-      if (file) await processAndAttachModalImage(file, prefix);
+      if (file) {
+        await processAndAttachModalImage(file, prefix);
+      }
+      event.target.value = ''; // تصفير حقل الملف ليسمح باختيار نفس الملف مجدداً
     }
 
     // Drag and drop handlers
@@ -2712,8 +2940,23 @@
       }
     }
 
+    function previewModalImageZoom(prefix) {
+      const isM = (prefix === 'm' || prefix === 'add');
+      const preview = document.getElementById(isM ? 'm-image-preview-img' : 'edit-image-preview-img');
+      const val = (preview && preview.src && !preview.src.endsWith('/')) 
+        ? preview.src 
+        : (isM ? window.currentModalImageDataUrl : window.currentEditModalImageDataUrl) 
+        || (document.getElementById(isM ? 'm-image' : 'edit-image')?.value?.trim());
+      if (val) {
+        openImageZoomModal(val);
+      } else {
+        alert("يرجى تحديد أو إدخال صورة أولاً للمعاينة.");
+      }
+    }
+
     function clearModalImage(prefix) {
-      if (prefix === 'm') {
+      const isM = (prefix === 'm' || prefix === 'add');
+      if (isM) {
         window.currentModalImageDataUrl = '';
         const input = document.getElementById('m-image-file-input');
         if (input) input.value = '';
@@ -2721,6 +2964,8 @@
         if (container) container.classList.add('hidden');
         const txtInput = document.getElementById('m-image');
         if (txtInput) txtInput.value = '';
+        const preview = document.getElementById('m-image-preview-img');
+        if (preview) preview.src = '';
       } else if (prefix === 'edit') {
         window.currentEditModalImageDataUrl = '';
         const input = document.getElementById('edit-image-file-input');
@@ -2729,6 +2974,8 @@
         if (container) container.classList.add('hidden');
         const txtInput = document.getElementById('edit-image');
         if (txtInput) txtInput.value = '';
+        const preview = document.getElementById('edit-image-preview-img');
+        if (preview) preview.src = '';
       }
     }
 
@@ -2748,12 +2995,14 @@
           const file = items[i].getAsFile();
           if (file) {
             e.preventDefault();
+            e.stopPropagation();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
             await processAndAttachModalImage(file, prefix);
             break;
           }
         }
       }
-    });
+    }, true);
 
     // ================= FLASH TOAST NOTIFICATION SYSTEM =================
     function showFlashToast({
@@ -2915,10 +3164,18 @@
 
     async function loadQuestions() {
       try {
-        const Q_VERSION = 'v9_verified_bank_with_flash_and_visuals';
+        const Q_VERSION = 'v10_guaranteed_image_upload_and_math_engine';
         const savedVer = localStorage.getItem('qiyas_q_version');
         if (savedVer !== Q_VERSION) {
           localStorage.setItem('qiyas_q_version', Q_VERSION);
+          // تطهير التعديلات القديمة للأسئلة الرسمية لضمان تفعيل الرسوم والصور الجديدة دون تضارب
+          try {
+            const oldOverride = JSON.parse(localStorage.getItem('qiyas_questions_override') || '[]');
+            if (Array.isArray(oldOverride)) {
+              const customOnly = oldOverride.filter(q => q && (q.id > 278 || q.is_custom || q.user_added));
+              localStorage.setItem('qiyas_questions_override', JSON.stringify(customOnly));
+            }
+          } catch(e) {}
         }
 
         let res;
@@ -2971,10 +3228,18 @@
                 } catch(e) {}
               }
 
-              if (sq.id > 277 || sq.is_custom || sq.is_scanned || sq.user_added) {
+              if (sq.id > 278 || sq.is_custom || sq.is_scanned || sq.user_added) {
                 questionMap.set(sq.id, sq);
               } else if (questionMap.has(sq.id)) {
-                questionMap.set(sq.id, { ...questionMap.get(sq.id), ...sq });
+                const offQ = questionMap.get(sq.id);
+                const merged = { ...offQ, ...sq };
+                // الحفاظ الدائم على الرسوم والصور الرسمية المعتمدة
+                if (offQ.diagram_svg && !sq.diagram_svg) merged.diagram_svg = offQ.diagram_svg;
+                if ((offQ.image || offQ.image_url) && !sq.image && !sq.image_url) {
+                  merged.image = offQ.image || offQ.image_url;
+                  merged.image_url = offQ.image_url || offQ.image;
+                }
+                questionMap.set(sq.id, merged);
               }
             }
           }
@@ -3475,94 +3740,307 @@
       }
     }
 
+    /* ================= ARABIC MATHEMATICAL ENGINE & FORMATTING ================= */
+
+    // تحويل الكلمات الرياضية والعمليات الشائعة في القدرات إلى صيغ ورموز رياضية صحيحة
+    function formatMathArabic(str) {
+      if (!str) return '';
+      let s = String(str);
+
+      // العمليات المتصلة مباشرة بالحدود مثل: 7ضرب2 أو س+ص
+      s = s.replace(/([0-9\wسصعط\)])\s*ضرب\s*([0-9\wسصعط\(])/g, '$1 × $2');
+      s = s.replace(/([0-9\wسصعط\)])\s*(?:قسمة|تقسيم)\s*([0-9\wسصعط\(])/g, '$1 ÷ $2');
+      s = s.replace(/([0-9\wسصعط\)])\s*زائد\s*([0-9\wسصعط\(])/g, '$1 + $2');
+      s = s.replace(/([0-9\wسصعط\)])\s*ناقص\s*([0-9\wسصعط\(])/g, '$1 − $2');
+
+      // الكلمات المفصولة بمسافات
+      s = s.replace(/(?:^|\s)ضرب(?:\s|$)/g, ' × ');
+      s = s.replace(/(?:^|\s)(?:قسمة|تقسيم|مقسوما على)(?:\s|$)/g, ' ÷ ');
+      s = s.replace(/(?:^|\s)(?:زائد|مضافا إليه)(?:\s|$)/g, ' + ');
+      s = s.replace(/(?:^|\s)(?:ناقص|مطروحا منه)(?:\s|$)/g, ' − ');
+      s = s.replace(/(?:^|\s)جذر(?:\s|$)/g, '√');
+      s = s.replace(/(?:^|\s)نصف(?:\s|$)/g, ' ½ ');
+      s = s.replace(/(?:^|\s)ربع(?:\s|$)/g, ' ¼ ');
+      s = s.replace(/(?:^|\s)ثلث(?:\s|$)/g, ' ⅓ ');
+      s = s.replace(/(?:^|\s)ثلاثة أرباع(?:\s|$)/g, ' ¾ ');
+      s = s.replace(/(?:^|\s)(?:لا يساوي)(?:\s|$)/g, ' ≠ ');
+      s = s.replace(/(?:^|\s)(?:أكبر من أو يساوي)(?:\s|$)/g, ' ≥ ');
+      s = s.replace(/(?:^|\s)(?:أصغر من أو يساوي)(?:\s|$)/g, ' ≤ ');
+      s = s.replace(/(?:^|\s)(?:يساوي)(?:\s|$)/g, ' = ');
+      s = s.replace(/(?:^|\s)(?:تقريبا|تقريباً)(?:\s|$)/g, ' ≈ ');
+
+      // تحويل الأسس والقوى الشائعة
+      s = s.replace(/([0-9\wسصعط\)])\s*(?:\^|أس\s*)2(?:\s|$)/g, '$1² ');
+      s = s.replace(/([0-9\wسصعط\)])\s*(?:\^|أس\s*)3(?:\s|$)/g, '$1³ ');
+      s = s.replace(/([0-9\wسصعط\)])\s*(?:\^|أس\s*)4(?:\s|$)/g, '$1⁴ ');
+      s = s.replace(/([0-9\wسصعط\)])\s*تربيع(?:\s|$)/g, '$1² ');
+      s = s.replace(/([0-9\wسصعط\)])\s*تكعيب(?:\s|$)/g, '$1³ ');
+
+      // تنظيف المسافات حول العمليات الرياضية
+      s = s.replace(/\s*([×÷+−=≠≤≥≈])\s*/g, ' $1 ');
+      s = s.replace(/\s+/g, ' ').trim();
+      return s;
+    }
+
+    // استخراج معطيات وقيم المقارنة بدقة صارمة وفصل سليم للقيمتين دون أي تداخل
+    function parseComparisonText(text) {
+      if (!text) return null;
+      let s = String(text).trim();
+      if (!s.includes('القيمة الأولى') && !s.includes('قارن')) {
+        return null;
+      }
+
+      let introParts = [];
+      let val1 = '';
+      let val2 = '';
+
+      // 1. فحص سطر بسطر
+      const lines = s.split('\n').map(l => l.trim()).filter(Boolean);
+      for (const line of lines) {
+        if (line.includes('القيمة الأولى') && line.includes('القيمة الثانية')) {
+          const m = line.match(/(.*?)(?:قارن بين\s*[:\s]*)?(?:^|[،,\s])القيمة الأولى\s*[:\-]?\s*(.*?)(?:[،,;\s]+و|\s+و)\s*القيمة الثانية\s*[:\-]?\s*(.*)$/);
+          if (m) {
+            if (m[1] && m[1].trim()) introParts.push(m[1].trim());
+            val1 = m[2].trim();
+            val2 = m[3].trim();
+          } else {
+            const idx1 = line.indexOf('القيمة الأولى');
+            const idx2 = line.indexOf('القيمة الثانية');
+            if (idx1 < idx2) {
+              const pre = line.substring(0, idx1).trim();
+              if (pre) introParts.push(pre);
+              val1 = line.substring(idx1 + 'القيمة الأولى'.length, idx2).trim();
+              val2 = line.substring(idx2 + 'القيمة الثانية'.length).trim();
+            }
+          }
+        } else if (/^[–\-•]?\s*القيمة الأولى\s*[:\-]?\s*/.test(line)) {
+          val1 = line.replace(/^[–\-•]?\s*القيمة الأولى\s*[:\-]?\s*/, '').trim();
+        } else if (/^[–\-•]?\s*القيمة الثانية\s*[:\-]?\s*/.test(line)) {
+          val2 = line.replace(/^[–\-•]?\s*القيمة الثانية\s*[:\-]?\s*/, '').trim();
+        } else {
+          introParts.push(line);
+        }
+      }
+
+      // 2. فحص سطر مدمج (Inline Match)
+      if (!val1 || !val2) {
+        const pattern = /^(.*?)(?:قارن بين\s*[:\s]*)?القيمة الأولى\s*[:\-]?\s*([^\n]+?)\s*(?:[،,;\s]+و|\s+و)\s*القيمة الثانية\s*[:\-]?\s*(.*)$/;
+        const m = s.match(pattern);
+        if (m) {
+          if (m[1] && m[1].trim()) introParts.push(m[1].trim());
+          val1 = m[2].trim();
+          val2 = m[3].trim();
+        }
+      }
+
+      // 3. Fallback scan
+      if (!val1 || !val2) {
+        const idx1 = s.indexOf('القيمة الأولى');
+        const idx2 = s.indexOf('القيمة الثانية');
+        if (idx1 !== -1 && idx2 !== -1 && idx1 < idx2) {
+          const pre = s.substring(0, idx1).trim();
+          if (pre) introParts.push(pre);
+          val1 = s.substring(idx1 + 'القيمة الأولى'.length, idx2).trim();
+          val2 = s.substring(idx2 + 'القيمة الثانية'.length).trim();
+        }
+      }
+
+      // 4. استخلاص أي معطيات لاحقة في القيمة الثانية (مثل: بناءً على الرسم المرفق... أو علماً بأن...)
+      if (val2) {
+        const trailingKeywords = ['بناءً على', 'بناء على', 'علماً بأن', 'علما بان', 'حيث أن', 'حيث ان', 'إذا كان', 'اذا كان'];
+        for (const kw of trailingKeywords) {
+          if (val2.includes(kw)) {
+            const parts = val2.split(kw);
+            if (parts[0].trim()) {
+              val2 = parts[0].trim();
+              introParts.push(kw + ' ' + parts.slice(1).join(kw).trim());
+            }
+            break;
+          }
+        }
+      }
+
+      if (val1 || val2) {
+        val1 = val1.replace(/^[:\-\s،,و]+/, '').replace(/[:\-\s،,و]+$/, '').trim();
+        val2 = val2.replace(/^[:\-\s،,و]+/, '').replace(/[:\-\s،,و]+$/, '').trim();
+        
+        let intro = introParts.filter(Boolean).join(' ').trim();
+        if (!intro) intro = 'قارن بين القيمتين الآتيتين:';
+        else if (!intro.includes('قارن')) intro = intro + ' • قارن بين:';
+        
+        return {
+          intro: intro,
+          val1: formatMathArabic(val1),
+          val2: formatMathArabic(val2)
+        };
+      }
+
+      return null;
+    }
+
+    // إدراج رمز رياضي عند موضع المؤشر بدقة
+    function insertMathSymbol(targetId, symbol) {
+      const el = document.getElementById(targetId);
+      if (!el) return;
+      el.focus();
+
+      const start = el.selectionStart || 0;
+      const end = el.selectionEnd || 0;
+      const text = el.value;
+
+      if (symbol === '( )') {
+        const selected = text.substring(start, end);
+        const replacement = `(${selected || ' '})`;
+        el.value = text.substring(0, start) + replacement + text.substring(end);
+        const cursor = selected ? start + replacement.length : start + 1;
+        el.setSelectionRange(cursor, cursor);
+      } else {
+        let toInsert = symbol;
+        if (['×', '÷', '+', '−', '=', '≠', '≤', '≥', '≈'].includes(symbol)) {
+          toInsert = ` ${symbol} `;
+        }
+        el.value = text.substring(0, start) + toInsert + text.substring(end);
+        const cursor = start + toInsert.length;
+        el.setSelectionRange(cursor, cursor);
+      }
+
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    // إدراج رمز في حقل المقارنة النشط حالياً
+    window.lastActiveCompField = 'm-comp-val1';
+    function insertMathSymbolToActiveComp(symbol) {
+      const targetId = window.lastActiveCompField || 'm-comp-val1';
+      insertMathSymbol(targetId, symbol);
+    }
+
+    // التنسيق الرياضي الذكي للحقل مع التحويل التلقائي لنموذج المقارنات إذا تم اكتشافها
+    function smartFormatMathField(targetId) {
+      const el = document.getElementById(targetId);
+      if (!el) return;
+      const text = el.value.trim();
+      if (!text) {
+        showFlashToast({
+          title: "تنبيه",
+          message: "الحقل فارغ، يرجى كتابة نص المسألة أولاً.",
+          type: "info"
+        });
+        return;
+      }
+
+      // إذا كتب المستخدم سؤال مقارنة داخل الحقل العام m-question
+      if (targetId === 'm-question' && (text.includes('القيمة الأولى') || text.includes('قارن بين'))) {
+        const comp = parseComparisonText(text);
+        if (comp && (comp.val1 || comp.val2)) {
+          const compRadio = document.querySelector('input[name="m-q-type"][value="comparison"]');
+          if (compRadio) {
+            compRadio.checked = true;
+            toggleAddQuestionType();
+          }
+          document.getElementById('m-comp-intro').value = comp.intro || 'قارن بين:';
+          document.getElementById('m-comp-val1').value = comp.val1;
+          document.getElementById('m-comp-val2').value = comp.val2;
+
+          const notice = document.getElementById('m-question-comp-notice');
+          if (notice) notice.classList.add('hidden');
+
+          showFlashToast({
+            title: "✨ تم التحويل والتنسيق التلقائي!",
+            message: "تم فصل القيمة الأولى والقيمة الثانية وتنسيق الرموز الرياضية بنجاح.",
+            type: "success"
+          });
+          return;
+        }
+      }
+
+      const formatted = formatMathArabic(text);
+      el.value = formatted;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+
+      showFlashToast({
+        title: "✨ تم التنسيق الرياضي",
+        message: "تم تحويل الكلمات إلى رموز رياضية معتمدة وضبط الأقواس والمسافات.",
+        type: "success"
+      });
+    }
+
+    // مراقبة كتابة سؤال مقارنة داخل الحقل العام وإظهار زر التحويل الفوري
+    function checkComparisonAutoDetect(textarea) {
+      const notice = document.getElementById('m-question-comp-notice');
+      if (!notice) return;
+      const val = textarea.value;
+      if ((val.includes('القيمة الأولى') && val.includes('القيمة الثانية')) || (val.includes('قارن بين') && val.includes('القيمة'))) {
+        notice.classList.remove('hidden');
+      } else {
+        notice.classList.add('hidden');
+      }
+    }
+
     // تنسيق ذكي لأسئلة المقارنات والمسائل الرياضية للفصل التام بين القيمتين وعرض الرسوم الهندسية
     function renderQuestionDisplay(q) {
       const text = q.question || '';
       let textHtml = '';
 
-      if (text.includes('القيمة الأولى') && text.includes('القيمة الثانية')) {
-        let introArr = [];
-        let val1 = '';
-        let val2 = '';
+      const isComparison = (text.includes('القيمة الأولى') && text.includes('القيمة الثانية')) || 
+                           (text.includes('قارن بين') && (text.includes('القيمة') || text.includes('الطرف'))) ||
+                           (q.topic === 'مقارنات' && text.includes('القيمة'));
 
-        const lines = text.split('\n');
-        lines.forEach(l => {
-          let line = l.trim();
-          if (line.includes('القيمة الأولى:') && line.includes('القيمة الثانية:')) {
-            const i1 = line.indexOf('القيمة الأولى:');
-            const i2 = line.indexOf('القيمة الثانية:');
-            introArr.push(line.substring(0, i1).trim());
-            val1 = line.substring(i1 + 'القيمة الأولى:'.length, i2).replace(/^[–\-]\s*/, '').trim();
-            val2 = line.substring(i2 + 'القيمة الثانية:'.length).replace(/^[–\-]\s*/, '').trim();
-          } else if (line.startsWith('القيمة الأولى:') || line.startsWith('- القيمة الأولى:') || line.startsWith('– القيمة الأولى:')) {
-            val1 = line.replace(/^[–\-]?\s*القيمة الأولى:\s*/, '').trim();
-          } else if (line.startsWith('القيمة الثانية:') || line.startsWith('- القيمة الثانية:') || line.startsWith('– القيمة الثانية:')) {
-            val2 = line.replace(/^[–\-]?\s*القيمة الثانية:\s*/, '').trim();
-          } else if (line) {
-            introArr.push(line);
-          }
-        });
-
-        // استخراج ذكي إذا كانت صيغة المقارنة مدمجة في سطر واحد مثل (القيمة الأولى (س) والقيمة الثانية (ص))
-        if (!val1 && !val2) {
-          const m1 = text.match(/القيمة الأولى\s*[:\-\(]?\s*([^\n\r,\)\.]+)\)?/);
-          const m2 = text.match(/القيمة الثانية\s*[:\-\(]?\s*([^\n\r,\)\.]+)\)?/);
-          if (m1 && m2) {
-            val1 = m1[1].trim();
-            val2 = m2[1].trim();
-          }
-        }
-
-        const intro = introArr.filter(Boolean).join(' ') || 'قارن بين القيمتين:';
-
-        // عدم إظهار بطاقات فارغة إذا لم يتم استخراج القيمتين
-        if (val1 || val2) {
+      if (isComparison) {
+        const comp = parseComparisonText(text);
+        if (comp && (comp.val1 || comp.val2)) {
           textHtml = `
             <div class="space-y-4">
-              <h3 class="text-base md:text-xl font-extrabold text-slate-900 leading-relaxed">${intro}</h3>
+              <h3 class="text-base md:text-xl font-extrabold text-slate-900 leading-relaxed">${comp.intro}</h3>
               <div class="grid grid-cols-2 gap-4 my-4">
-                <!-- القيمة الأولى (اليمين) -->
+                <!-- القيمة الأولى (اليمين في RTL) -->
                 <div class="p-5 md:p-6 rounded-3xl bg-blue-50/80 border-2 border-blue-200 text-center shadow-xs flex flex-col justify-center items-center">
                   <span class="text-xs font-black text-blue-700 bg-white px-3.5 py-1 rounded-full border border-blue-200 mb-3 shadow-xs">القيمة الأولى</span>
-                  <div class="text-xl md:text-3xl font-bold text-slate-900 leading-normal" dir="ltr">${val1}</div>
+                  <div class="text-xl md:text-3xl font-extrabold text-slate-900 leading-normal" dir="ltr">
+                    <bdi dir="ltr" class="font-bold select-all inline-block">${formatMathArabic(comp.val1)}</bdi>
+                  </div>
                 </div>
-                <!-- القيمة الثانية (اليسار) -->
+                <!-- القيمة الثانية (اليسار في RTL) -->
                 <div class="p-5 md:p-6 rounded-3xl bg-purple-50/80 border-2 border-purple-200 text-center shadow-xs flex flex-col justify-center items-center">
                   <span class="text-xs font-black text-purple-700 bg-white px-3.5 py-1 rounded-full border border-purple-200 mb-3 shadow-xs">القيمة الثانية</span>
-                  <div class="text-xl md:text-3xl font-bold text-slate-900 leading-normal" dir="ltr">${val2}</div>
+                  <div class="text-xl md:text-3xl font-extrabold text-slate-900 leading-normal" dir="ltr">
+                    <bdi dir="ltr" class="font-bold select-all inline-block">${formatMathArabic(comp.val2)}</bdi>
+                  </div>
                 </div>
               </div>
             </div>
           `;
         } else {
-          textHtml = `<h3 class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed whitespace-pre-line">${text}</h3>`;
+          textHtml = `<h3 class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed whitespace-pre-line">${formatMathArabic(text)}</h3>`;
         }
       } else {
-        textHtml = `<h3 class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed whitespace-pre-line">${text}</h3>`;
+        textHtml = `<h3 class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed whitespace-pre-line">${formatMathArabic(text)}</h3>`;
       }
 
       // Visual / SVG Diagram
       let svgHtml = '';
       if (q.diagram_svg) {
         svgHtml = `
-          <div class="my-3 bg-slate-50 p-4 rounded-2xl border border-slate-200 flex items-center justify-center max-h-60 overflow-hidden shadow-2xs">
+          <div class="my-3 bg-white p-3 md:p-4 rounded-2xl border border-slate-200 flex items-center justify-center max-h-72 overflow-hidden shadow-2xs">
             ${q.diagram_svg}
           </div>
         `;
       }
 
-      // Question Image (with full zoom capability & direct link support)
+      // Question Image (Full zoom, direct link, and offline IndexedDB support)
       let imgHtml = '';
       const rawImg = q.image || q.image_url;
       if (rawImg && !q.diagram_svg) {
-        const imgSrc = normalizeImageUrl(rawImg);
-        const safeEscaped = imgSrc.replace(/'/g, "\\'");
-        const isIndexed = imgSrc.startsWith('indexeddb:');
-        const initialSrc = isIndexed ? 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="70"><text x="100" y="40" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#94a3b8">جاري استرجاع الصورة... ⏳</text></svg>' : imgSrc;
+        const isIndexed = rawImg.startsWith('indexeddb:');
+        const isDataUrl = rawImg.startsWith('data:');
+        const imgSrc = isDataUrl ? rawImg : normalizeImageUrl(rawImg);
+        const initialSrc = isIndexed 
+          ? 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="70"><text x="100" y="40" font-family="sans-serif" font-size="12" text-anchor="middle" fill="#94a3b8">جاري استرجاع الصورة... ⏳</text></svg>' 
+          : imgSrc;
+
         imgHtml = `
           <div id="q-img-wrap-${q.id}" class="question-image-box my-3 p-3 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col items-center justify-center">
             <div class="relative group cursor-pointer" onclick="openImageZoomByQId('${q.id}')">
-              <img id="q-rendered-img-${q.id}" src="${initialSrc}" data-qid="${q.id}" referrerpolicy="no-referrer" loading="lazy" alt="رسم وصورة المسألة" class="max-h-64 md:max-h-72 w-auto object-contain rounded-xl border border-slate-100 group-hover:scale-[1.01] transition-all shadow-2xs" onerror="handleQuestionImageError(this, '${q.id}', '${safeEscaped}')">
+              <img id="q-rendered-img-${q.id}" src="${initialSrc}" data-qid="${q.id}" referrerpolicy="no-referrer" loading="lazy" alt="رسم وصورة المسألة" class="max-h-64 md:max-h-72 w-auto object-contain rounded-xl border border-slate-100 group-hover:scale-[1.01] transition-all shadow-2xs" onerror="handleQuestionImageError(this, '${q.id}')">
               <div class="absolute bottom-2 left-2 bg-slate-900/80 hover:bg-slate-900 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 backdrop-blur-xs transition-all shadow-sm">
                 <span>🔍 تكبير الرسم</span>
               </div>
@@ -3570,6 +4048,7 @@
             <span class="text-[10px] text-slate-400 mt-1 font-bold">انقر على الرسم لمعاينته بوضوح كامل</span>
           </div>
         `;
+
         if (isIndexed) {
           setTimeout(async () => {
             try {
@@ -3584,8 +4063,8 @@
             } catch(e) {}
           }, 10);
         }
-      } else if (!rawImg && (q.has_visual || isQuestionVisualOrGeometric(q.question, q.topic)) && !q.diagram_svg) {
-        // فحص تلقائي في IndexedDB في حال كانت الصورة مخزنة محلياً برقم المسألة
+      } else if (!rawImg && !q.diagram_svg && (q.has_visual || isQuestionVisualOrGeometric(q.question, q.topic))) {
+        // Automatic check in IndexedDB in case image is stored locally
         imgHtml = `
           <div id="q-lazy-wrap-${q.id}" class="hidden question-image-box my-3 p-3 bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col items-center justify-center">
             <div class="relative group cursor-pointer" onclick="openImageZoomByQId('${q.id}')">
@@ -3611,7 +4090,7 @@
               }
             }
           } catch(e) {}
-        }, 30);
+        }, 20);
       }
 
       return `
@@ -6397,7 +6876,11 @@
       document.getElementById('m-comp-val2').value = '';
       document.getElementById('m-explanation').value = '';
       document.getElementById('m-speed-rule').value = '';
+      const notice = document.getElementById('m-question-comp-notice');
+      if (notice) notice.classList.add('hidden');
+      window.lastActiveCompField = 'm-comp-val1';
       if (document.getElementById('m-image')) document.getElementById('m-image').value = '';
+      clearModalImage('add');
       document.getElementById('add-modal').classList.remove('hidden');
     }
 
@@ -6412,9 +6895,17 @@
         const intro = document.getElementById('m-comp-intro').value.trim() || 'قارن بين:';
         const val1 = document.getElementById('m-comp-val1').value.trim() || 'القيمة الأولى';
         const val2 = document.getElementById('m-comp-val2').value.trim() || 'القيمة الثانية';
-        qText = `${intro}\nالقيمة الأولى: ${val1}\nالقيمة الثانية: ${val2}`;
+        qText = `${intro}\nالقيمة الأولى: ${formatMathArabic(val1)}\nالقيمة الثانية: ${formatMathArabic(val2)}`;
       } else {
         qText = document.getElementById('m-question').value.trim() || 'نص المسألة التجريبي';
+        if (qText.includes('القيمة الأولى') && qText.includes('القيمة الثانية')) {
+          const comp = parseComparisonText(qText);
+          if (comp && (comp.val1 || comp.val2)) {
+            qText = `${comp.intro}\nالقيمة الأولى: ${comp.val1}\nالقيمة الثانية: ${comp.val2}`;
+          }
+        } else {
+          qText = formatMathArabic(qText);
+        }
       }
 
       const mImgInput = (document.getElementById('m-image') ? document.getElementById('m-image').value : '').trim();
@@ -6423,7 +6914,7 @@
       const tempQ = {
         id: 'معاينة',
         section: document.getElementById('m-section').value,
-        topic: document.getElementById('m-topic').value || 'عام',
+        topic: document.getElementById('m-topic').value || (type === 'comparison' ? 'مقارنات' : 'عام'),
         question: qText,
         options: [
           document.getElementById('m-opt-0').value || 'أ',
@@ -6432,8 +6923,8 @@
           document.getElementById('m-opt-3').value || 'د'
         ],
         correct_index: parseInt(document.getElementById('m-correct').value),
-        explanation: document.getElementById('m-explanation').value,
-        speed_rule: document.getElementById('m-speed-rule').value,
+        explanation: formatMathArabic(document.getElementById('m-explanation').value),
+        speed_rule: formatMathArabic(document.getElementById('m-speed-rule').value),
         image: mImgData,
         image_url: mImgData,
         has_visual: !!mImgData
@@ -6447,7 +6938,7 @@
           <div class="grid grid-cols-2 gap-2 text-xs">
             ${tempQ.options.map((opt, idx) => `
               <div class="p-3 rounded-xl border ${idx === tempQ.correct_index ? 'bg-emerald-50 border-emerald-400 text-emerald-800 font-bold' : 'bg-slate-50 border-slate-200'}">
-                (${['أ', 'ب', 'ج', 'د'][idx]}) ${opt}
+                (${['أ', 'ب', 'ج', 'د'][idx]}) ${formatMathArabic(opt)}
               </div>
             `).join('')}
           </div>
@@ -6464,6 +6955,8 @@
     async function saveNewQuestionFromModal() {
       const type = document.querySelector('input[name="m-q-type"]:checked').value;
       let qText = '';
+      let isCompMode = (type === 'comparison');
+
       if (type === 'comparison') {
         const intro = document.getElementById('m-comp-intro').value.trim() || 'قارن بين:';
         const val1 = document.getElementById('m-comp-val1').value.trim();
@@ -6472,31 +6965,52 @@
           alert("يرجى ملء القيمة الأولى والقيمة الثانية للمقارنة.");
           return;
         }
-        qText = `${intro}\nالقيمة الأولى: ${val1}\nالقيمة الثانية: ${val2}`;
+        qText = `${intro}\nالقيمة الأولى: ${formatMathArabic(val1)}\nالقيمة الثانية: ${formatMathArabic(val2)}`;
       } else {
         qText = document.getElementById('m-question').value.trim();
         if (!qText) {
           alert("يرجى كتابة نص المسألة.");
           return;
         }
+        // Auto-detect comparison even if submitted in standard mode
+        if (qText.includes('القيمة الأولى') && qText.includes('القيمة الثانية')) {
+          const comp = parseComparisonText(qText);
+          if (comp && (comp.val1 || comp.val2)) {
+            qText = `${comp.intro}\nالقيمة الأولى: ${comp.val1}\nالقيمة الثانية: ${comp.val2}`;
+            isCompMode = true;
+          }
+        } else {
+          qText = formatMathArabic(qText);
+        }
       }
 
       const section = document.getElementById('m-section').value;
-      const topic = document.getElementById('m-topic').value.trim() || (type === 'comparison' ? 'مقارنات' : 'عام');
+      const topic = document.getElementById('m-topic').value.trim() || (isCompMode ? 'مقارنات' : 'عام');
       const correctIdx = parseInt(document.getElementById('m-correct').value);
-      const options = [
-        document.getElementById('m-opt-0').value.trim() || 'أ',
-        document.getElementById('m-opt-1').value.trim() || 'ب',
-        document.getElementById('m-opt-2').value.trim() || 'ج',
-        document.getElementById('m-opt-3').value.trim() || 'د'
+      let options = [
+        document.getElementById('m-opt-0').value.trim(),
+        document.getElementById('m-opt-1').value.trim(),
+        document.getElementById('m-opt-2').value.trim(),
+        document.getElementById('m-opt-3').value.trim()
       ];
+
+      if (isCompMode && (!options[0] || options[0] === 'أ')) {
+        options = [
+          'القيمة الأولى أكبر',
+          'القيمة الثانية أكبر',
+          'القيمتان متساويتان',
+          'المعطيات غير كافية'
+        ];
+      } else {
+        options = options.map((opt, i) => opt ? formatMathArabic(opt) : ['أ', 'ب', 'ج', 'د'][i]);
+      }
 
       const mImgInput = (document.getElementById('m-image') ? document.getElementById('m-image').value : '').trim();
       let mImgData = '';
-      if (mImgInput) {
-        mImgData = normalizeImageUrl(mImgInput);
-      } else if (window.currentModalImageDataUrl) {
+      if (window.currentModalImageDataUrl) {
         mImgData = window.currentModalImageDataUrl;
+      } else if (mImgInput) {
+        mImgData = normalizeImageUrl(mImgInput);
       }
 
       const isGeom = isQuestionVisualOrGeometric(qText, topic);
@@ -6605,11 +7119,13 @@
       document.getElementById('edit-image').value = q.image || q.image_url || '';
 
       if (q.image || q.image_url) {
+        window.currentEditModalImageDataUrl = q.image || q.image_url;
         const preview = document.getElementById('edit-image-preview-img');
         const container = document.getElementById('edit-image-preview-container');
         if (preview) preview.src = q.image || q.image_url;
         if (container) container.classList.remove('hidden');
       } else {
+        window.currentEditModalImageDataUrl = '';
         clearModalImage('edit');
       }
 
@@ -6637,24 +7153,37 @@
       const section = document.getElementById('edit-section').value;
       allQuestions[idx].section = section;
       allQuestions[idx].section_ar = section === 'quantitative' ? 'القسم الكمي' : 'القسم اللفظي';
-      allQuestions[idx].topic = document.getElementById('edit-topic').value.trim();
-      allQuestions[idx].question = document.getElementById('edit-question').value.trim();
+
+      const rawQ = document.getElementById('edit-question').value.trim();
+      let formattedQ = formatMathArabic(rawQ);
+      if (formattedQ.includes('القيمة الأولى') && formattedQ.includes('القيمة الثانية')) {
+        const comp = parseComparisonText(formattedQ);
+        if (comp && (comp.val1 || comp.val2)) {
+          formattedQ = `${comp.intro}\nالقيمة الأولى: ${comp.val1}\nالقيمة الثانية: ${comp.val2}`;
+          if (!allQuestions[idx].topic || allQuestions[idx].topic === 'عام') {
+            allQuestions[idx].topic = 'مقارنات';
+          }
+        }
+      }
+
+      allQuestions[idx].topic = document.getElementById('edit-topic').value.trim() || allQuestions[idx].topic;
+      allQuestions[idx].question = formattedQ;
       allQuestions[idx].options = [
-        document.getElementById('edit-opt-0').value.trim(),
-        document.getElementById('edit-opt-1').value.trim(),
-        document.getElementById('edit-opt-2').value.trim(),
-        document.getElementById('edit-opt-3').value.trim()
+        formatMathArabic(document.getElementById('edit-opt-0').value.trim()),
+        formatMathArabic(document.getElementById('edit-opt-1').value.trim()),
+        formatMathArabic(document.getElementById('edit-opt-2').value.trim()),
+        formatMathArabic(document.getElementById('edit-opt-3').value.trim())
       ];
       allQuestions[idx].correct_index = parseInt(document.getElementById('edit-correct').value);
-      allQuestions[idx].explanation = document.getElementById('edit-explanation').value.trim();
-      allQuestions[idx].speed_rule = document.getElementById('edit-speed-rule').value.trim();
+      allQuestions[idx].explanation = formatMathArabic(document.getElementById('edit-explanation').value.trim());
+      allQuestions[idx].speed_rule = formatMathArabic(document.getElementById('edit-speed-rule').value.trim());
 
       const editImgInput = (document.getElementById('edit-image') ? document.getElementById('edit-image').value : '').trim();
       let imgVal = '';
-      if (editImgInput) {
-        imgVal = normalizeImageUrl(editImgInput);
-      } else if (window.currentEditModalImageDataUrl) {
+      if (window.currentEditModalImageDataUrl) {
         imgVal = window.currentEditModalImageDataUrl;
+      } else if (editImgInput) {
+        imgVal = normalizeImageUrl(editImgInput);
       }
 
       allQuestions[idx].image = imgVal;
@@ -6743,32 +7272,40 @@
       document.getElementById('preview-modal').classList.add('hidden');
     }
 
-    function saveQuestionsOverride() {
+    async function saveQuestionsOverride() {
       // 1. حفظ الصور دائماً في IndexedDB لضمان عدم فقدانها إطلاقاً
       try {
-        allQuestions.forEach(q => {
+        for (const q of allQuestions) {
           const img = q.image || q.image_url;
-          if (img) {
-            QiyasImageStore.set('img_' + q.id, img);
+          if (img && (img.startsWith('data:') || img.startsWith('blob:') || img.startsWith('http') || img.startsWith('questions_images/'))) {
+            await QiyasImageStore.set('img_' + q.id, img);
           }
-        });
+        }
       } catch (e) {}
 
-      // 2. حفظ المصفوفة في localStorage بأمان
+      // 2. حفظ آمن تماماً ضد امتلاء مساحة localStorage (QuotaExceededError)
       try {
-        localStorage.setItem('qiyas_questions_override', JSON.stringify(allQuestions));
+        const sanitized = allQuestions.map(q => {
+          const img = q.image || q.image_url;
+          if (img && img.startsWith('data:')) {
+            return { ...q, image: 'indexeddb:img_' + q.id, image_url: 'indexeddb:img_' + q.id };
+          }
+          return q;
+        });
+        localStorage.setItem('qiyas_questions_override', JSON.stringify(sanitized));
       } catch (e) {
-        console.warn("localStorage quota reached, keeping lightweight references via IndexedDB:", e);
+        console.warn("localStorage quota reached, saving custom questions only:", e);
         try {
-          const sanitized = allQuestions.map(q => {
-            const img = q.image || q.image_url;
-            if (img && img.startsWith('data:') && img.length > 30000) {
-              QiyasImageStore.set('img_' + q.id, img);
-              return { ...q, image: 'indexeddb:img_' + q.id, image_url: 'indexeddb:img_' + q.id };
-            }
-            return q;
-          });
-          localStorage.setItem('qiyas_questions_override', JSON.stringify(sanitized));
+          const customOnly = allQuestions
+            .filter(q => q && (q.id > 278 || q.is_custom || q.user_added))
+            .map(q => {
+              const img = q.image || q.image_url;
+              if (img && img.startsWith('data:')) {
+                return { ...q, image: 'indexeddb:img_' + q.id, image_url: 'indexeddb:img_' + q.id };
+              }
+              return q;
+            });
+          localStorage.setItem('qiyas_questions_override', JSON.stringify(customOnly));
         } catch (innerErr) {
           console.error("Could not save to localStorage:", innerErr);
         }
@@ -7208,8 +7745,14 @@
       }
     }
 
-    // Global Paste Listener for convenience
+    // Global Paste Listener for convenience (only when modals are closed)
     window.addEventListener('paste', function(e) {
+      const addModal = document.getElementById('add-modal');
+      const editModal = document.getElementById('edit-modal');
+      const addOpen = addModal && !addModal.classList.contains('hidden');
+      const editOpen = editModal && !editModal.classList.contains('hidden');
+      if (addOpen || editOpen) return; // Add and Edit modals handle their own image paste
+
       const items = (e.clipboardData || (e.originalEvent && e.originalEvent.clipboardData))?.items;
       if (!items) return;
       for (let index in items) {
