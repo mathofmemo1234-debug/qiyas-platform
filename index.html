@@ -2768,20 +2768,21 @@
       let s = String(opt).trim();
       if (!s) return '';
 
+      // إذا كان تعبيراً رياضياً لاتيك مسبوقاً ومتبوعاً بـ $
+      if (s.startsWith('$') && s.endsWith('$')) {
+        return `<span dir="ltr" class="inline-block select-all font-bold">${s}</span>`;
+      }
+
       // إذا كان الخيار يحتوي على أسس بصيغة ^ مثل ٢^٣ أو 2^3 أو س^٢
       if (s.includes('^')) {
-        return s.replace(/([0-9\u0660-\u0669\wسصعط\(\)]+)\s*\^\s*([0-9\u0660-\u0669\w\-]+)/g, (m, base, exp) => {
-          return `<span dir="ltr" class="inline-block select-all font-bold">${base}<sup>${exp}</sup></span>`;
+        return s.replace(/(\([^\)]+\)|[0-9\u0660-\u0669\wسصعط]+)\s*\^\s*(\([^\)]+\)|[0-9\u0660-\u0669\w\-]+)/g, (m, base, exp) => {
+          const cleanExp = exp.startsWith('(') && exp.endsWith(')') ? exp.slice(1, -1) : exp;
+          return `<span dir="ltr" class="inline-block select-all font-bold">${base}<sup>${cleanExp}</sup></span>`;
         });
       }
 
       // إذا كان كسراً اعتيادياً بسيطاً مثل ١/٢ أو 3/4
       if (/^[0-9\u0660-\u0669]+\s*\/\s*[0-9\u0660-\u0669]+$/.test(s)) {
-        return `<span dir="ltr" class="inline-block select-all font-bold">${s}</span>`;
-      }
-
-      // إذا كان تعبيراً رياضياً لاتيك مسبوقاً ومتبوعاً بـ $
-      if (s.startsWith('$') && s.endsWith('$')) {
         return `<span dir="ltr" class="inline-block select-all font-bold">${s}</span>`;
       }
 
@@ -3434,11 +3435,11 @@
 
     async function loadQuestions() {
       try {
-        const Q_VERSION = 'v11_guaranteed_ocr_image_paste_and_diagrams';
+        const Q_VERSION = 'v12_arabic_math_and_symbol_order';
         const savedVer = localStorage.getItem('qiyas_q_version');
         if (savedVer !== Q_VERSION) {
           localStorage.setItem('qiyas_q_version', Q_VERSION);
-          // تطهير التعديلات القديمة للأسئلة الرسمية لضمان تفعيل الرسوم والصور الجديدة دون تضارب
+          // تطهير التعديلات والتخزين القديم للأسئلة الرسمية لضمان تفعيل الصياغات والأرقام الجديدة دون تضارب
           try {
             const oldOverride = JSON.parse(localStorage.getItem('qiyas_questions_override') || '[]');
             if (Array.isArray(oldOverride)) {
@@ -3502,12 +3503,24 @@
                 questionMap.set(sq.id, sq);
               } else if (questionMap.has(sq.id)) {
                 const offQ = questionMap.get(sq.id);
-                const merged = { ...offQ, ...sq };
+                const merged = { ...offQ };
+                // الحفاظ على نصوص وخيارات questions.json الرسمية وعدم استبدالها ببيانات قديمة إلا إذا عُدلت يدوياً في لوحة الإدارة
+                if (sq.user_edited) {
+                  merged.question = sq.question;
+                  merged.options = sq.options;
+                  merged.correct_index = sq.correct_index;
+                  merged.explanation = sq.explanation;
+                  merged.speed_rule = sq.speed_rule;
+                }
                 // الحفاظ الدائم على الرسوم والصور الرسمية المعتمدة
                 if (offQ.diagram_svg && !sq.diagram_svg) merged.diagram_svg = offQ.diagram_svg;
                 if ((offQ.image || offQ.image_url) && !sq.image && !sq.image_url) {
                   merged.image = offQ.image || offQ.image_url;
                   merged.image_url = offQ.image_url || offQ.image;
+                } else if (sq.image || sq.image_url) {
+                  merged.image = sq.image || sq.image_url;
+                  merged.image_url = sq.image_url || sq.image;
+                  merged.has_visual = true;
                 }
                 questionMap.set(sq.id, merged);
               }
@@ -4023,7 +4036,14 @@
       if (!str) return '';
       let s = String(str);
 
-      // العمليات المتصلة مباشرة بالحدود مثل: ٧ضرب٢ أو س+ص
+      // 1. عزل وحماية التعبيرات الرياضية بصيغة LaTeX ($...$ أو $$...$$ أو \(...\) أو \[...\]) لمنع أي تداخل مع وسوم HTML أو كسر لمعادلات MathJax
+      const mathBlocks = [];
+      s = s.replace(/(\$\$[\s\S]*?\$\$|\$[^\$]+?\$|\\\[[\s\S]*?\\\]|\\\([\s\S]*?\\\))/g, (m) => {
+        mathBlocks.push(m);
+        return `___MATH_BLOCK_${mathBlocks.length - 1}___`;
+      });
+
+      // 2. العمليات المتصلة مباشرة بالحدود مثل: ٧ضرب٢ أو س+ص
       s = s.replace(/([0-9\u0660-\u0669\wسصعط\)])\s*ضرب\s*([0-9\u0660-\u0669\wسصعط\(])/g, '$1 × $2');
       s = s.replace(/([0-9\u0660-\u0669\wسصعط\)])\s*(?:قسمة|تقسيم)\s*([0-9\u0660-\u0669\wسصعط\(])/g, '$1 ÷ $2');
       s = s.replace(/([0-9\u0660-\u0669\wسصعط\)])\s*زائد\s*([0-9\u0660-\u0669\wسصعط\(])/g, '$1 + $2');
@@ -4045,13 +4065,20 @@
       s = s.replace(/(?:^|\s)(?:تقريبا|تقريباً)(?:\s|$)/g, ' ≈ ');
 
       // تحويل الأسس والقوى مع حماية اتجاه الأساس والأس ومنع انعكاس BiDi
-      s = s.replace(/([0-9\u0660-\u0669\wسصعط\(\)]+)\s*(?:\^|أس\s*)([0-9\u0660-\u0669\w\-]+)/g, '<span dir="ltr" class="inline-block select-all font-bold">$1<sup>$2</sup></span>');
+      s = s.replace(/(\([^\)]+\)|[0-9\u0660-\u0669\wسصعط]+)\s*(?:\^|أس\s*)(\([^\)]+\)|[0-9\u0660-\u0669\w\-]+)/g, (m, base, exp) => {
+        const cleanExp = exp.startsWith('(') && exp.endsWith(')') ? exp.slice(1, -1) : exp;
+        return `<span dir="ltr" class="inline-block select-all font-bold">${base}<sup>${cleanExp}</sup></span>`;
+      });
       s = s.replace(/([0-9\u0660-\u0669\wسصعط\)])\s*تربيع(?:\s|$)/g, '<span dir="ltr" class="inline-block select-all font-bold">$1<sup>٢</sup></span> ');
       s = s.replace(/([0-9\u0660-\u0669\wسصعط\)])\s*تكعيب(?:\s|$)/g, '<span dir="ltr" class="inline-block select-all font-bold">$1<sup>٣</sup></span> ');
 
       // تنظيف المسافات حول العمليات الرياضية
       s = s.replace(/\s*([×÷+−=≠≤≥≈])\s*/g, ' $1 ');
       s = s.replace(/\s+/g, ' ').trim();
+
+      // 3. استعادة جميع التعبيرات الرياضية اللاتيك كما هي دون أي تحريف
+      s = s.replace(/___MATH_BLOCK_(\d+)___/g, (m, idx) => mathBlocks[Number(idx)]);
+
       return s;
     }
 
@@ -7451,6 +7478,7 @@
       allQuestions[idx].correct_index = parseInt(document.getElementById('edit-correct').value);
       allQuestions[idx].explanation = formatMathArabic(document.getElementById('edit-explanation').value.trim());
       allQuestions[idx].speed_rule = formatMathArabic(document.getElementById('edit-speed-rule').value.trim());
+      allQuestions[idx].user_edited = true;
 
       const editImgInput = (document.getElementById('edit-image') ? document.getElementById('edit-image').value : '').trim();
       let imgVal = '';
