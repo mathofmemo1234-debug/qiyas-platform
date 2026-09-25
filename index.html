@@ -131,12 +131,18 @@
         user-select: text;
       }
     }
-    /* توجيه الرياضيات والمعادلات بشكل سليم هندسياً داخل النص العربي */
+    /* توجيه الرياضيات والمعادلات بشكل سليم هندسياً داخل النص العربي ومنع الانعكاس */
+    mjx-container,
+    mjx-container[jax="CHTML"],
+    mjx-container * {
+      direction: ltr !important;
+      unicode-bidi: isolate !important;
+      text-align: left !important;
+    }
     mjx-container {
       display: inline-block !important;
       margin: 0 4px !important;
-      vertical-align: middle;
-      text-align: center !important;
+      vertical-align: middle !important;
     }
     mjx-container[jax="CHTML"][display="true"] {
       display: block !important;
@@ -2756,6 +2762,32 @@
       return obj;
     }
 
+    // تنسيق خيارات المسائل الرياضية وحماية اتجاه الأسس والكسور من الانعكاس
+    function formatOptionDisplay(opt) {
+      if (opt === undefined || opt === null) return '';
+      let s = String(opt).trim();
+      if (!s) return '';
+
+      // إذا كان الخيار يحتوي على أسس بصيغة ^ مثل ٢^٣ أو 2^3 أو س^٢
+      if (s.includes('^')) {
+        return s.replace(/([0-9\u0660-\u0669\wسصعط\(\)]+)\s*\^\s*([0-9\u0660-\u0669\w\-]+)/g, (m, base, exp) => {
+          return `<span dir="ltr" class="inline-block select-all font-bold">${base}<sup>${exp}</sup></span>`;
+        });
+      }
+
+      // إذا كان كسراً اعتيادياً بسيطاً مثل ١/٢ أو 3/4
+      if (/^[0-9\u0660-\u0669]+\s*\/\s*[0-9\u0660-\u0669]+$/.test(s)) {
+        return `<span dir="ltr" class="inline-block select-all font-bold">${s}</span>`;
+      }
+
+      // إذا كان تعبيراً رياضياً لاتيك مسبوقاً ومتبوعاً بـ $
+      if (s.startsWith('$') && s.endsWith('$')) {
+        return `<span dir="ltr" class="inline-block select-all font-bold">${s}</span>`;
+      }
+
+      return s;
+    }
+
     // ================= INDEXEDDB IMAGE STORE =================
     const QiyasImageStore = {
       dbName: 'QiyasImageDB',
@@ -3991,18 +4023,17 @@
       if (!str) return '';
       let s = String(str);
 
-      // العمليات المتصلة مباشرة بالحدود مثل: 7ضرب2 أو س+ص
-      s = s.replace(/([0-9\wسصعط\)])\s*ضرب\s*([0-9\wسصعط\(])/g, '$1 × $2');
-      s = s.replace(/([0-9\wسصعط\)])\s*(?:قسمة|تقسيم)\s*([0-9\wسصعط\(])/g, '$1 ÷ $2');
-      s = s.replace(/([0-9\wسصعط\)])\s*زائد\s*([0-9\wسصعط\(])/g, '$1 + $2');
-      s = s.replace(/([0-9\wسصعط\)])\s*ناقص\s*([0-9\wسصعط\(])/g, '$1 − $2');
+      // العمليات المتصلة مباشرة بالحدود مثل: ٧ضرب٢ أو س+ص
+      s = s.replace(/([0-9\u0660-\u0669\wسصعط\)])\s*ضرب\s*([0-9\u0660-\u0669\wسصعط\(])/g, '$1 × $2');
+      s = s.replace(/([0-9\u0660-\u0669\wسصعط\)])\s*(?:قسمة|تقسيم)\s*([0-9\u0660-\u0669\wسصعط\(])/g, '$1 ÷ $2');
+      s = s.replace(/([0-9\u0660-\u0669\wسصعط\)])\s*زائد\s*([0-9\u0660-\u0669\wسصعط\(])/g, '$1 + $2');
+      s = s.replace(/([0-9\u0660-\u0669\wسصعط\)])\s*ناقص\s*([0-9\u0660-\u0669\wسصعط\(])/g, '$1 − $2');
 
       // الكلمات المفصولة بمسافات
       s = s.replace(/(?:^|\s)ضرب(?:\s|$)/g, ' × ');
       s = s.replace(/(?:^|\s)(?:قسمة|تقسيم|مقسوما على)(?:\s|$)/g, ' ÷ ');
       s = s.replace(/(?:^|\s)(?:زائد|مضافا إليه)(?:\s|$)/g, ' + ');
       s = s.replace(/(?:^|\s)(?:ناقص|مطروحا منه)(?:\s|$)/g, ' − ');
-      s = s.replace(/(?:^|\s)جذر(?:\s|$)/g, '√');
       s = s.replace(/(?:^|\s)نصف(?:\s|$)/g, ' ½ ');
       s = s.replace(/(?:^|\s)ربع(?:\s|$)/g, ' ¼ ');
       s = s.replace(/(?:^|\s)ثلث(?:\s|$)/g, ' ⅓ ');
@@ -4013,12 +4044,10 @@
       s = s.replace(/(?:^|\s)(?:يساوي)(?:\s|$)/g, ' = ');
       s = s.replace(/(?:^|\s)(?:تقريبا|تقريباً)(?:\s|$)/g, ' ≈ ');
 
-      // تحويل الأسس والقوى الشائعة
-      s = s.replace(/([0-9\wسصعط\)])\s*(?:\^|أس\s*)2(?:\s|$)/g, '$1² ');
-      s = s.replace(/([0-9\wسصعط\)])\s*(?:\^|أس\s*)3(?:\s|$)/g, '$1³ ');
-      s = s.replace(/([0-9\wسصعط\)])\s*(?:\^|أس\s*)4(?:\s|$)/g, '$1⁴ ');
-      s = s.replace(/([0-9\wسصعط\)])\s*تربيع(?:\s|$)/g, '$1² ');
-      s = s.replace(/([0-9\wسصعط\)])\s*تكعيب(?:\s|$)/g, '$1³ ');
+      // تحويل الأسس والقوى مع حماية اتجاه الأساس والأس ومنع انعكاس BiDi
+      s = s.replace(/([0-9\u0660-\u0669\wسصعط\(\)]+)\s*(?:\^|أس\s*)([0-9\u0660-\u0669\w\-]+)/g, '<span dir="ltr" class="inline-block select-all font-bold">$1<sup>$2</sup></span>');
+      s = s.replace(/([0-9\u0660-\u0669\wسصعط\)])\s*تربيع(?:\s|$)/g, '<span dir="ltr" class="inline-block select-all font-bold">$1<sup>٢</sup></span> ');
+      s = s.replace(/([0-9\u0660-\u0669\wسصعط\)])\s*تكعيب(?:\s|$)/g, '<span dir="ltr" class="inline-block select-all font-bold">$1<sup>٣</sup></span> ');
 
       // تنظيف المسافات حول العمليات الرياضية
       s = s.replace(/\s*([×÷+−=≠≤≥≈])\s*/g, ' $1 ');
@@ -4384,7 +4413,7 @@
           <button onclick="handleAnswerSelect(${idx})" class="${btnClass}">
             <div class="flex items-center gap-3">
               <span class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-black text-slate-600">${letters[idx]}</span>
-              <span class="text-base">${opt}</span>
+              <span class="text-base">${formatOptionDisplay(opt)}</span>
             </div>
             ${(activeTest.mode === 'practice' && answered && idx === q.correct_index) ? '<span class="text-emerald-600 font-bold text-xs">✓ إجابة صحيحة</span>' : ''}
             ${(activeTest.mode === 'practice' && answered && idx === userChoice && idx !== q.correct_index) ? '<span class="text-rose-600 font-bold text-xs">✕ إجابة خاطئة</span>' : ''}
@@ -5086,7 +5115,7 @@
           <button onclick="handleSimulatorAnswer(${idx})" class="w-full text-right p-4 rounded-2xl border transition-all text-sm font-bold flex items-center justify-between ${isSelected ? 'bg-sky-50 border-sky-600 text-sky-900 ring-2 ring-sky-500/30' : 'bg-white border-slate-200 text-slate-800 hover:border-sky-300 hover:bg-slate-50/60'}">
             <div class="flex items-center gap-3">
               <span class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-xs font-black text-slate-700">${letters[idx]}</span>
-              <span class="text-base">${opt}</span>
+              <span class="text-base">${formatOptionDisplay(opt)}</span>
             </div>
             ${isSelected ? '<span class="text-sky-600 font-bold text-xs">✓ اختيارك</span>' : ''}
           </button>
@@ -7046,7 +7075,7 @@
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-slate-600">
             ${(q.options || []).map((opt, oIdx) => `
               <div class="p-1.5 rounded-lg border ${oIdx === q.correct_index ? 'bg-emerald-50 border-emerald-300 text-emerald-800 font-bold' : 'bg-white border-slate-200'}">
-                ${letters[oIdx]}: ${opt}
+                ${letters[oIdx]}: ${formatOptionDisplay(opt)}
               </div>
             `).join('')}
           </div>
@@ -7183,7 +7212,7 @@
           <div class="grid grid-cols-2 gap-2 text-xs">
             ${tempQ.options.map((opt, idx) => `
               <div class="p-3 rounded-xl border ${idx === tempQ.correct_index ? 'bg-emerald-50 border-emerald-400 text-emerald-800 font-bold' : 'bg-slate-50 border-slate-200'}">
-                (${['أ', 'ب', 'ج', 'د'][idx]}) ${formatMathArabic(opt)}
+                (${['أ', 'ب', 'ج', 'د'][idx]}) ${formatOptionDisplay(opt)}
               </div>
             `).join('')}
           </div>
